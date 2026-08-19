@@ -176,8 +176,8 @@ def test_read_rows_filters_by_event_types(tmp_path):
 def test_read_rows_skips_malformed_rows_without_crashing(tmp_path):
     csv_path = tmp_path / "tracker.csv"
     # Write a well-formed row via the library, then hand-corrupt the file by
-    # appending malformed lines (wrong column count, missing occurred_at,
-    # garbage line).
+    # appending malformed lines (garbage line, missing occurred_at, blank
+    # occurred_at, unrecognized event_type, too many columns).
     tracker_io.append_row(
         csv_path, "2026-01-01T00:00:00Z", "report_generated", "Good", [], "r1"
     )
@@ -185,12 +185,30 @@ def test_read_rows_skips_malformed_rows_without_crashing(tmp_path):
         f.write("this is not,a valid,row at all\n")
         f.write(",project_started,Missing occurred_at,,r1,,,\n")
         f.write("2026-01-02T00:00:00Z,project_started,Extra,,r1,,,,,,too,many,cols\n")
+        f.write("2026-01-03T00:00:00Z,not_a_real_event,Bad type,,r1,,,\n")
 
     rows = tracker_io.read_rows(csv_path)
 
     # Only the well-formed row should survive; malformed rows are skipped,
-    # not raised.
-    assert any(r["item_name"] == "Good" for r in rows)
+    # not raised, and must not appear in the returned rows at all.
+    item_names = {r["item_name"] for r in rows}
+    assert item_names == {"Good"}
+    assert "row at all" not in item_names
+    assert "Missing occurred_at" not in item_names
+    assert "Bad type" not in item_names
+
+
+def test_read_rows_excludes_blank_occurred_at_row(tmp_path):
+    csv_path = tmp_path / "tracker.csv"
+    tracker_io.append_row(
+        csv_path, "2026-01-01T00:00:00Z", "report_generated", "Good", [], "r1"
+    )
+    with open(csv_path, "a", newline="") as f:
+        f.write(",project_started,Blank timestamp,,r1,,,\n")
+
+    rows = tracker_io.read_rows(csv_path)
+
+    assert {r["item_name"] for r in rows} == {"Good"}
 
 
 def test_read_rows_since_and_event_types_combined(tmp_path):

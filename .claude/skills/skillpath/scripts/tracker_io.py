@@ -9,6 +9,7 @@ import argparse
 import csv
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 COLUMNS = [
@@ -93,9 +94,27 @@ def read_rows(
         reader = csv.DictReader(f)
         for raw in reader:
             try:
+                # csv.DictReader stows any columns beyond COLUMNS under the
+                # None key (a ragged/hand-edited row with extra fields) —
+                # treat that as malformed too.
+                if raw.get(None) is not None:
+                    continue
+                if any(v is None for v in raw.values()):
+                    # Row is short (fewer fields than COLUMNS) — DictReader
+                    # fills missing trailing columns with None.
+                    continue
+
                 occurred_at = raw["occurred_at"]
                 event_type = raw["event_type"]
-                if occurred_at is None or event_type is None:
+
+                if not event_type or event_type not in ALLOWED_EVENT_TYPES:
+                    continue
+
+                if not occurred_at:
+                    continue
+                try:
+                    datetime.fromisoformat(occurred_at.replace("Z", "+00:00"))
+                except ValueError:
                     continue
 
                 if since is not None and occurred_at < since:
