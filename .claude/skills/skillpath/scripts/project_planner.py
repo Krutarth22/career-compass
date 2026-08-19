@@ -37,6 +37,23 @@ full writeup):
 - "Marginal score of 0" (the stated stop condition) is treated as
   `<= 0` defensively, though scores are only ever built from non-negative
   gap_weight terms so they never go negative in practice.
+- **Capstone prerequisites are mandatory, budget-unconstrained, and
+  excluded from `shortfall`.** `sequence_projects` unconditionally pulls
+  in any of the capstone's own `project_prerequisites` not already in the
+  gap-driven `selected_core` set — no budget check, because once the
+  capstone is in scope its prerequisites aren't optional. Two
+  consequences, both deliberate:
+  1. `plan()`'s `total_hours` sums the *final* sequenced list, so it
+     includes these forced additions and can therefore exceed
+     `budget_hours` even when `shortfall` is `false` — this is intended,
+     not a bug.
+  2. `shortfall` is computed from `len(selected_core)` — the gap-driven
+     greedy selection's own output, *before* capstone-forced prerequisite
+     additions — not from the final sequenced list's core count. This
+     keeps a capstone's mandatory (budget-unconstrained) prerequisites
+     from masking a genuine shortfall (e.g. 0-1 real gap-covering core
+     projects selected) by inflating the apparent core count with
+     additions that cover no gap and were never budget-checked.
 """
 
 from __future__ import annotations
@@ -348,8 +365,14 @@ def plan(
 
     Returns {"projects": [...ordered final sequence...],
     "total_hours": float, "budget_hours": float, "shortfall": bool}.
-    shortfall is True when fewer than 2 core (non-capstone) projects ended
-    up in the final sequence.
+    shortfall is True when fewer than 2 core projects were selected by the
+    gap-driven greedy loop (select_core_projects' own output) — this is
+    computed BEFORE any capstone-forced project_prerequisites are added by
+    sequence_projects, so a capstone's mandatory (budget-unconstrained)
+    prerequisites never mask a genuine shortfall. total_hours, by
+    contrast, is summed over the final sequence and so DOES include those
+    forced additions — it can exceed budget_hours even when shortfall is
+    False. See the module docstring for the full rationale.
     """
     core_templates = [
         t for t in track_templates if (t.get("frontmatter") or {}).get("role") == "core"
@@ -377,9 +400,18 @@ def plan(
         + t.get("unmet_prerequisite_hours", 0)
         for t in sequenced
     )
-    core_count = sum(
-        1 for t in sequenced if (t.get("frontmatter") or {}).get("role") != "capstone"
-    )
+    # shortfall reflects whether the GAP-DRIVEN greedy selection produced
+    # enough real core projects — deliberately computed from
+    # `selected_core` (select_core_projects' own output), not from
+    # `sequenced`. sequence_projects can force in additional core-role
+    # templates that the capstone requires as project_prerequisites even
+    # though they cover no gap and were never budget-checked; counting
+    # those toward core_count would let a capstone's mandatory
+    # prerequisites mask a genuine shortfall (0-1 real core projects
+    # selected) by inflating the apparent count with budget-unconstrained
+    # forced additions. See module docstring for the corresponding
+    # total_hours-can-exceed-budget_hours-even-when-shortfall-is-false note.
+    core_count = len(selected_core)
 
     return {
         "projects": sequenced,

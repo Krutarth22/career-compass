@@ -305,6 +305,78 @@ def test_plan_no_shortfall_when_two_or_more_core_projects_selected():
 
 
 # ---------------------------------------------------------------------------
+# plan — capstone-forced project_prerequisites must not mask shortfall
+# ---------------------------------------------------------------------------
+
+
+def test_plan_capstone_forced_prerequisite_does_not_mask_real_shortfall():
+    # The gap-driven greedy loop covers zero gaps (no template's skill_tags
+    # match any open gap), so select_core_projects picks nothing. The
+    # capstone requires two unrelated "foundation" core templates as its
+    # own project_prerequisites — those get force-included by
+    # sequence_projects regardless of budget/gap coverage. Before the fix,
+    # counting those forced additions as "core" would have produced
+    # core_count == 2 -> shortfall False, incorrectly masking the fact
+    # that the real gap-driven selection found 0 usable projects.
+    gaps = [make_gap("kubernetes", tier="High", status="open")]  # nothing covers this
+    foundation_a = make_template("00-foundation-a.md", estimated_hours=5, skill_tags=["python"])
+    foundation_b = make_template("01-foundation-b.md", estimated_hours=5, skill_tags=["sql"])
+    capstone = make_template(
+        "99-capstone.md",
+        role="capstone",
+        estimated_hours=20,
+        skill_tags=["kubernetes"],
+        project_prerequisites=["00-foundation-a.md", "01-foundation-b.md"],
+    )
+    track_templates = [foundation_a, foundation_b, capstone]
+    profile = {"current_skills": []}
+
+    result = pp.plan(track_templates, gaps, profile, budget_hours=100)
+
+    # Both forced prerequisites still show up in the final sequence, ahead
+    # of the capstone, and their hours are still counted.
+    filenames = [p["_filename"] for p in result["projects"]]
+    assert filenames == ["00-foundation-a.md", "01-foundation-b.md", "99-capstone.md"]
+    assert result["total_hours"] == 5 + 5 + 20
+
+    # But shortfall reflects the gap-driven selection (0 real core
+    # projects), not the capstone-forced count (2).
+    assert result["shortfall"] is True
+
+
+def test_plan_capstone_forced_prerequisite_with_real_coverage_no_shortfall():
+    # Contrast case: the gap-driven greedy loop DOES select 2+ real core
+    # projects, and the capstone additionally forces in one more
+    # unrelated prerequisite. shortfall should stay False (2 real core
+    # projects were selected), while total_hours still includes the
+    # forced addition's cost on top of everything else.
+    gaps = [
+        make_gap("rag", tier="High", status="open"),
+        make_gap("docker", tier="High", status="open"),
+    ]
+    t1 = make_template("01-rag.md", estimated_hours=10, skill_tags=["rag"])
+    t2 = make_template("02-docker.md", estimated_hours=10, skill_tags=["docker"])
+    forced = make_template("00-forced.md", estimated_hours=3, skill_tags=[])
+    capstone = make_template(
+        "99-capstone.md",
+        role="capstone",
+        estimated_hours=20,
+        skill_tags=["rag", "docker"],
+        project_prerequisites=["00-forced.md"],
+    )
+    track_templates = [t1, t2, forced, capstone]
+    profile = {"current_skills": []}
+
+    result = pp.plan(track_templates, gaps, profile, budget_hours=100)
+
+    filenames = [p["_filename"] for p in result["projects"]]
+    assert "00-forced.md" in filenames
+    assert filenames[-1] == "99-capstone.md"
+    assert result["total_hours"] == 10 + 10 + 3 + 20
+    assert result["shortfall"] is False
+
+
+# ---------------------------------------------------------------------------
 # sequence_projects — capstone always last
 # ---------------------------------------------------------------------------
 
