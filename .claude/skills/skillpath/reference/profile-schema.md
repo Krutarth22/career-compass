@@ -36,6 +36,21 @@ Field notes:
   `proficiency` is one of exactly three values: `aware`, `practiced`,
   `proficient` (least to most confident). `evidence` is a free-text optional
   field giving a concrete example backing the claimed proficiency.
+- `skill` is **free text the user typed** ("CAD Design", "Python", "Excel")
+  — deliberately so, since `profile.yaml` is meant to stay hand-editable
+  without anyone consulting the taxonomy. It is **resolved to a canonical
+  `skill_id` at run time**, not stored resolved in the file: skillpath runs
+  `resolution.py resolve-profile-skills` over `current_skills` (see
+  `SKILL.md` Step 2b) which returns the same entries with a `skill_id` key
+  added — the canonical id from
+  [`skill-taxonomy.yaml`](./skill-taxonomy.yaml), or a provisional slug when
+  the skill has no taxonomy entry — while leaving `skill` intact for
+  display. Everything downstream that compares a profile skill against the
+  taxonomy (`gap_state.reconcile_assessments`' Pass-1 coverage check,
+  `project_planner.plan`'s prerequisite-satisfaction check) reads `skill_id`
+  and never `skill`. Nothing ever writes `skill_id` back into
+  `profile.yaml`; each run re-resolves from the free text, so the file
+  automatically picks up taxonomy additions.
 - `target_level` (e.g. "Senior ML Engineer", "Staff") is optional — when
   present it is used for level-aware resolution (see
   [`track-aliases.md`](./track-aliases.md) for how level words are stripped

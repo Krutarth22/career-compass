@@ -56,7 +56,7 @@ All six scripts are invoked from `${CLAUDE_SKILL_DIR}/scripts/`:
 | `profile_io.py` | `load`, `merge` (no `save` subcommand) | Step 1, 2 |
 | `tracker_io.py` | `append`, `read` (also has `last-report`, unused below -- `report_state.py last` is called directly instead) | Step 1, 2, 9 |
 | `report_state.py` | `read`, `last` (no `write-report` subcommand) | Step 2, 9 |
-| `resolution.py` | `resolve-skill`, `resolve-track` | Step 1, 3, 5 |
+| `resolution.py` | `resolve-skill`, `resolve-profile-skills`, `resolve-track` | Step 1, 2, 3, 5 |
 | `gap_state.py` | none -- pure function, no `__main__` at all | Step 4 |
 | `project_planner.py` | `plan` | Step 6 |
 
@@ -168,6 +168,37 @@ Prints the newest report's frontmatter dict, or `null` if none exists (or
 the newest one is corrupt) -- treat `null` as "no prior report" throughout
 (skip Step 8 entirely, and Step 4's `prior_assessments` is `[]`).
 
+### Step 2b -- Resolve the profile's skills to canonical ids (mandatory)
+
+`profile.yaml`'s `current_skills[].skill` is free text the user typed ("CAD
+Design", "Python", "Excel"). Both Step 4's `reconcile_assessments` and Step
+6's `project_planner.py plan` match a profile skill against **canonical
+taxonomy ids** via each entry's `skill_id` key, and ignore the free-text
+`skill` field entirely. **This resolution step is not optional and must run
+here, before Step 4 and Step 6** -- skip it and the user's real skills cover
+nothing, so genuine strengths are reported as open gaps and already-held
+project prerequisites get charged relearning hours.
+
+Write the profile's `current_skills` list (just that list) to
+`${PROJECT_ROOT}/roadmaps/.tmp/current_skills_raw.json`, then:
+
+```bash
+mkdir -p "${PROJECT_ROOT}/roadmaps/.tmp"
+python3 "${CLAUDE_SKILL_DIR}/scripts/resolution.py" resolve-profile-skills \
+  --current-skills "${PROJECT_ROOT}/roadmaps/.tmp/current_skills_raw.json" \
+  --taxonomy "${CLAUDE_SKILL_DIR}/reference/skill-taxonomy.yaml"
+```
+
+This prints the same list of entries with a `skill_id` key added to each
+(the canonical id, or a provisional slug when the skill isn't in the
+taxonomy); the original `skill` text is preserved for display. Save that
+output as `${PROJECT_ROOT}/roadmaps/.tmp/profile_skills.json` -- it is the
+exact file Step 6 passes as `--profile-skills`, and the same resolved list
+must replace `current_skills` in the profile dict written as
+`${PROJECT_ROOT}/roadmaps/.tmp/profile.json` for Step 4. Do **not** write
+these resolved ids back into `profile.yaml`; the saved profile stays
+human-editable free text and is re-resolved on every run.
+
 ## Step 3 -- Research target requirements
 
 Follow `reference/research-protocol.md` in full. This step is the model's
@@ -197,9 +228,10 @@ own confidence is low regardless of apparent frequency/centrality).
 `gap_state.py` has no CLI -- `reconcile_assessments` is a pure Python
 function only. Write its four inputs to `${PROJECT_ROOT}/roadmaps/.tmp/` as
 JSON (the tiered requirements list as
-`[{"skill_id": ..., "tier": ...}, ...]`, the loaded profile dict, the prior
-report's `gap_assessments` list -- `[]` if no prior report -- and the
-tracker rows list), then:
+`[{"skill_id": ..., "tier": ...}, ...]`, the loaded profile dict **with its
+`current_skills` replaced by Step 2b's resolved list** -- entries without a
+`skill_id` cover nothing -- the prior report's `gap_assessments` list --
+`[]` if no prior report -- and the tracker rows list), then:
 
 ```bash
 mkdir -p "${PROJECT_ROOT}/roadmaps/.tmp"
@@ -251,8 +283,9 @@ arguments as **paths to JSON files**, not inline JSON -- write them to
 `${PROJECT_ROOT}/roadmaps/.tmp/` first:
 
 - `gaps.json` -- the fresh `gap_assessments` list from Step 4.
-- `profile_skills.json` -- the profile's `current_skills` list (just that
-  list, not the whole profile).
+- `profile_skills.json` -- Step 2b's **resolved** `current_skills` list
+  (just that list, not the whole profile). It must be the resolved list:
+  `plan` reads each entry's `skill_id`, never its free-text `skill`.
 
 Then:
 
@@ -333,6 +366,43 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/tracker_io.py" append \
   --related-skill-ids "<pipe-separated skill ids covered by this run's gap_assessments, optional>" \
   --report-id "<the report_id from the frontmatter>"
 ```
+
+### Recording completions (the `practiced` lifecycle state)
+
+A gap only reaches `practiced` when a `project_completed` or
+`course_completed` tracker row exists for it (or the profile already claims
+it at practiced/proficient). Nothing else creates those rows, so record them
+explicitly:
+
+**If the user states at ANY point in the conversation -- during the initial
+prompt, mid-run, or after the report is delivered -- that they completed a
+project or a course, append the matching tracker row immediately.** Do not
+wait for Step 9, and do not treat this as implied by report generation.
+
+1. Resolve each skill the completed item covers to a canonical id (for a
+   project template, use its `skill_tags` verbatim; otherwise run
+   `resolution.py resolve-skill` on each skill the user names):
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/resolution.py" resolve-skill "<free text>"
+   ```
+2. Append the row, using `project_completed` for a hands-on project and
+   `course_completed` for a course:
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/tracker_io.py" append \
+     "${PROJECT_ROOT}/tracker/skillpath_tracker.csv" \
+     --occurred-at "<completion timestamp, UTC ISO8601; now if unstated>" \
+     --event-type project_completed \
+     --item-name "<the project or course name the user gave>" \
+     --related-skill-ids "<pipe-separated resolved skill ids>" \
+     --report-id "<report_id of the most recent report, or empty string>" \
+     --notes "<what they built/finished, or empty>"
+   ```
+   (`--confirmed-for-target-role`/`--confirmed-for-target-level` are for
+   `skill_confirmed` rows only -- leave them off here.)
+3. Tell the user which skill ids the completion was recorded against, so a
+   mis-mapped skill can be corrected. To move a skill the rest of the way
+   from `practiced` to `confirmed-closed`, they run
+   `/skillpath confirm "<skill>" "<evidence>"` (Step 1).
 
 If Step 1 was an `override` run, ask now (once) whether to save the
 override permanently; on an explicit yes, save via:

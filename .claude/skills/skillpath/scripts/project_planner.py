@@ -123,7 +123,8 @@ def unmet_prerequisite_hours(template: dict, profile_skill_ids: set[str]) -> int
     """template["prerequisite_learning_hours"] if any of its
     skill_prerequisites is NOT already held (at practiced/proficient) per
     profile_skill_ids, else 0. `profile_skill_ids` is precomputed by the
-    caller from profile["current_skills"] (skills at practiced/proficient).
+    caller from profile["current_skills"] (skills at practiced/proficient),
+    using each entry's already-resolved canonical `skill_id`.
     """
     fm = template.get("frontmatter") or {}
     skill_prereqs = fm.get("skill_prerequisites") or []
@@ -382,10 +383,16 @@ def plan(
     ]
     capstone = capstone_templates[0] if capstone_templates else None
 
+    # PROFILE CONTRACT: current_skills entries are read by their `skill_id`
+    # key (a canonical taxonomy id), not the free-text `skill` field the
+    # user typed into profile.yaml. The caller must have resolved them via
+    # resolution.resolve_profile_skills first; entries without a skill_id
+    # satisfy no prerequisite.
     profile_skill_ids = {
-        entry.get("skill")
+        entry.get("skill_id")
         for entry in (profile.get("current_skills") or [])
         if entry.get("proficiency") in CONFIRMED_PROFICIENCIES
+        and entry.get("skill_id")
     }
 
     filtered_gaps = filter_gap_assessments(gap_assessments)
@@ -450,7 +457,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     plan_p.add_argument(
         "--profile-skills",
         required=True,
-        help="Path to a JSON file containing the profile's current_skills list",
+        help=(
+            "Path to a JSON file containing the profile's current_skills list, "
+            "already resolved to canonical ids (each entry carrying a skill_id "
+            "key, as produced by resolution.py resolve-profile-skills)"
+        ),
     )
     plan_p.add_argument("--budget-hours", required=True, type=float)
 

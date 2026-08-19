@@ -6,6 +6,16 @@ prior report's `gap_assessments`, and tracker CSV rows themselves (via
 profile_io / report_state / tracker_io) and pass the already-loaded plain
 dicts/lists in here.
 
+PROFILE CONTRACT: `profile["current_skills"]` entries are matched by their
+`skill_id` key, which must already hold a canonical taxonomy id. The `skill`
+key in profile.yaml is free text a human typed ("CAD Design", "Python") and
+is NEVER compared here. The caller is responsible for running
+`resolution.resolve_profile_skills(current_skills, taxonomy)` (which returns
+the same entries with `skill_id` added) before handing the profile to this
+module. gap_state.py deliberately does not import resolution.py, so it
+cannot do this itself; an entry with no `skill_id` simply never covers
+anything.
+
 Lifecycle: open -> practiced -> confirmed-closed, where a `skill_confirmed`
 tracker event only closes a gap when it was recorded against the CURRENT
 run's target_role/target_level; a confirmation recorded for a different
@@ -45,12 +55,16 @@ def _resolve_first_seen(
 
 def _pass1_covered(skill_id: str, profile: dict) -> bool:
     """Step 2: does profile["current_skills"] show this skill_id at
-    practiced/proficient proficiency? Matches by exact skill_id — the
-    caller must have already resolved profile skill text to IDs.
+    practiced/proficient proficiency?
+
+    Matches against each entry's `skill_id` (the canonical taxonomy id),
+    NOT its free-text `skill` field — the caller must have already resolved
+    profile skill text to ids via resolution.resolve_profile_skills (see the
+    module docstring's PROFILE CONTRACT).
     """
     current_skills = (profile or {}).get("current_skills") or []
     for entry in current_skills:
-        if entry.get("skill") == skill_id and entry.get("proficiency") in CONFIRMED_PROFICIENCIES:
+        if entry.get("skill_id") == skill_id and entry.get("proficiency") in CONFIRMED_PROFICIENCIES:
             return True
     return False
 
@@ -131,6 +145,10 @@ def reconcile_assessments(
     now: datetime | None = None,
 ) -> list[dict]:
     """Reconcile this run's gap_assessments from scratch.
+
+    `profile` must already carry resolved canonical ids on its
+    `current_skills` entries' `skill_id` key — see the module docstring's
+    PROFILE CONTRACT.
 
     Returns a list of {skill_id, tier, status, first_seen_at,
     first_seen_report_id} dicts, one per input requirement, in the same
