@@ -131,3 +131,54 @@ def test_cli_merge_prints_json(tmp_path, capsys):
     out = capsys.readouterr().out
     assert '"mode": "override"' in out
     assert "Staff ML Engineer" in out
+
+
+# ---------------------------------------------------------------------------
+# CLI date serialization regression (C2)
+#
+# An unquoted `last_updated: 2026-08-19` in YAML parses to a datetime.date,
+# which json.dumps cannot serialize by default. The CLI used to crash on the
+# very first script call of the documented onboarding flow.
+# ---------------------------------------------------------------------------
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+PROFILE_IO_SCRIPT = (
+    REPO_ROOT / ".claude" / "skills" / "skillpath" / "scripts" / "profile_io.py"
+)
+PROFILE_EXAMPLE = REPO_ROOT / "profile.yaml.example"
+
+
+def test_cli_load_shipped_profile_example_does_not_crash_on_date(capsys):
+    exit_code = profile_io.main(["load", str(PROFILE_EXAMPLE)])
+    assert exit_code == 0
+    out = capsys.readouterr().out
+    parsed = json.loads(out)
+    assert parsed["last_updated"] == "2026-08-19"
+
+
+def test_cli_merge_shipped_profile_example_does_not_crash_on_date(capsys):
+    exit_code = profile_io.main(
+        ["merge", str(PROFILE_EXAMPLE), "--target-state", "Staff ML Engineer"]
+    )
+    assert exit_code == 0
+    parsed = json.loads(capsys.readouterr().out)
+    assert parsed["mode"] == "override"
+    assert parsed["profile"]["last_updated"] == "2026-08-19"
+
+
+def test_cli_load_via_subprocess_exits_zero():
+    """End-to-end through the real interpreter, matching the documented
+    onboarding invocation exactly.
+    """
+    proc = subprocess.run(
+        [sys.executable, str(PROFILE_IO_SCRIPT), "load", str(PROFILE_EXAMPLE)],
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert json.loads(proc.stdout)["current_role"] == "Mechanical Engineer"

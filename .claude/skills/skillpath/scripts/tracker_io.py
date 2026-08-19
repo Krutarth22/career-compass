@@ -193,16 +193,16 @@ def main(argv=None) -> int:
                 confirmed_for_target_role=ns.confirmed_for_target_role,
                 confirmed_for_target_level=ns.confirmed_for_target_level,
             )
-            print(json.dumps({"ok": True}))
+            print(json.dumps({"ok": True}, default=str))
             return 0
         if ns.command == "read":
             event_types = ns.event_types.split(",") if ns.event_types else None
             rows = read_rows(ns.csv_path, since=ns.since, event_types=event_types)
-            print(json.dumps(rows))
+            print(json.dumps(rows, default=str))
             return 0
         if ns.command == "last-report":
             meta = get_last_report_meta(ns.roadmaps_dir)
-            print(json.dumps(meta))
+            print(json.dumps(meta, default=str))
             return 0
     except Exception as exc:  # noqa: BLE001
         print(f"error: {exc}", file=sys.stderr)

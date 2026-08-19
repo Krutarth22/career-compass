@@ -101,7 +101,7 @@ def main(argv=None) -> int:
     try:
         if ns.command == "load":
             result = load_profile(ns.path)
-            print(json.dumps(result))
+            print(json.dumps(result, default=str))
             return 0
         if ns.command == "merge":
             existing = load_profile(ns.path)
@@ -109,7 +109,7 @@ def main(argv=None) -> int:
                 existing,
                 {"current_state": ns.current_state, "target_state": ns.target_state},
             )
-            print(json.dumps({"profile": effective, "mode": mode}))
+            print(json.dumps({"profile": effective, "mode": mode}, default=str))
             return 0
     except Exception as exc:  # noqa: BLE001
         print(f"error: {exc}", file=sys.stderr)
