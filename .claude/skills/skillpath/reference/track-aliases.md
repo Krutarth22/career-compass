@@ -54,5 +54,28 @@ follows:
 Adding a new track means adding both a new top-level key here (with a
 reasonably exhaustive alias list covering common real-world phrasings and
 abbreviations) and a matching template directory under
-`.claude/skills/skillpath/templates/<track-id>/`. Currently only
-`ai-ml-engineer` is seeded, per Task 7's scope.
+`.claude/skills/skillpath/templates/<track-id>/`. Currently seeded:
+`ai-engineer`, `ml-engineer`, `data-engineer`, `data-analyst`,
+`data-scientist`.
+
+`ai-engineer` and `ml-engineer` are deliberately separate tracks, not one
+merged "AI/ML Engineer" track: live research (job postings and
+practitioner sources, current as of August 2026) consistently draws the
+line as model-building vs. model-using. An ML Engineer builds, trains, and
+operates custom models — the model is the product, and the role expects
+production coding plus ML fundamentals (feature engineering, training,
+deployment, monitoring). An AI Engineer builds product features on top of
+existing foundation models via APIs, RAG, and agents — the model is a
+dependency, and the role centers on integration, evaluation, and
+LLM-application observability rather than training. Someone targeting
+"AI/ML Engineer" loosely should be asked (or should pick) which of the two
+they actually mean; the aliases below do not merge them.
+
+`business intelligence engineer`/`bi engineer` resolve to `data-engineer`, not
+`data-analyst`, on the same evidence basis: live research shows the role
+centers on ETL pipelines, data warehouse/model design, and tools like
+Airflow/Redshift/BigQuery/Snowflake — data-engineering work. `business
+intelligence analyst`/`bi analyst`, by contrast, is SQL + dashboarding
+(Tableau/Power BI) + stakeholder reporting — the same day-to-day as
+`data-analyst`, so it stays aliased there rather than becoming its own
+track; research found no distinct skill set to justify a split.

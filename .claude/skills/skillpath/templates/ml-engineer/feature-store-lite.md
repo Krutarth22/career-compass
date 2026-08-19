@@ -1,6 +1,6 @@
 ---
 title: "Feature Store Lite: Batch + Online Lookup"
-track: "ai-ml-engineer"
+track: "ml-engineer"
 difficulty_tier: "beginner"
 estimated_hours: 12
 role: "core"

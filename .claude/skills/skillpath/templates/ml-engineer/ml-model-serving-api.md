@@ -1,6 +1,6 @@
 ---
 title: "ML Model Serving API with Monitoring"
-track: "ai-ml-engineer"
+track: "ml-engineer"
 difficulty_tier: "intermediate"
 estimated_hours: 15
 role: "core"

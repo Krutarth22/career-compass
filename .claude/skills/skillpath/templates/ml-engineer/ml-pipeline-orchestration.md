@@ -1,6 +1,6 @@
 ---
 title: "Orchestrating a Multi-Step ML Pipeline"
-track: "ai-ml-engineer"
+track: "ml-engineer"
 difficulty_tier: "intermediate"
 estimated_hours: 14
 role: "core"

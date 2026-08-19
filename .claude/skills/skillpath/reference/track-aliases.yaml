@@ -11,13 +11,49 @@
 #   aliases: [string]       # lowercase, level-word-stripped phrasings that
 #                            # should resolve to this track
 
-ai-ml-engineer:
+ai-engineer:
   aliases:
     - "ai engineer"
+    - "artificial intelligence engineer"
+    - "llm engineer"
+    - "generative ai engineer"
+    - "genai engineer"
+    - "applied ai engineer"
+    - "ai product engineer"
+    - "prompt engineer"
+
+ml-engineer:
+  aliases:
     - "ml engineer"
     - "machine learning engineer"
-    - "ai/ml engineer"
-    - "applied scientist (ai)"
     - "mle"
-    - "artificial intelligence engineer"
-    - "ai/ml"
+    - "applied machine learning engineer"
+    - "ml infrastructure engineer"
+    - "machine learning infrastructure engineer"
+
+data-engineer:
+  aliases:
+    - "data engineer"
+    - "data engineering"
+    - "big data engineer"
+    - "etl engineer"
+    - "analytics engineer"
+    - "data platform engineer"
+    - "business intelligence engineer"
+    - "bi engineer"
+
+data-analyst:
+  aliases:
+    - "data analyst"
+    - "data analytics"
+    - "business analyst"
+    - "business intelligence analyst"
+    - "bi analyst"
+    - "reporting analyst"
+
+data-scientist:
+  aliases:
+    - "data scientist"
+    - "data science"
+    - "machine learning scientist"
+    - "quantitative analyst"

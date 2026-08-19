@@ -16,8 +16,8 @@ Project templates live under
    Notes`, `Steps`, `Extension Ideas`, `Skills Demonstrated`).
 2. Look at two worked examples in the same directory for what a finished
    template reads like:
-   `ai-ml-engineer/rag-pipeline-with-eval.md` and
-   `ai-ml-engineer/ml-model-serving-api.md`.
+   `ai-engineer/rag-pipeline-with-eval.md` and
+   `ml-engineer/ml-model-serving-api.md`.
 3. Every `skill_tags` and `skill_prerequisites` entry must resolve to an
    `id` that already exists in
    [`skill-taxonomy.yaml`](.claude/skills/skillpath/reference/skill-taxonomy.yaml).
@@ -77,8 +77,9 @@ reviewed addition rather than something research auto-generates.
 
 ## Adding a new track
 
-Currently only `ai-ml-engineer` is seeded. To add another track (e.g.
-`data-engineer`), mirror its structure:
+Currently seeded: `ai-engineer`, `ml-engineer`, `data-engineer`,
+`data-analyst`, `data-scientist`. To add another track, mirror their
+structure:
 
 1. Create `.claude/skills/skillpath/templates/<new-track-id>/` and add
    project templates to it following the same rules as above — a `title`,

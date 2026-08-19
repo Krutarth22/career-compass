@@ -1,138 +1,191 @@
 # skillpath
 
-skillpath is a [Claude Code](https://claude.com/claude-code) skill that plans
-a career transition. Point it at where you are and where you want to be, and
-it researches the target role's *current* live requirements, reconciles them
-against a tracked history of skills you've already closed, sequences a set of
-hands-on projects to close what's left, surfaces course resources for any
-remaining gaps, and writes a dated roadmap report to disk — every time you
-run it, not just once.
+skillpath is a project-scoped [Claude Code](https://claude.com/claude-code)
+skill for planning a career transition. It researches current expectations for
+your target role, compares them with your existing skills and evidence, builds
+a sequenced portfolio-project plan, finds learning resources for uncovered
+gaps, and saves a dated roadmap that evolves as you make progress.
 
-It ships as two skills that live together in this repo:
+The repository includes two skills:
 
-- **`skillpath`** — the main, explicit-invocation-only skill. It never fires
-  from ambient conversation; only a user typing `/skillpath ...` triggers it,
-  because it writes personal files to your project.
-- **`find-courses`** — a small, read-only skill that finds 2-3 real learning
-  resources for a single skill. It's usable on its own
-  (`/find-courses <skill>`) and is also called in-process by `skillpath`
-  itself when composing a roadmap.
+- **`/skillpath`** builds and updates the complete career roadmap. It only runs
+  when explicitly invoked because it writes personal state to the repository.
+- **`/find-courses`** searches for 2–3 current learning resources for one skill.
+  It can run independently or as part of `/skillpath`.
+
+## Requirements
+
+- [Claude Code](https://claude.com/claude-code), installed and authenticated
+- Git
+- Python 3.11 or newer
+- Internet access for target-role and course research
 
 ## Installation
 
-skillpath is **not** a drop-in-anywhere skill you copy into an unrelated
-project's `.claude/skills/` folder. It's packaged and versioned as a whole
-repository — the same convention as
-[career-ops](https://github.com/santifer/career-ops) and
-[ai-job-search](https://github.com/MadsLorentzen/ai-job-search) — so
-that its bundled reference docs, project templates, and skill taxonomy stay
-in lockstep with the scripts that read them.
-
-To use it, clone this repository and work from inside it:
+Clone the repository and create an isolated Python environment:
 
 ```bash
-git clone <this-repo-url>
-cd career_path_skills
+git clone https://github.com/Krutarth-Majithia/skillpath.git
+cd skillpath
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e .
 ```
 
-Claude Code picks up `.claude/skills/skillpath/` and
-`.claude/skills/find-courses/` automatically once you're working inside the
-clone. `profile.yaml`, `tracker/skillpath_tracker.csv`, and your generated
-roadmaps under `roadmaps/` all get created in this same working copy as you
-use the skill — that's also why it needs to be a real clone, not a single
-folder pasted into some other project: it needs a stable root to write its
-own state relative to.
+On Windows PowerShell, activate the environment with:
 
-If you want dependencies installed for running the test suite or the
-linter locally:
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+Start Claude Code from the repository root while the environment is active:
 
 ```bash
-pip install -e ".[dev]"
+claude
 ```
 
-(skillpath's runtime scripts only need `pyyaml`; `pytest` is dev-only.)
+Claude Code discovers both skills from `.claude/skills/`. Keep the repository
+as the working directory when using them: the bundled scripts, references, and
+templates are resolved from this clone, and generated state is stored here.
 
-## Quickstart
+For development, install the test dependency too:
 
-Generate (or update) your roadmap:
-
+```bash
+python -m pip install -e ".[dev]"
 ```
-/skillpath "<current-state>" "<target-state>"
-```
 
-For example:
+## Usage
 
-```
+Create your first roadmap by describing your starting point and target role:
+
+```text
 /skillpath "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
 ```
 
-The first time you run this in a fresh clone, skillpath doesn't yet have a
-`profile.yaml` and will walk you through a short conversational setup
-(current role, years of experience, current skills with proficiency and
-evidence, target role/level, location, time budget, etc.). After that, running
-`/skillpath` again with no arguments reuses your saved profile as-is; running
-it again *with* arguments applies them as a one-off override for that run
-only (you're asked afterward whether to save the override permanently).
+On the first run, skillpath asks for any missing profile details, such as your
+experience, demonstrated skills, location, constraints, and weekly time budget.
+Later runs can reuse the saved profile:
 
-Confirm a skill you've since demonstrated (via a project, a job, a
-certification — whatever counts as real evidence), which reconciles it out of
-your open-gap list on the next roadmap run:
-
-```
-/skillpath confirm "<skill>"
+```text
+/skillpath
 ```
 
-Find learning resources for one specific skill, independent of a full
-roadmap run:
+Arguments supplied on a later run are temporary overrides unless you choose to
+save them to the profile.
 
-```
-/find-courses <skill>
-```
+When you have evidence that you can apply a skill, confirm it so future reports
+can close the corresponding gap:
 
-Each roadmap run writes a new dated report to `roadmaps/report-*.md`,
-containing a "Since Last Report" diff against your previous run, a gap
-heatmap, a sequenced project plan, and course resources for anything not
-covered by a project.
-
-## Privacy note
-
-skillpath's whole point is to work with *your* career data, and that data is
-kept out of version control on purpose. The following files are listed in
-`.gitignore` and will not be committed as part of normal use:
-
-- `profile.yaml` — your current/target role, skills, proficiencies, evidence,
-  constraints, and time budget.
-- `roadmaps/report-*.md` — every generated roadmap report, which includes
-  your gap assessments and study plan.
-- `tracker/skillpath_tracker.csv` — the append-only event history (skills
-  confirmed, projects completed, reports generated) that reports are
-  reconciled against.
-
-If you fork or clone this repository to use skillpath for yourself, **don't
-commit these files** — they're meant to stay local to your machine.
-`profile.yaml.example` and `tracker/skillpath_tracker.csv.example` are
-checked in as illustrative samples only; they are not your data and are safe
-to look at, edit, or leave alone.
-
-## Repository layout
-
-```
-.claude/skills/skillpath/       the main skill: SKILL.md, scripts/, reference/, templates/
-.claude/skills/find-courses/    the course-finder skill: SKILL.md
-tests/                          pytest suite for the eight Python modules under scripts/
-profile.yaml.example            sample profile (not your data)
-tracker/skillpath_tracker.csv.example   sample tracker history (not your data)
-roadmaps/                       generated reports land here (gitignored per-report)
+```text
+/skillpath confirm "model deployment"
 ```
 
-## Running the tests and linter
+To research learning resources without generating a full roadmap:
+
+```text
+/find-courses feature engineering
+```
+
+Each roadmap run creates a timestamped file under `roadmaps/` with:
+
+- sourced target-role requirements;
+- a gap assessment and gap lifecycle status;
+- a sequenced, time-budgeted project plan when a template track is available;
+- courses for gaps not covered by projects; and
+- a “Since Last Report” summary of changes from the previous run.
+
+## Implementation
+
+The skill deliberately separates research and conversational judgment from
+state handling and planning logic:
+
+1. **Parse and merge the profile.** Claude gathers missing details and
+   `profile_io.py` applies the documented merge rules without silently
+   overwriting the saved profile.
+2. **Load prior state.** The latest roadmap and the append-only tracker are
+   loaded so progress carries across runs.
+3. **Resolve names.** `resolution.py` maps free-text skills to stable taxonomy
+   IDs and maps the target role to a supported template track. Unmapped skills
+   remain visible as provisional gaps instead of stopping the run.
+4. **Research the target role.** Claude searches current job-market sources,
+   records citations, and tiers requirements by importance using the research
+   protocol in `reference/target-role-research.md`.
+5. **Reconcile gaps.** `gap_state.py` compares requirements with profile
+   evidence and tracker events. Gaps move through `open`, `practiced`, and
+   `confirmed-closed` states.
+6. **Build the project sequence.** For a resolved track,
+   `project_planner.py` deterministically selects templates that cover the most
+   important gaps within the time budget, expands prerequisites, and places the
+   capstone last.
+7. **Find remaining resources.** `/find-courses` searches for current courses
+   only for gaps the selected projects do not cover.
+8. **Persist the result.** `report_state.py` writes Markdown with YAML
+   frontmatter, while `tracker_io.py` appends the report event to the CSV
+   history.
+
+Given the same templates, profile, assessments, and budget, the Python planner
+produces the same project order. Live role and course research can change as
+the underlying sources change.
+
+### State and data files
+
+| Path | Purpose | Version controlled |
+| --- | --- | --- |
+| `profile.yaml` | Current role, target, skills, evidence, and constraints | No |
+| `tracker/skillpath_tracker.csv` | Append-only progress and report events | No |
+| `roadmaps/report-*.md` | Generated roadmap history | No |
+| `profile.yaml.example` | Example profile schema | Yes |
+| `tracker/skillpath_tracker.csv.example` | Example tracker schema | Yes |
+
+The personal files are excluded by `.gitignore`. Do not force-add them to a
+commit or publish them from a fork.
+
+### Repository layout
+
+```text
+.claude/skills/
+├── skillpath/
+│   ├── SKILL.md              # main orchestration instructions
+│   ├── scripts/              # deterministic state and planning modules
+│   ├── reference/            # schemas, taxonomy, aliases, and protocols
+│   └── templates/            # track-specific project definitions
+└── find-courses/
+    └── SKILL.md              # focused course-research workflow
+tests/                        # pytest coverage for the Python modules
+profile.yaml.example          # safe sample profile
+tracker/                      # sample and local event history
+roadmaps/                     # local generated reports
+```
+
+The initial implementation includes project templates for the
+`ai-engineer`, `ml-engineer`, `data-engineer`, `data-analyst`, and
+`data-scientist` tracks. `ai-engineer` and `ml-engineer` are kept separate
+on purpose — live research shows they're distinct roles (model-building vs.
+model-using), not one merged "AI/ML Engineer" track. Other target roles
+still receive researched gaps and course recommendations, but project
+planning requires a matching track. See
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for the template schema and instructions
+for adding taxonomy entries or new tracks.
+
+## Development and verification
+
+Run the full test suite:
 
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -v
+```
+
+Validate all project templates and their taxonomy references:
+
+```bash
 python3 .claude/skills/skillpath/scripts/lint_templates.py \
   .claude/skills/skillpath/templates \
   .claude/skills/skillpath/reference/skill-taxonomy.yaml
 ```
 
-See `CONTRIBUTING.md` for how to add a project template, a taxonomy entry, or
-a new track.
+CI runs both checks on Python 3.11 and 3.12.
+
+## License
+
+This project is available under the [MIT License](LICENSE).

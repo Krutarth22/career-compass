@@ -1,6 +1,6 @@
 ---
 title: "RAG Pipeline with Evaluation Harness"
-track: "ai-ml-engineer"
+track: "ai-engineer"
 difficulty_tier: "intermediate"
 estimated_hours: 20
 role: "core"

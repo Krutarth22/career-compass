@@ -1,6 +1,6 @@
 ---
 title: "Fine-Tuning an Open LLM with LoRA"
-track: "ai-ml-engineer"
+track: "ml-engineer"
 difficulty_tier: "intermediate"
 estimated_hours: 18
 role: "core"

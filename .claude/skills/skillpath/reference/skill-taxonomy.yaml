@@ -176,3 +176,160 @@
     - continuous integration
     - continuous deployment
     - continuous delivery
+
+- id: etl
+  display_name: ETL / ELT
+  synonyms:
+    - extract transform load
+    - elt
+    - data ingestion
+
+- id: data-warehousing
+  display_name: Data Warehousing
+  synonyms:
+    - data warehouse
+    - dimensional modeling
+    - star schema
+    - snowflake schema
+
+- id: data-modeling
+  display_name: Data Modeling
+  synonyms:
+    - schema design
+    - relational modeling
+    - dbt modeling
+
+- id: distributed-data-processing
+  display_name: Distributed Data Processing
+  synonyms:
+    - apache spark
+    - pyspark
+    - big data processing
+    - distributed computing
+
+- id: streaming-data-processing
+  display_name: Streaming Data Processing
+  synonyms:
+    - stream processing
+    - kafka
+    - real-time data pipelines
+    - event streaming
+
+- id: dbt
+  display_name: dbt (data build tool)
+  synonyms:
+    - data build tool
+    - dbt models
+    - dbt core
+
+- id: data-quality
+  display_name: Data Quality & Testing
+  synonyms:
+    - data validation
+    - data quality checks
+    - data testing
+    - data contracts
+
+- id: database-design
+  display_name: Database Design
+  synonyms:
+    - relational database design
+    - normalization
+    - indexing strategy
+
+- id: batch-processing
+  display_name: Batch Processing
+  synonyms:
+    - batch jobs
+    - scheduled batch pipelines
+
+- id: cloud-data-platforms
+  display_name: Cloud Data Platforms
+  synonyms:
+    - bigquery
+    - snowflake
+    - redshift
+    - databricks
+    - cloud data warehouse
+
+- id: data-visualization
+  display_name: Data Visualization
+  synonyms:
+    - charting
+    - visual analytics
+    - plotting data
+
+- id: business-intelligence-tools
+  display_name: Business Intelligence Tools
+  synonyms:
+    - tableau
+    - power bi
+    - looker
+    - bi dashboards
+
+- id: data-cleaning
+  display_name: Data Cleaning & Wrangling
+  synonyms:
+    - data wrangling
+    - data preprocessing
+    - handling missing data
+
+- id: spreadsheet-analysis
+  display_name: Spreadsheet Analysis
+  synonyms:
+    - excel
+    - google sheets
+    - pivot tables
+
+- id: data-storytelling
+  display_name: Data Storytelling
+  synonyms:
+    - communicating insights
+    - presenting data findings
+    - narrative reporting
+
+- id: ab-testing
+  display_name: A/B Testing & Experimentation
+  synonyms:
+    - experiment design
+    - hypothesis testing
+    - split testing
+    - causal experimentation
+
+- id: stakeholder-communication
+  display_name: Stakeholder Communication
+  synonyms:
+    - business communication
+    - translating requirements
+    - working with stakeholders
+
+- id: causal-inference
+  display_name: Causal Inference
+  synonyms:
+    - causal analysis
+    - treatment effect estimation
+    - quasi-experimental methods
+
+- id: model-evaluation
+  display_name: Model Evaluation
+  synonyms:
+    - model validation
+    - performance metrics
+    - cross-validation
+
+- id: llm-observability
+  display_name: LLM Observability & Guardrails
+  synonyms:
+    - prompt monitoring
+    - llm cost tracking
+    - llm latency tracking
+    - guardrails
+    - llm app monitoring
+
+- id: experiment-tracking
+  display_name: Experiment Tracking & Hyperparameter Tuning
+  synonyms:
+    - hyperparameter tuning
+    - experiment management
+    - mlflow
+    - weights and biases

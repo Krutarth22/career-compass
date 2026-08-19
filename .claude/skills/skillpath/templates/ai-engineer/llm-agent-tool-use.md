@@ -1,6 +1,6 @@
 ---
 title: "LLM Agent with Tool Use"
-track: "ai-ml-engineer"
+track: "ai-engineer"
 difficulty_tier: "intermediate"
 estimated_hours: 16
 role: "core"

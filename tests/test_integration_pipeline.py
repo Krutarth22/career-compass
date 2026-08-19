@@ -9,7 +9,7 @@ one wires the whole deterministic chain together —
       -> project_planner.plan              (selected/sequenced projects)
 
 — using the real `reference/skill-taxonomy.yaml` and the real
-`templates/ai-ml-engineer/` templates, so a contract break between two
+`templates/ml-engineer/` templates, so a contract break between two
 modules (e.g. the C1 bug, where profile skill text was compared against
 canonical ids by string equality and therefore covered nothing) shows up
 here even when each module's own unit tests still pass.
@@ -32,12 +32,12 @@ from template_loader import load_track
 
 SKILL_DIR = Path(__file__).resolve().parents[1] / ".claude" / "skills" / "skillpath"
 TAXONOMY_PATH = SKILL_DIR / "reference" / "skill-taxonomy.yaml"
-TRACK_DIR = SKILL_DIR / "templates" / "ai-ml-engineer"
+TRACK_DIR = SKILL_DIR / "templates" / "ml-engineer"
 
 NOW = datetime(2026, 8, 19, 12, 0, 0, tzinfo=timezone.utc)
 THIS_REPORT_ID = "2f8c3e1a-0b44-4a1d-9f21-6c7b8a9d0e12"
 
-TARGET_ROLE = "ML/AI Engineer"
+TARGET_ROLE = "ML Engineer"
 TARGET_LEVEL = "Senior ML Engineer"
 
 # A realistic free-text profile modeled on profile.yaml.example's persona (a
@@ -70,7 +70,6 @@ RAW_CURRENT_SKILLS = [
 # Plausible tiered requirements for the target role (stand-in for Step 3/4).
 TARGET_REQUIREMENTS = [
     {"skill_id": "python", "tier": "Critical"},
-    {"skill_id": "retrieval-augmented-generation", "tier": "Critical"},
     {"skill_id": "ml-fundamentals", "tier": "Critical"},
     {"skill_id": "model-serving", "tier": "High"},
     {"skill_id": "docker", "tier": "High"},
@@ -152,7 +151,6 @@ def test_skill_the_profile_genuinely_has_is_not_an_open_gap(gap_assessments):
 def test_skills_the_profile_lacks_remain_open(gap_assessments):
     by_id = {g["skill_id"]: g for g in gap_assessments}
     for skill_id in (
-        "retrieval-augmented-generation",
         "ml-fundamentals",
         "model-serving",
         "docker",
@@ -185,9 +183,9 @@ def test_project_with_only_already_held_prerequisites_is_not_charged_hours(
     assert "feature-store-lite.md" in by_filename, sorted(by_filename)
     assert by_filename["feature-store-lite.md"]["unmet_prerequisite_hours"] == 0
 
-    # Contrast: rag-pipeline-with-eval.md also requires llm-api-basics, which
-    # the profile does NOT have, so its 8 prerequisite hours still count.
-    assert by_filename["rag-pipeline-with-eval.md"]["unmet_prerequisite_hours"] == 8
+    # Contrast: ml-model-serving-api.md also requires ml-fundamentals, which
+    # the profile does NOT have, so its 10 prerequisite hours still count.
+    assert by_filename["ml-model-serving-api.md"]["unmet_prerequisite_hours"] == 10
 
 
 def test_unresolved_profile_would_be_charged_for_a_skill_it_has(
