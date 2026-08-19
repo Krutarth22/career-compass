@@ -1,0 +1,25 @@
+current_role: Mechanical Engineer
+years_experience: 8
+current_skills:
+  - skill: CAD Design
+    proficiency: proficient
+    evidence: 5 years designing automotive components in CATIA
+  - skill: Python
+    proficiency: practiced
+    evidence: Personal projects and data analysis for engineering reports
+  - skill: Excel
+    proficiency: proficient
+    evidence: Daily use for calculations and data management
+  - skill: Thermodynamics
+    proficiency: proficient
+target_role: ML/AI Engineer
+target_level: Senior ML Engineer
+location: San Francisco Bay Area
+industry_preference: Automotive or Energy
+weekly_time_budget_hours: 15
+horizon_weeks: 24
+constraints:
+  - Must maintain current job while transitioning
+  - Limited budget for courses
+  - Prefer open-source learning resources
+last_updated: 2026-08-19
