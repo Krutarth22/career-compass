@@ -1,0 +1,178 @@
+# skillpath skill taxonomy registry
+#
+# See skill-taxonomy.md in this directory for the full explanation of how this
+# file is used and enforced. Summary: this is the canonical list of skill IDs
+# that templates (Task 7) and resolution.py (Task 4) are allowed to reference.
+#
+# Schema per entry:
+#   id: string            # canonical, kebab-case, stable identifier
+#   display_name: string  # human-readable name shown in reports/roadmaps
+#   synonyms: [string]    # alternate phrasings that resolve to this id
+#
+# Do not hand-edit this file to auto-absorb live-research output; see
+# skill-taxonomy.md for the enforcement rules and the human-in-the-loop
+# process for adding new entries.
+
+- id: retrieval-augmented-generation
+  display_name: Retrieval-Augmented Generation (RAG)
+  synonyms:
+    - rag
+    - retrieval augmented generation
+    - retrieval-augmented generation
+
+- id: vector-databases
+  display_name: Vector Databases
+  synonyms:
+    - vector database
+    - vector db
+    - vector stores
+    - embedding stores
+
+- id: embeddings
+  display_name: Embeddings
+  synonyms:
+    - embedding models
+    - text embeddings
+    - vector embeddings
+
+- id: eval-harnesses
+  display_name: Evaluation Harnesses
+  synonyms:
+    - eval harness
+    - llm evaluation
+    - evals
+    - evaluation frameworks
+
+- id: prompt-engineering
+  display_name: Prompt Engineering
+  synonyms:
+    - prompt design
+    - prompting
+    - prompt crafting
+
+- id: python
+  display_name: Python
+  synonyms:
+    - python programming
+    - python 3
+
+- id: llm-api-basics
+  display_name: LLM API Basics
+  synonyms:
+    - llm apis
+    - working with llm apis
+    - openai api
+    - anthropic api
+    - llm sdk usage
+
+- id: model-serving
+  display_name: Model Serving
+  synonyms:
+    - model deployment
+    - inference serving
+    - serving ml models
+
+- id: api-design
+  display_name: API Design
+  synonyms:
+    - rest api design
+    - designing apis
+    - web api design
+
+- id: docker
+  display_name: Docker
+  synonyms:
+    - containerization
+    - containers
+    - dockerfile
+
+- id: ml-monitoring
+  display_name: ML Monitoring
+  synonyms:
+    - model monitoring
+    - observability for ml
+    - production ml monitoring
+
+- id: mlops-basics
+  display_name: MLOps Basics
+  synonyms:
+    - mlops
+    - ml operations
+    - ml ops
+
+- id: ml-fundamentals
+  display_name: Machine Learning Fundamentals
+  synonyms:
+    - ml fundamentals
+    - machine learning basics
+    - intro to machine learning
+
+- id: statistics
+  display_name: Statistics
+  synonyms:
+    - statistical methods
+    - applied statistics
+    - probability and statistics
+
+- id: sql
+  display_name: SQL
+  synonyms:
+    - structured query language
+    - relational databases
+    - sql querying
+
+- id: feature-engineering
+  display_name: Feature Engineering
+  synonyms:
+    - feature extraction
+    - feature selection
+
+- id: model-training
+  display_name: Model Training
+  synonyms:
+    - training ml models
+    - training neural networks
+    - model fitting
+
+- id: lora-finetuning
+  display_name: LoRA Fine-Tuning
+  synonyms:
+    - lora
+    - low-rank adaptation
+    - parameter-efficient fine-tuning
+    - peft
+
+- id: agent-orchestration
+  display_name: Agent Orchestration
+  synonyms:
+    - multi-agent orchestration
+    - agent frameworks
+    - orchestrating agents
+
+- id: tool-use
+  display_name: Tool Use
+  synonyms:
+    - function calling
+    - tool calling
+    - llm tool use
+
+- id: workflow-orchestration
+  display_name: Workflow Orchestration
+  synonyms:
+    - pipeline orchestration
+    - dag orchestration
+    - workflow engines
+
+- id: data-pipelines
+  display_name: Data Pipelines
+  synonyms:
+    - etl pipelines
+    - data engineering pipelines
+    - data pipeline design
+
+- id: ci-cd
+  display_name: CI/CD
+  synonyms:
+    - continuous integration
+    - continuous deployment
+    - continuous delivery

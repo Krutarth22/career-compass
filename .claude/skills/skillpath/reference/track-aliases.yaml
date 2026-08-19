@@ -1,0 +1,23 @@
+# skillpath track-aliases registry
+#
+# See track-aliases.md in this directory for the full explanation of how this
+# file is used and the resolution rule that matches a free-text target_role
+# against these tracks.
+#
+# Schema: a mapping of track_id -> {aliases: [string, ...]}
+#   track_id: string        # canonical, kebab-case track identifier; also the
+#                            # name of its directory under
+#                            # .claude/skills/skillpath/templates/
+#   aliases: [string]       # lowercase, level-word-stripped phrasings that
+#                            # should resolve to this track
+
+ai-ml-engineer:
+  aliases:
+    - "ai engineer"
+    - "ml engineer"
+    - "machine learning engineer"
+    - "ai/ml engineer"
+    - "applied scientist (ai)"
+    - "mle"
+    - "artificial intelligence engineer"
+    - "ai/ml"
