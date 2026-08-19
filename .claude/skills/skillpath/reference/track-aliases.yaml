@@ -13,6 +13,9 @@
 
 ai-engineer:
   aliases:
+    # Shared with ml-engineer so this ambiguous title resolves to null.
+    - "ai/ml engineer"
+    - "ai ml engineer"
     - "ai engineer"
     - "artificial intelligence engineer"
     - "llm engineer"
@@ -24,6 +27,8 @@ ai-engineer:
 
 ml-engineer:
   aliases:
+    - "ai/ml engineer"
+    - "ai ml engineer"
     - "ml engineer"
     - "machine learning engineer"
     - "mle"
@@ -46,7 +51,6 @@ data-analyst:
   aliases:
     - "data analyst"
     - "data analytics"
-    - "business analyst"
     - "business intelligence analyst"
     - "bi analyst"
     - "reporting analyst"
@@ -56,4 +60,3 @@ data-scientist:
     - "data scientist"
     - "data science"
     - "machine learning scientist"
-    - "quantitative analyst"

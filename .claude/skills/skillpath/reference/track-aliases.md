@@ -16,14 +16,14 @@ The alias registry itself is data, not prose: it lives in the sibling file
 `track-aliases.yaml` is a mapping from track ID to an alias list:
 
 ```yaml
-ai-ml-engineer:
-  aliases: ["ai engineer", "ml engineer", "machine learning engineer", "ai/ml engineer", "applied scientist (ai)", "mle"]
+ml-engineer:
+  aliases: ["ml engineer", "machine learning engineer", "mle"]
 ```
 
-- The top-level key (`ai-ml-engineer` above) is the canonical track ID. It
+- The top-level key (`ml-engineer` above) is the canonical track ID. It
   matches the name of the corresponding directory under
   `.claude/skills/skillpath/templates/` (e.g.
-  `.claude/skills/skillpath/templates/ai-ml-engineer/`).
+  `.claude/skills/skillpath/templates/ml-engineer/`).
 - `aliases` is a list of lowercase phrasings — written without seniority/level
   words — that should resolve to that track.
 
@@ -38,13 +38,15 @@ follows:
    collapse any resulting extra whitespace. For example, `"Senior ML
    Engineer"` normalizes to `"ml engineer"`.
 2. **Match.** Compare the normalized string against every track's `aliases`
-   list using **exact match or substring match only** — the normalized
+   list using **exact match or bounded phrase match only** — the normalized
    `target_role` matches a track if it equals an alias, or an alias appears
    as a substring of it (or vice versa, depending on which is more specific;
    the implementation should treat this as "the normalized role contains the
-   alias, or the alias contains the normalized role"). **No fuzzy or semantic
-   matching** (no edit distance, no embeddings, no LLM calls) — this keeps
-   resolution deterministic and testable.
+   alias, or the alias contains the normalized role"). A match is accepted
+   only when it points to one track. An exact alias intentionally shared by
+   multiple tracks resolves to `null`, allowing the host to ask the user which
+   one they mean. **No fuzzy or semantic matching** (no edit distance, no
+   embeddings, no LLM calls) — this keeps resolution deterministic and testable.
 3. **No match.** If nothing matches, resolution fails explicitly rather than
    guessing — the caller (Task 6/8) is responsible for deciding what to do
    next (e.g. asking the user to pick a track, or erroring out).
@@ -78,4 +80,10 @@ Airflow/Redshift/BigQuery/Snowflake — data-engineering work. `business
 intelligence analyst`/`bi analyst`, by contrast, is SQL + dashboarding
 (Tableau/Power BI) + stakeholder reporting — the same day-to-day as
 `data-analyst`, so it stays aliased there rather than becoming its own
-track; research found no distinct skill set to justify a split.
+track; research found no distinct skill set to justify a split. The broader
+`business analyst` title is intentionally not aliased because many such roles
+center on process, requirements, or operations rather than data analytics.
+
+Likewise, `quantitative analyst` is not treated as a synonym for
+`data-scientist`: quant roles commonly require finance-specific mathematics
+and modeling that the current data-science templates do not cover.

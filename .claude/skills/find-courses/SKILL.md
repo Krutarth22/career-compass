@@ -1,6 +1,6 @@
 ---
 name: find-courses
-description: This skill should be used when the user asks to "find courses for X", "find a course on X", "resources to learn X", "/find-courses X", or wants curated learning resources for a specific skill. Read-only -- it never writes any file, only searches and prints resource recommendations.
+description: Find and curate current courses or learning resources for a specific skill when the user asks for courses, tutorials, or resources, including `/find-courses` in Claude Code and `$find-courses` in Codex. Read-only; it searches and returns recommendations without writing files.
 allowed-tools: WebSearch, Read, Bash(git rev-parse:*), Bash(python3 */scripts/profile_io.py load *)
 ---
 
@@ -11,9 +11,9 @@ This skill is read-only: it never writes a file, only prints recommended
 resources to the terminal.
 
 **Normally invocable.** Unlike `skillpath`, this skill has no
-`disable-model-invocation` restriction -- Claude may invoke it on its own
-judgment when a user asks for learning resources on a skill, in addition to
-explicit `/find-courses <skill>` invocation.
+`disable-model-invocation` restriction -- either host may invoke it when a
+user asks for learning resources, in addition to explicit
+`/find-courses <skill>` (Claude Code) or `$find-courses <skill>` (Codex).
 
 **Used in-process by `/skillpath`.** `skillpath/SKILL.md`'s Step 7 invokes
 this exact procedure in-process for its own use, once per Critical/High
@@ -25,8 +25,9 @@ return the structured list to the caller instead.
 
 ## Procedure
 
-Given a skill (from `$0` on direct invocation, or passed in directly when
-invoked in-process by `/skillpath`):
+Given a skill (from Claude Code's `$0`, from the text following Codex's
+`$find-courses` mention, or passed directly when invoked in-process by
+skillpath):
 
 1. **Search.** Run WebSearch queries for the skill, mixing two kinds:
    - Current-year market-relevance queries (e.g. "<skill> project-based
@@ -54,8 +55,10 @@ invoked in-process by `/skillpath`):
    ```bash
    PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
    ```
-   then check for `${PROJECT_ROOT}/profile.yaml`. If present, load it
-   (`python3 "${CLAUDE_SKILL_DIR}/../skillpath/scripts/profile_io.py" load
+   then check for `${PROJECT_ROOT}/profile.yaml`. Set
+   `SKILL_DIR="${CLAUDE_SKILL_DIR:-${PROJECT_ROOT}/.agents/skills/find-courses}"`.
+   If the profile is present, load it
+   (`python3 "${SKILL_DIR}/../skillpath/scripts/profile_io.py" load
    "${PROJECT_ROOT}/profile.yaml"` reuses `skillpath`'s own loader rather
    than re-implementing YAML parsing here) and use its `current_role`,
    `target_role`, and existing `current_skills` proficiencies to write one
@@ -66,7 +69,8 @@ invoked in-process by `/skillpath`):
 
 ## Print results (direct invocation only)
 
-When invoked directly via `/find-courses <skill>`, print the 2-3 resources
+When invoked directly via `/find-courses <skill>` or `$find-courses <skill>`,
+print the 2-3 resources
 and the optional study-direction line to the terminal as the final
 response -- never write them to a file. When invoked in-process by
 `/skillpath`, skip this and return the same structured data (resource

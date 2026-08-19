@@ -1,6 +1,6 @@
 ---
 name: skillpath
-description: This skill should be used when the user explicitly runs "/skillpath", asks to "generate my skill roadmap", "update my career transition plan", "research my target role gaps", or "confirm a skill" via "/skillpath confirm". It researches a target role's current live requirements, reconciles them against a tracked skill-gap history, plans a sequenced set of hands-on projects, finds course resources for remaining gaps, and writes a personal roadmap report to disk. It writes personal files (profile.yaml, tracker/skillpath_tracker.csv, roadmaps/*.md) and must never fire from ambient conversation -- only on an explicit /skillpath invocation.
+description: Use only when the user explicitly invokes skillpath with `/skillpath` in Claude Code or `$skillpath` in Codex to generate or update a career roadmap, research target-role gaps, or confirm a skill. It researches current requirements, reconciles tracked gaps, plans projects, finds resources, and writes personal roadmap state. Never invoke it implicitly because it writes files.
 disable-model-invocation: true
 allowed-tools: Bash, Read, Write, WebSearch, WebFetch, AskUserQuestion
 ---
@@ -11,9 +11,10 @@ Research a user's target career role, reconcile it against their tracked
 skill-gap history, plan a sequenced set of hands-on projects, surface course
 resources for what's left, and write a personal roadmap report to disk.
 
-This is the primary, explicit-invocation-only skillpath skill. It is never
-invoked by Claude on its own judgment (`disable-model-invocation: true`) --
-only by a user typing `/skillpath ...`. It writes to `profile.yaml`,
+This is the primary, explicit-invocation-only skillpath skill. In Claude Code,
+invoke it with `/skillpath ...`; in Codex, invoke it with `$skillpath ...`.
+Claude's `disable-model-invocation` frontmatter and Codex's
+`agents/openai.yaml` both enforce that policy. It writes to `profile.yaml`,
 `tracker/skillpath_tracker.csv`, and `roadmaps/*.md`, all of which are
 personal, gitignored data.
 
@@ -21,22 +22,29 @@ personal, gitignored data.
 
 Two path roots matter, and they resolve differently -- do not conflate them.
 
-**Bundled resources** (`templates/`, `reference/*`, `scripts/*.py`) are
-part of this skill's own package and are addressed with the
-`${CLAUDE_SKILL_DIR}` substitution, which expands to the directory
-containing this `SKILL.md` file regardless of the invocation's working
-directory. Every `Bash` call to one of the scripts below uses
-`${CLAUDE_SKILL_DIR}/scripts/<name>.py` -- never a bare `scripts/<name>.py`
-relative path, which would only work by accident of cwd.
-
-**Runtime state** (`profile.yaml`, `tracker/skillpath_tracker.csv`,
-`roadmaps/`) belongs to the user's project, not this skill's package, and
-resolves relative to the **project root**. Determine the project root once
-per run:
+Determine both roots once per run. Every shell example below assumes these
+variables are initialized in the same shell call, or that their absolute
+values are substituted directly:
 
 ```bash
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SKILL_DIR="${CLAUDE_SKILL_DIR:-${PROJECT_ROOT}/.agents/skills/skillpath}"
 ```
+
+Claude Code supplies `CLAUDE_SKILL_DIR`. Codex discovers the repo-scoped
+symlink at `.agents/skills/skillpath`; the fallback resolves through it to the
+same canonical resources. Stop with a clear installation error if `SKILL_DIR`
+does not contain this `SKILL.md` and the `scripts/` directory.
+
+**Bundled resources** (`templates/`, `reference/*`, `scripts/*.py`) are
+part of this skill's own package and are addressed with the
+`${SKILL_DIR}` variable. Every shell call to one of the scripts below uses
+`${SKILL_DIR}/scripts/<name>.py` -- never a bare `scripts/<name>.py` relative
+path, which would only work by accident of cwd.
+
+**Runtime state** (`profile.yaml`, `tracker/skillpath_tracker.csv`,
+`roadmaps/`) belongs to the user's project, not this skill's package, and
+resolves relative to the **project root** determined above.
 
 From `PROJECT_ROOT`, the runtime paths are:
 
@@ -49,7 +57,7 @@ From `PROJECT_ROOT`, the runtime paths are:
 
 ## Bundled scripts used this run
 
-All six scripts are invoked from `${CLAUDE_SKILL_DIR}/scripts/`:
+All six scripts are invoked from `${SKILL_DIR}/scripts/`:
 
 | Script | CLI? | Used for |
 |---|---|---|
@@ -65,25 +73,29 @@ Three of these -- `profile_io.py` saving a profile, `gap_state.py`'s
 CLI wrapper for the operation this skill needs. For those, write the
 required input(s) as JSON to `${PROJECT_ROOT}/roadmaps/.tmp/` first (via
 the `Write` tool), then invoke the underlying pure function with a one-off
-`python3 -c` snippet that adds `${CLAUDE_SKILL_DIR}/scripts` to `sys.path`
+`python3 -c` snippet that adds `${SKILL_DIR}/scripts` to `sys.path`
 and imports it directly. The exact snippets are given inline at each step
 below -- do not invent a CLI subcommand for these that doesn't exist.
 
 ## Step 1 -- Parse arguments and confirm sub-command
 
-Two invocation shapes:
+Two logical invocation shapes:
 
-- **Main flow:** `/skillpath "<current-state>" "<target-state>"` -- `$0` is
-  the current-state text, `$1` is the target-state text.
-- **Confirm sub-command:** `/skillpath confirm "<skill>" "<evidence>"` --
-  `$0` is the literal string `confirm`, `$1` is the skill text, `$2` is
-  optional evidence text.
+- **Main flow:** `/skillpath "<current-state>" "<target-state>"` in Claude
+  Code, or `$skillpath "<current-state>" "<target-state>"` in Codex.
+- **Confirm sub-command:** `/skillpath confirm "<skill>" "<evidence>"` in
+  Claude Code, or `$skillpath confirm "<skill>" "<evidence>"` in Codex.
+
+Claude Code exposes positional arguments as `$0`, `$1`, and `$2`. Codex does
+not; parse the text following the `$skillpath` mention into the equivalent
+logical values. Below, `$0`/`$1`/`$2` mean those parsed values when running
+under Codex, not literal shell parameters.
 
 If `$0` is literally `confirm`:
 
 1. Resolve the skill mention to a canonical id:
    ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/resolution.py" resolve-skill "$1"
+   python3 "${SKILL_DIR}/scripts/resolution.py" resolve-skill "$1"
    ```
    This prints `{"id": "...", "unmapped": true|false}`.
 2. If `$2` (evidence) is absent, ask the user once conversationally for
@@ -93,7 +105,7 @@ If `$0` is literally `confirm`:
    read its `target_role`/`target_level` for the `confirmed_for_*` fields.
 4. Append a tracker row:
    ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/tracker_io.py" append \
+   python3 "${SKILL_DIR}/scripts/tracker_io.py" append \
      "${PROJECT_ROOT}/tracker/skillpath_tracker.csv" \
      --occurred-at "<current UTC ISO8601 timestamp>" \
      --event-type skill_confirmed \
@@ -110,7 +122,7 @@ If `$0` is literally `confirm`:
 Otherwise (main flow), determine the merge mode:
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/profile_io.py" merge \
+python3 "${SKILL_DIR}/scripts/profile_io.py" merge \
   "${PROJECT_ROOT}/profile.yaml" \
   --current-state "$0" \
   --target-state "$1"
@@ -145,13 +157,13 @@ Load the profile (already available from Step 1's `merge` call as the
 conversational edit):
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/profile_io.py" load "${PROJECT_ROOT}/profile.yaml"
+python3 "${SKILL_DIR}/scripts/profile_io.py" load "${PROJECT_ROOT}/profile.yaml"
 ```
 
 Read tracker rows:
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/tracker_io.py" read "${PROJECT_ROOT}/tracker/skillpath_tracker.csv"
+python3 "${SKILL_DIR}/scripts/tracker_io.py" read "${PROJECT_ROOT}/tracker/skillpath_tracker.csv"
 ```
 
 (Add `--since <ISO date>` or `--event-types a,b` filters only if a
@@ -161,7 +173,7 @@ this step since Step 4's reconciliation needs the full event history.)
 Load the prior report's frontmatter, if any:
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/report_state.py" last "${PROJECT_ROOT}/roadmaps"
+python3 "${SKILL_DIR}/scripts/report_state.py" last "${PROJECT_ROOT}/roadmaps"
 ```
 
 Prints the newest report's frontmatter dict, or `null` if none exists (or
@@ -184,9 +196,9 @@ Write the profile's `current_skills` list (just that list) to
 
 ```bash
 mkdir -p "${PROJECT_ROOT}/roadmaps/.tmp"
-python3 "${CLAUDE_SKILL_DIR}/scripts/resolution.py" resolve-profile-skills \
+python3 "${SKILL_DIR}/scripts/resolution.py" resolve-profile-skills \
   --current-skills "${PROJECT_ROOT}/roadmaps/.tmp/current_skills_raw.json" \
-  --taxonomy "${CLAUDE_SKILL_DIR}/reference/skill-taxonomy.yaml"
+  --taxonomy "${SKILL_DIR}/reference/skill-taxonomy.yaml"
 ```
 
 This prints the same list of entries with a `skill_id` key added to each
@@ -211,7 +223,7 @@ confidence high/medium/low per that reference doc. Resolve each surfaced
 skill mention:
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/resolution.py" resolve-skill "<free text mention>"
+python3 "${SKILL_DIR}/scripts/resolution.py" resolve-skill "<free text mention>"
 ```
 
 Produce the `target_requirements` list in the exact shape documented in
@@ -237,7 +249,7 @@ JSON (the tiered requirements list as
 mkdir -p "${PROJECT_ROOT}/roadmaps/.tmp"
 python3 -c "
 import json, sys
-sys.path.insert(0, '${CLAUDE_SKILL_DIR}/scripts')
+sys.path.insert(0, '${SKILL_DIR}/scripts')
 from gap_state import reconcile_assessments
 
 tmp = '${PROJECT_ROOT}/roadmaps/.tmp'
@@ -267,11 +279,14 @@ the run continues.
 ## Step 5 -- Resolve a track
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/resolution.py" resolve-track "<profile target_role>"
+python3 "${SKILL_DIR}/scripts/resolution.py" resolve-track "<profile target_role>"
 ```
 
-Prints the track id as a JSON string, or `null` if nothing matches. On
-`null`: skip Step 6 (project selection) entirely for the rest of this run,
+Prints the track id as a JSON string, or `null` if nothing matches. If the
+role is the deliberately ambiguous `AI/ML Engineer` title, ask the user to
+choose `ai-engineer` (foundation-model/RAG/agent product work) or
+`ml-engineer` (training/serving/MLOps work), then use that choice. For any
+other `null`, skip Step 6 (project selection) entirely for the rest of this run,
 but still deliver the gap heatmap and Step 7's course resources, and state
 plainly in the eventual report that no project templates exist yet for
 this target (`resolved_track: null` in the frontmatter).
@@ -290,9 +305,9 @@ arguments as **paths to JSON files**, not inline JSON -- write them to
 Then:
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/project_planner.py" plan \
+python3 "${SKILL_DIR}/scripts/project_planner.py" plan \
   --track "<resolved track id>" \
-  --templates-root "${CLAUDE_SKILL_DIR}/templates" \
+  --templates-root "${SKILL_DIR}/templates" \
   --gaps "${PROJECT_ROOT}/roadmaps/.tmp/gaps.json" \
   --profile-skills "${PROJECT_ROOT}/roadmaps/.tmp/profile_skills.json" \
   --budget-hours <weekly_time_budget_hours * horizon_weeks>
@@ -343,7 +358,7 @@ per the schema in that same reference doc.
 ```bash
 python3 -c "
 import json, sys
-sys.path.insert(0, '${CLAUDE_SKILL_DIR}/scripts')
+sys.path.insert(0, '${SKILL_DIR}/scripts')
 from report_state import write_report
 
 tmp = '${PROJECT_ROOT}/roadmaps/.tmp'
@@ -358,7 +373,7 @@ print(path)
 Then append a `report_generated` tracker row:
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/tracker_io.py" append \
+python3 "${SKILL_DIR}/scripts/tracker_io.py" append \
   "${PROJECT_ROOT}/tracker/skillpath_tracker.csv" \
   --occurred-at "<the same generated_at timestamp used in the frontmatter>" \
   --event-type report_generated \
@@ -383,12 +398,12 @@ wait for Step 9, and do not treat this as implied by report generation.
    project template, use its `skill_tags` verbatim; otherwise run
    `resolution.py resolve-skill` on each skill the user names):
    ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/resolution.py" resolve-skill "<free text>"
+   python3 "${SKILL_DIR}/scripts/resolution.py" resolve-skill "<free text>"
    ```
 2. Append the row, using `project_completed` for a hands-on project and
    `course_completed` for a course:
    ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/tracker_io.py" append \
+   python3 "${SKILL_DIR}/scripts/tracker_io.py" append \
      "${PROJECT_ROOT}/tracker/skillpath_tracker.csv" \
      --occurred-at "<completion timestamp, UTC ISO8601; now if unstated>" \
      --event-type project_completed \
@@ -410,7 +425,7 @@ override permanently; on an explicit yes, save via:
 ```bash
 python3 -c "
 import json, sys
-sys.path.insert(0, '${CLAUDE_SKILL_DIR}/scripts')
+sys.path.insert(0, '${SKILL_DIR}/scripts')
 from profile_io import save_profile
 
 tmp = '${PROJECT_ROOT}/roadmaps/.tmp'

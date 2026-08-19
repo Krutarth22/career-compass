@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "skillpath"
 version = "0.1.0"
-description = "A Claude Code skill for career path planning and skill development"
+description = "A Claude Code and Codex skill for career path planning and skill development"
 requires-python = ">=3.11"
 dependencies = [
     "pyyaml",

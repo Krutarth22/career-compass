@@ -57,11 +57,11 @@ For every surfaced requirement, resolve its free-text mention to a
 canonical skill id via:
 
 ```
-python3 "${CLAUDE_SKILL_DIR}/scripts/resolution.py" resolve-skill "<free text mention>"
+python3 "${SKILL_DIR}/scripts/resolution.py" resolve-skill "<free text mention>"
 ```
 
 which prints `{"id": "...", "unmapped": true|false}` (see `SKILL.md`'s
-"Resolving paths" section for how `${CLAUDE_SKILL_DIR}` resolves).
+"Resolving paths" section for how `${SKILL_DIR}` resolves in both hosts).
 An `unmapped: true` result is expected and fine for live research — per
 `reference/skill-taxonomy.md`'s "two enforcement levels", live research
 output is soft/provisional and is never blocked on taxonomy membership.

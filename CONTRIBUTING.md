@@ -1,5 +1,11 @@
 # Contributing to skillpath
 
+The canonical workflow and all implementation resources live under
+`.claude/skills/`. The checked-in `.agents/skills/` entries point to thin
+Codex-compatible wrappers under `codex/skills/`; those wrappers load the
+canonical workflow and symlink its resources. Do not create a copied second
+implementation. Changes to the canonical tree remain visible to both hosts.
+
 ## Adding a project template
 
 Project templates live under

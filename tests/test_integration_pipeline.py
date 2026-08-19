@@ -220,3 +220,39 @@ def test_pipeline_produces_a_usable_sequenced_plan(
     filenames = [p["_filename"] for p in result["projects"]]
     for prereq in result["projects"][-1]["frontmatter"]["project_prerequisites"]:
         assert filenames.index(prereq) < len(filenames) - 1
+
+
+@pytest.mark.parametrize(
+    "track",
+    [
+        "ai-engineer",
+        "ml-engineer",
+        "data-engineer",
+        "data-analyst",
+        "data-scientist",
+    ],
+)
+def test_every_shipped_track_builds_a_complete_plan(track):
+    """Smoke-test every real template set, including the newly added tracks."""
+    templates = load_track(SKILL_DIR / "templates" / track)
+    capstones = [t for t in templates if t["frontmatter"]["role"] == "capstone"]
+    assert len(capstones) == 1
+
+    skill_ids = sorted(
+        {
+            skill_id
+            for template in templates
+            for skill_id in template["frontmatter"]["skill_tags"]
+        }
+    )
+    gaps = [
+        {"skill_id": skill_id, "tier": "Critical", "status": "open"}
+        for skill_id in skill_ids
+    ]
+    result = project_planner.plan(
+        templates, gaps, {"current_skills": []}, budget_hours=10_000
+    )
+
+    assert result["shortfall"] is False
+    assert result["projects"]
+    assert result["projects"][-1]["frontmatter"]["role"] == "capstone"

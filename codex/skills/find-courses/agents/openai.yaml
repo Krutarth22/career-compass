@@ -1,0 +1,4 @@
+interface:
+  display_name: "Find Courses"
+  short_description: "Find current resources for a specific skill"
+  default_prompt: "Use $find-courses to recommend current learning resources for this skill."

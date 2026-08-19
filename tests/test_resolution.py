@@ -219,6 +219,29 @@ def test_resolve_track_level_word_stripping():
     assert senior == plain == "ai-ml-engineer"
 
 
+def test_resolve_track_shared_exact_alias_is_ambiguous():
+    aliases = {
+        "ai-engineer": {"aliases": ["ai/ml engineer", "ai engineer"]},
+        "ml-engineer": {"aliases": ["ai/ml engineer", "ml engineer"]},
+    }
+    assert resolution.resolve_track("AI/ML Engineer", aliases) is None
+
+
+def test_real_ai_ml_title_does_not_silently_choose_a_track():
+    aliases_path = REAL_TAXONOMY_PATH.parent / "track-aliases.yaml"
+    with open(aliases_path, "r", encoding="utf-8") as f:
+        aliases = yaml.safe_load(f)
+    assert resolution.resolve_track("Senior AI/ML Engineer", aliases) is None
+
+
+@pytest.mark.parametrize("role", ["Business Analyst", "Quantitative Analyst"])
+def test_broad_adjacent_roles_do_not_get_a_misleading_track(role):
+    aliases_path = REAL_TAXONOMY_PATH.parent / "track-aliases.yaml"
+    with open(aliases_path, "r", encoding="utf-8") as f:
+        aliases = yaml.safe_load(f)
+    assert resolution.resolve_track(role, aliases) is None
+
+
 # ---------------------------------------------------------------------------
 # reconcile_assessments
 # ---------------------------------------------------------------------------

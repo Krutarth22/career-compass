@@ -1,21 +1,25 @@
 # skillpath
 
-skillpath is a project-scoped [Claude Code](https://claude.com/claude-code)
-skill for planning a career transition. It researches current expectations for
+skillpath is a project-scoped skill for [Claude Code](https://claude.com/claude-code)
+and [Codex](https://learn.chatgpt.com/codex). It plans a career transition by
+researching current expectations for
 your target role, compares them with your existing skills and evidence, builds
 a sequenced portfolio-project plan, finds learning resources for uncovered
 gaps, and saves a dated roadmap that evolves as you make progress.
 
-The repository includes two skills:
+The repository includes two skills. Claude Code uses slash invocation; Codex
+uses dollar-sign invocation:
 
-- **`/skillpath`** builds and updates the complete career roadmap. It only runs
-  when explicitly invoked because it writes personal state to the repository.
-- **`/find-courses`** searches for 2–3 current learning resources for one skill.
-  It can run independently or as part of `/skillpath`.
+- **`/skillpath` / `$skillpath`** builds and updates the complete career
+  roadmap. It only runs when explicitly invoked because it writes personal
+  state to the repository.
+- **`/find-courses` / `$find-courses`** searches for 2–3 current learning
+  resources for one skill. It can run independently or as part of skillpath.
 
 ## Requirements
 
-- [Claude Code](https://claude.com/claude-code), installed and authenticated
+- [Claude Code](https://claude.com/claude-code) or
+  [Codex](https://learn.chatgpt.com/codex), installed and authenticated
 - Git
 - Python 3.11 or newer
 - Internet access for target-role and course research
@@ -25,7 +29,7 @@ The repository includes two skills:
 Clone the repository and create an isolated Python environment:
 
 ```bash
-git clone https://github.com/Krutarth-Majithia/skillpath.git
+git clone https://github.com/Krutarth22/skillpath.git
 cd skillpath
 python3 -m venv .venv
 source .venv/bin/activate
@@ -39,15 +43,25 @@ On Windows PowerShell, activate the environment with:
 .venv\Scripts\Activate.ps1
 ```
 
-Start Claude Code from the repository root while the environment is active:
+Start your preferred host from the repository root while the environment is
+active:
 
 ```bash
+# Claude Code
 claude
+
+# Codex CLI
+codex
 ```
 
-Claude Code discovers both skills from `.claude/skills/`. Keep the repository
-as the working directory when using them: the bundled scripts, references, and
-templates are resolved from this clone, and generated state is stored here.
+Claude Code discovers the canonical workflows from `.claude/skills/`. Codex
+discovers repo-scoped links from `.agents/skills/` to thin, Codex-compatible
+entrypoints under `codex/skills/`. Those entrypoints load the canonical
+workflow and link to the same scripts, references, and templates, so the
+implementation cannot drift. Keep this repository as the working directory:
+bundled resources resolve from the clone, and generated state is stored here.
+Codex detects skill changes
+automatically; restart it if a newly cloned skill does not appear in `/skills`.
 
 For development, install the test dependency too:
 
@@ -57,10 +71,15 @@ python -m pip install -e ".[dev]"
 
 ## Usage
 
-Create your first roadmap by describing your starting point and target role:
+Create your first roadmap by describing your starting point and target role.
+Use the command for your host:
 
 ```text
+# Claude Code
 /skillpath "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
+
+# Codex
+$skillpath "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
 ```
 
 On the first run, skillpath asks for any missing profile details, such as your
@@ -68,7 +87,11 @@ experience, demonstrated skills, location, constraints, and weekly time budget.
 Later runs can reuse the saved profile:
 
 ```text
+# Claude Code
 /skillpath
+
+# Codex
+$skillpath
 ```
 
 Arguments supplied on a later run are temporary overrides unless you choose to
@@ -78,13 +101,21 @@ When you have evidence that you can apply a skill, confirm it so future reports
 can close the corresponding gap:
 
 ```text
+# Claude Code
 /skillpath confirm "model deployment"
+
+# Codex
+$skillpath confirm "model deployment"
 ```
 
 To research learning resources without generating a full roadmap:
 
 ```text
+# Claude Code
 /find-courses feature engineering
+
+# Codex
+$find-courses feature engineering
 ```
 
 Each roadmap run creates a timestamped file under `roadmaps/` with:
@@ -100,7 +131,7 @@ Each roadmap run creates a timestamped file under `roadmaps/` with:
 The skill deliberately separates research and conversational judgment from
 state handling and planning logic:
 
-1. **Parse and merge the profile.** Claude gathers missing details and
+1. **Parse and merge the profile.** The active host gathers missing details and
    `profile_io.py` applies the documented merge rules without silently
    overwriting the saved profile.
 2. **Load prior state.** The latest roadmap and the append-only tracker are
@@ -108,9 +139,9 @@ state handling and planning logic:
 3. **Resolve names.** `resolution.py` maps free-text skills to stable taxonomy
    IDs and maps the target role to a supported template track. Unmapped skills
    remain visible as provisional gaps instead of stopping the run.
-4. **Research the target role.** Claude searches current job-market sources,
+4. **Research the target role.** The active host searches current job-market sources,
    records citations, and tiers requirements by importance using the research
-   protocol in `reference/target-role-research.md`.
+   protocol in `reference/research-protocol.md`.
 5. **Reconcile gaps.** `gap_state.py` compares requirements with profile
    evidence and tracker events. Gaps move through `open`, `practiced`, and
    `confirmed-closed` states.
@@ -118,7 +149,7 @@ state handling and planning logic:
    `project_planner.py` deterministically selects templates that cover the most
    important gaps within the time budget, expands prerequisites, and places the
    capstone last.
-7. **Find remaining resources.** `/find-courses` searches for current courses
+7. **Find remaining resources.** The find-courses workflow searches for current courses
    only for gaps the selected projects do not cover.
 8. **Persist the result.** `report_state.py` writes Markdown with YAML
    frontmatter, while `tracker_io.py` appends the report event to the CSV
@@ -144,6 +175,17 @@ commit or publish them from a fork.
 ### Repository layout
 
 ```text
+.agents/skills/              # Codex discovery symlinks
+├── skillpath -> ../../codex/skills/skillpath
+└── find-courses -> ../../codex/skills/find-courses
+codex/skills/                # thin Codex-compatible entrypoints
+├── skillpath/
+│   ├── SKILL.md
+│   ├── agents/openai.yaml
+│   └── {scripts,reference,templates} -> canonical resources
+└── find-courses/
+    ├── SKILL.md
+    └── agents/openai.yaml
 .claude/skills/
 ├── skillpath/
 │   ├── SKILL.md              # main orchestration instructions

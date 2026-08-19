@@ -184,7 +184,8 @@ def resolve_track(target_role: str, track_aliases: dict) -> str | None:
     tightened rules as resolve_skill (exact normalized match first, then
     bounded whole-word phrase containment for phrase-eligible keys only) so
     a short alias like "mle" can never match inside an unrelated word.
-    Returns the track key or None.
+    An exact alias shared by multiple tracks is treated as deliberately
+    ambiguous and returns None. Otherwise returns the track key or None.
     """
     normalized = _normalize(target_role)
     stripped = _LEVEL_WORD_RE.sub("", normalized)
@@ -194,15 +195,23 @@ def resolve_track(target_role: str, track_aliases: dict) -> str | None:
         return None
 
     candidate_keys: list[tuple[str, str]] = []
+    exact_owners: list[str] = []
     for track_id, config in track_aliases.items():
         aliases = (config or {}).get("aliases") or []
         for alias in aliases:
             alias_key = _normalize_key(str(alias))
             if not alias_key:
                 continue
-            if alias_key == input_key:
-                return track_id
+            if alias_key == input_key and track_id not in exact_owners:
+                exact_owners.append(track_id)
             candidate_keys.append((alias_key, track_id))
+
+    # Some real-world titles intentionally belong to more than one track.
+    # Never let YAML ordering silently choose one of those tracks.
+    if len(exact_owners) == 1:
+        return exact_owners[0]
+    if len(exact_owners) > 1:
+        return None
 
     return _match_by_phrase(input_key, candidate_keys)
 

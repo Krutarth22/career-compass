@@ -58,8 +58,9 @@ The rendered body follows this fixed order:
    respecting the Sequenced Project Plan's own order for prerequisite
    chains).
 7. **Next Steps** -- a short, concrete closing list: e.g. run
-   `/skillpath confirm "<skill>" "<evidence>"` after finishing a course or
-   project to record it, and re-run `/skillpath` again in N weeks (tie N
+   `/skillpath confirm "<skill>" "<evidence>"` in Claude Code or
+   `$skillpath confirm "<skill>" "<evidence>"` in Codex after finishing a
+   course or project to record it, and re-run skillpath again in N weeks (tie N
    to the profile's `horizon_weeks`/`weekly_time_budget_hours` if useful)
    to get a refreshed roadmap.
 
