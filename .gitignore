@@ -11,3 +11,6 @@ __pycache__/
 
 # Temp files
 roadmaps/.tmp/
+
+# Harness runtime state (not part of this project)
+.claude/scheduled_tasks.lock
