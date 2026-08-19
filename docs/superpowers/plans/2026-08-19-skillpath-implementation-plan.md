@@ -95,7 +95,7 @@ blocks inside each file must be valid, parseable YAML, not just illustrative
 Markdown.
 
 **`skill-taxonomy.md`:** a checked-in registry. Format: a YAML list under a fenced
-```yaml``` block (so `resolution.py` can load it with
+`yaml` code block (so `resolution.py` can load it with
 `yaml.safe_load` after stripping the Markdown fence, or store the YAML in a sibling
 `skill-taxonomy.yaml` loaded by the doc via include-by-reference — your call, but
 `resolution.py` in Task 4 must be able to load it programmatically without
