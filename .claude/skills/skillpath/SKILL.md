@@ -54,7 +54,7 @@ All six scripts are invoked from `${CLAUDE_SKILL_DIR}/scripts/`:
 | Script | CLI? | Used for |
 |---|---|---|
 | `profile_io.py` | `load`, `merge` (no `save` subcommand) | Step 1, 2 |
-| `tracker_io.py` | `append`, `read`, `last-report` | Step 1, 2, 9 |
+| `tracker_io.py` | `append`, `read` (also has `last-report`, unused below -- `report_state.py last` is called directly instead) | Step 1, 2, 9 |
 | `report_state.py` | `read`, `last` (no `write-report` subcommand) | Step 2, 9 |
 | `resolution.py` | `resolve-skill`, `resolve-track` | Step 1, 3, 5 |
 | `gap_state.py` | none -- pure function, no `__main__` at all | Step 4 |

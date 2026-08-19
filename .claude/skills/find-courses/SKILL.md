@@ -1,7 +1,7 @@
 ---
 name: find-courses
 description: This skill should be used when the user asks to "find courses for X", "find a course on X", "resources to learn X", "/find-courses X", or wants curated learning resources for a specific skill. Read-only -- it never writes any file, only searches and prints resource recommendations.
-allowed-tools: WebSearch, Read, Bash(git rev-parse:*)
+allowed-tools: WebSearch, Read, Bash(git rev-parse:*), Bash(python3 */scripts/profile_io.py load *)
 ---
 
 # find-courses
