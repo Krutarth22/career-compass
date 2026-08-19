@@ -156,6 +156,14 @@
     - tool calling
     - llm tool use
 
+- id: mcp-integration
+  display_name: MCP / Tool Server Integration
+  synonyms:
+    - mcp
+    - model context protocol
+    - mcp server
+    - tool server integration
+
 - id: workflow-orchestration
   display_name: Workflow Orchestration
   synonyms:
