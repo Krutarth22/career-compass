@@ -23,7 +23,8 @@ It ships as two skills that live together in this repo:
 skillpath is **not** a drop-in-anywhere skill you copy into an unrelated
 project's `.claude/skills/` folder. It's packaged and versioned as a whole
 repository — the same convention as
-[career-ops/ai-job-search](https://github.com/career-ops/ai-job-search) — so
+[career-ops](https://github.com/santifer/career-ops) and
+[ai-job-search](https://github.com/MadsLorentzen/ai-job-search) — so
 that its bundled reference docs, project templates, and skill taxonomy stay
 in lockstep with the scripts that read them.
 
