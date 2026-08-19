@@ -1,4 +1,4 @@
 occurred_at,event_type,item_name,related_skill_ids,report_id,notes,confirmed_for_target_role,confirmed_for_target_level
-2026-01-15T10:30:00Z,report_generated,Career Transition Assessment,data-analysis;python;machine-learning,report_20260115_001,Initial assessment for transition to ML Engineer role,
-2026-02-20T14:15:00Z,project_completed,Build ML Classification Model,machine-learning;python;data-analysis,report_20260115_001,Completed end-to-end project using scikit-learn and pandas,
+2026-01-15T10:30:00Z,report_generated,Career Transition Assessment,data-analysis;python;machine-learning,report_20260115_001,Initial assessment for transition to ML Engineer role,,
+2026-02-20T14:15:00Z,project_completed,Build ML Classification Model,machine-learning;python;data-analysis,report_20260115_001,Completed end-to-end project using scikit-learn and pandas,,
 2026-03-05T09:00:00Z,skill_confirmed,Machine Learning Foundations,machine-learning,report_20260115_001,Validated through project completion,true,true
