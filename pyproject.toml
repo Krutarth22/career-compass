@@ -9,7 +9,6 @@ description = "A Claude Code skill for career path planning and skill developmen
 requires-python = ">=3.11"
 dependencies = [
     "pyyaml",
-    "pytest",
 ]
 
 [project.optional-dependencies]

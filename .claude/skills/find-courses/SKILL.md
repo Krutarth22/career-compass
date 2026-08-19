@@ -44,9 +44,11 @@ invoked in-process by `/skillpath`):
    4. Articles / blog posts, only when nothing better surfaced.
 3. **Record each resource** as: name, URL, a one-line reason it's a good
    fit for this specific skill gap, an estimated duration (hours, or
-   weeks for a multi-week course), and a cost. Only record cost as "free"
-   when the fetched resource itself confirms it is free -- never assume
-   free from a query snippet or a resource's general reputation.
+   weeks for a multi-week course), and a cost. Only state a resource is
+   free when the search result's own title or snippet says so; otherwise
+   omit the cost field entirely rather than guessing. Never infer "free"
+   from a resource's general reputation, and never claim to have opened
+   the resource -- this skill searches, it does not fetch pages.
 4. **Add a tailored study-direction line**, if `profile.yaml` is
    available. Resolve it the same way `/skillpath` does:
    ```bash

@@ -119,7 +119,7 @@ to look at, edit, or leave alone.
 ```
 .claude/skills/skillpath/       the main skill: SKILL.md, scripts/, reference/, templates/
 .claude/skills/find-courses/    the course-finder skill: SKILL.md
-tests/                          pytest suite for the six Python modules under scripts/
+tests/                          pytest suite for the eight Python modules under scripts/
 profile.yaml.example            sample profile (not your data)
 tracker/skillpath_tracker.csv.example   sample tracker history (not your data)
 roadmaps/                       generated reports land here (gitignored per-report)
