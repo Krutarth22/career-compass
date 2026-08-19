@@ -32,10 +32,19 @@ exactly this reason (see `reference/profile-schema.md`).
 Before a requirement is treated as validated (rather than merely
 suggested), it must clear:
 
-- **≥4 real job postings** mentioning it, and
+- **≥4 real job postings** that were actually **opened and read via
+  `WebFetch`**, and
 - **≥2 practitioner sources** (blog posts, conference talks, engineering
   team write-ups, well-attended forum threads — not marketing copy or
-  SEO-farmed listicles) corroborating it.
+  SEO-farmed listicles), also opened and read via `WebFetch`, corroborating
+  it.
+
+**A `WebSearch` result snippet never counts toward this bar on its own** —
+`WebSearch` is for discovering candidate URLs; each one counted as a source
+must then be fetched with `WebFetch` and actually read before it's treated
+as evidence. This is what makes `accessed_at` in the recorded-source
+schema below meaningful: it is the timestamp of a real fetch, not of a
+search result appearing in a results list.
 
 A requirement that falls short of this bar is not discarded — it is
 recorded with a lower confidence score (see below) rather than silently

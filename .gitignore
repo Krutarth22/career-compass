@@ -8,6 +8,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
+*.egg-info/
 
 # Temp files
 roadmaps/.tmp/

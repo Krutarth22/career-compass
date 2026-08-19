@@ -318,6 +318,54 @@ def test_practiced_to_confirmed_closed_via_target_matching_event():
     assert result[0]["first_seen_report_id"] == "report-old-0001"
 
 
+def test_older_matching_confirmation_not_hidden_by_newer_mismatched_one():
+    """A newer skill_confirmed event for a DIFFERENT target must not hide an
+    older skill_confirmed event that matches the current run's target —
+    e.g. confirm for senior, later confirm for junior, then return to
+    senior: the senior confirmation must still count as confirmed-closed.
+    """
+    requirements = [_requirement()]
+    profile = _profile()
+    prior_assessments = [
+        {
+            "skill_id": "rag",
+            "tier": "Critical",
+            "status": "practiced",
+            "first_seen_at": "2026-07-01T00:00:00+00:00",
+            "first_seen_report_id": "report-old-0001",
+        }
+    ]
+    tracker_events = [
+        {
+            "occurred_at": "2026-08-01T00:00:00+00:00",
+            "event_type": "skill_confirmed",
+            "related_skill_ids": ["rag"],
+            "confirmed_for_target_role": "ai-ml-engineer",
+            "confirmed_for_target_level": "senior",
+        },
+        {
+            "occurred_at": "2026-08-15T00:00:00+00:00",
+            "event_type": "skill_confirmed",
+            "related_skill_ids": ["rag"],
+            "confirmed_for_target_role": "ai-ml-engineer",
+            "confirmed_for_target_level": "junior",
+        },
+    ]
+
+    result = gap_state.reconcile_assessments(
+        requirements,
+        profile,
+        prior_assessments,
+        tracker_events,
+        target_role="ai-ml-engineer",
+        target_level="senior",
+        this_report_id=THIS_REPORT_ID,
+        now=NOW,
+    )
+
+    assert result[0]["status"] == "confirmed-closed"
+
+
 def test_confirmed_closed_stays_closed_on_repeat_run_no_target_change():
     requirements = [_requirement()]
     profile = _profile()

@@ -432,3 +432,123 @@ def test_select_core_projects_raises_on_cycle_in_project_prerequisites():
         assert False, "expected ValueError for cycle"
     except ValueError as exc:
         assert "cycle" in str(exc).lower()
+
+
+# ---------------------------------------------------------------------------
+# select_core_projects — one unaffordable high-scoring candidate must not
+# block cheaper, lower-scoring candidates from being selected
+# ---------------------------------------------------------------------------
+
+
+def test_select_skips_unaffordable_high_scoring_candidate_for_cheaper_one():
+    expensive_critical = make_template(
+        "00-expensive.md", estimated_hours=100, skill_tags=["kubernetes"]
+    )
+    cheap_high = make_template("01-cheap.md", estimated_hours=10, skill_tags=["docker"])
+    gaps = [
+        make_gap("kubernetes", tier="Critical", status="open"),
+        make_gap("docker", tier="High", status="open"),
+    ]
+    templates = [expensive_critical, cheap_high]
+
+    selected = pp.select_core_projects(templates, templates, gaps, set(), budget_hours=10)
+
+    assert [s["_filename"] for s in selected] == ["01-cheap.md"]
+
+
+def test_select_resumes_after_skipping_unaffordable_candidate():
+    # A third, still-cheaper candidate should also be picked up in the same
+    # run once the unaffordable one is skipped, not just the first fallback.
+    expensive = make_template("00-expensive.md", estimated_hours=100, skill_tags=["a"])
+    mid = make_template("01-mid.md", estimated_hours=5, skill_tags=["b"])
+    cheap = make_template("02-cheap.md", estimated_hours=3, skill_tags=["c"])
+    gaps = [
+        make_gap("a", tier="Critical", status="open"),
+        make_gap("b", tier="High", status="open"),
+        make_gap("c", tier="High", status="open"),
+    ]
+    templates = [expensive, mid, cheap]
+
+    selected = pp.select_core_projects(templates, templates, gaps, set(), budget_hours=10)
+
+    assert {s["_filename"] for s in selected} == {"01-mid.md", "02-cheap.md"}
+
+
+# ---------------------------------------------------------------------------
+# select_core_projects — auto-included prerequisites that cover real gaps
+# ---------------------------------------------------------------------------
+
+
+def test_select_auto_included_prerequisite_with_real_coverage_is_annotated_and_counted():
+    # "rag" is Critical (weight 8) so `main` is always picked first,
+    # regardless of the hours tie-break, guaranteeing the prerequisite
+    # cascade (not `other`) claims "setup-skill" first.
+    gaps = [
+        make_gap("setup-skill", tier="High", status="open"),
+        make_gap("rag", tier="Critical", status="open"),
+    ]
+    prereq = make_template("00-setup.md", estimated_hours=3, skill_tags=["setup-skill"])
+    main = make_template(
+        "01-rag.md",
+        estimated_hours=10,
+        skill_tags=["rag"],
+        project_prerequisites=["00-setup.md"],
+    )
+    other = make_template("02-other.md", estimated_hours=5, skill_tags=["setup-skill"])
+    candidates = [main, other]
+    all_templates = [prereq, main, other]
+
+    selected = pp.select_core_projects(candidates, all_templates, gaps, set(), budget_hours=100)
+
+    by_name = {s["_filename"]: s for s in selected}
+    # The auto-included prerequisite's own real coverage must be recorded...
+    assert by_name["00-setup.md"]["covered_gap_skill_ids"] == ["setup-skill"]
+    # ...and counted so a later candidate isn't redundantly selected for a
+    # gap the prerequisite already covers.
+    assert "02-other.md" not in by_name
+
+
+# ---------------------------------------------------------------------------
+# sequence_projects — capstone prerequisite cascade is resolved recursively
+# ---------------------------------------------------------------------------
+
+
+def test_sequence_capstone_prerequisite_cascade_is_transitive():
+    grandparent = make_template("00-grandparent.md", estimated_hours=3)
+    parent = make_template(
+        "01-parent.md", estimated_hours=4, project_prerequisites=["00-grandparent.md"]
+    )
+    capstone = make_template(
+        "99-capstone.md",
+        role="capstone",
+        estimated_hours=15,
+        project_prerequisites=["01-parent.md"],
+    )
+    all_templates = [grandparent, parent, capstone]
+
+    sequenced = pp.sequence_projects([], capstone, all_templates, set())
+
+    filenames = [t["_filename"] for t in sequenced]
+    assert filenames == ["00-grandparent.md", "01-parent.md", "99-capstone.md"]
+
+
+def test_sequence_capstone_forced_prerequisite_coverage_reflects_own_skill_tags():
+    forced = make_template("00-forced.md", estimated_hours=3, skill_tags=["rag"])
+    capstone = make_template(
+        "99-capstone.md",
+        role="capstone",
+        estimated_hours=15,
+        skill_tags=["docker"],
+        project_prerequisites=["00-forced.md"],
+    )
+    gaps = [
+        make_gap("rag", tier="High", status="open"),
+        make_gap("docker", tier="High", status="open"),
+    ]
+    all_templates = [forced, capstone]
+
+    sequenced = pp.sequence_projects([], capstone, all_templates, set(), gaps)
+
+    by_name = {t["_filename"]: t for t in sequenced}
+    assert by_name["00-forced.md"]["covered_gap_skill_ids"] == ["rag"]
+    assert by_name["99-capstone.md"]["covered_gap_skill_ids"] == ["docker"]

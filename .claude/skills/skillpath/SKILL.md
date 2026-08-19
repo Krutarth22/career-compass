@@ -2,7 +2,7 @@
 name: skillpath
 description: This skill should be used when the user explicitly runs "/skillpath", asks to "generate my skill roadmap", "update my career transition plan", "research my target role gaps", or "confirm a skill" via "/skillpath confirm". It researches a target role's current live requirements, reconciles them against a tracked skill-gap history, plans a sequenced set of hands-on projects, finds course resources for remaining gaps, and writes a personal roadmap report to disk. It writes personal files (profile.yaml, tracker/skillpath_tracker.csv, roadmaps/*.md) and must never fire from ambient conversation -- only on an explicit /skillpath invocation.
 disable-model-invocation: true
-allowed-tools: Bash, Read, Write, WebSearch, AskUserQuestion
+allowed-tools: Bash, Read, Write, WebSearch, WebFetch, AskUserQuestion
 ---
 
 # skillpath

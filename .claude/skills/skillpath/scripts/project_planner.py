@@ -230,7 +230,6 @@ def select_core_projects(
             return (-score, hours + unmet, c["_filename"])
 
         scored.sort(key=sort_key)
-        best, best_score, best_marginal_ids = scored[0]
 
         is_fifth_exception = False
         if len(selected) >= DEFAULT_CORE_CAP:
@@ -243,30 +242,51 @@ def select_core_projects(
             else:
                 break
 
-        cascade = _resolve_cascade(best, by_filename, selected_filenames, [])
-        cascade_cost = sum(
-            (t.get("frontmatter") or {}).get("estimated_hours", 0)
-            + unmet_prerequisite_hours(t, profile_skill_ids)
-            for t in cascade
-        )
-
-        if total_hours + cascade_cost > budget_hours:
+        # Walk candidates in scored (score desc, then tie-break) order and
+        # take the first one whose prerequisite cascade actually fits the
+        # remaining budget — one unaffordable high-scoring candidate must
+        # not stop the whole loop while a cheaper, lower-scoring candidate
+        # would still fit.
+        pick = None
+        for c, score, _marginal_ids in scored:
+            if score <= 0:
+                continue
+            cascade = _resolve_cascade(c, by_filename, selected_filenames, [])
+            cascade_cost = sum(
+                (t.get("frontmatter") or {}).get("estimated_hours", 0)
+                + unmet_prerequisite_hours(t, profile_skill_ids)
+                for t in cascade
+            )
+            if total_hours + cascade_cost > budget_hours:
+                continue
+            pick = (c, cascade, cascade_cost)
             break
 
+        if pick is None:
+            break
+
+        best, cascade, cascade_cost = pick
+
+        # Annotate each cascade member (auto-included prerequisites and the
+        # picked candidate itself) with its OWN actual gap coverage, walked
+        # in cascade order so later members see earlier members' coverage
+        # already claimed — an auto-included prerequisite can itself cover
+        # a gap, and that must both show up in its annotation and count
+        # toward future marginal-coverage scoring.
+        running_covered = set(covered_ids)
         for t in cascade:
+            t_gap_ids = _gap_skill_ids_covered(t, gaps_by_id) - running_covered
             annotated = dict(t)
             annotated["unmet_prerequisite_hours"] = unmet_prerequisite_hours(t, profile_skill_ids)
-            if t.get("_filename") == best.get("_filename"):
-                annotated["covered_gap_skill_ids"] = sorted(best_marginal_ids)
-                if is_fifth_exception:
-                    annotated["generous_budget_exception"] = True
-            else:
-                annotated["covered_gap_skill_ids"] = []
+            annotated["covered_gap_skill_ids"] = sorted(t_gap_ids)
+            if t.get("_filename") == best.get("_filename") and is_fifth_exception:
+                annotated["generous_budget_exception"] = True
             selected.append(annotated)
             selected_filenames.add(t["_filename"])
+            running_covered |= t_gap_ids
 
         total_hours += cascade_cost
-        covered_ids |= best_marginal_ids
+        covered_ids = running_covered
 
         if is_fifth_exception:
             break
@@ -284,30 +304,54 @@ def sequence_projects(
     capstone: dict | None,
     all_core_templates: list[dict],
     profile_skill_ids: set[str],
+    filtered_gaps: list[dict] | None = None,
 ) -> list[dict]:
     """Topologically sorts selected_core (plus the capstone's own
-    project_prerequisites, auto-selected into the core set if not already
-    present) by project_prerequisites, then appends capstone as the final
-    element if provided. The capstone is always last, never reordered by
-    the topological sort. Raises ValueError on a cycle among the core set.
+    project_prerequisites — resolved recursively via _resolve_cascade, so a
+    prerequisite's own prerequisite is pulled in too, not just one level
+    deep — auto-selected into the core set if not already present) by
+    project_prerequisites, then appends capstone as the final element if
+    provided. The capstone is always last, never reordered by the
+    topological sort. Raises ValueError on a cycle among the core set.
+
+    `filtered_gaps` is optional (callers that don't need
+    covered_gap_skill_ids on capstone-forced additions may omit it, in
+    which case those additions get covered_gap_skill_ids: [] as before);
+    when provided, each capstone-forced prerequisite's real skill_tags
+    coverage is computed against gaps not already covered by the
+    gap-driven `selected_core` set or an earlier prerequisite in the same
+    forced chain.
     """
     by_filename = {t["_filename"]: t for t in all_core_templates}
     core_by_filename = {t["_filename"]: dict(t) for t in selected_core}
 
+    gaps_by_id = {g["skill_id"]: g for g in (filtered_gaps or [])}
+    running_covered: set[str] = set()
+    for t in core_by_filename.values():
+        running_covered |= set(t.get("covered_gap_skill_ids") or [])
+
     if capstone is not None:
-        capstone_fm = capstone.get("frontmatter") or {}
-        for prereq_name in capstone_fm.get("project_prerequisites") or []:
-            if prereq_name in core_by_filename:
+        already_selected = set(core_by_filename.keys())
+        cascade = _resolve_cascade(capstone, by_filename, already_selected, [])
+        # _resolve_cascade always appends its `template` argument last;
+        # that's the capstone itself, handled separately below — only the
+        # prerequisite chain ahead of it belongs in the core set.
+        prereq_chain = cascade[:-1]
+        for prereq_template in prereq_chain:
+            fname = prereq_template["_filename"]
+            if fname in core_by_filename:
                 continue
-            prereq_template = by_filename.get(prereq_name)
-            if prereq_template is None:
-                continue  # dangling reference; Task 5's linter is responsible for catching this
             annotated = dict(prereq_template)
             annotated["unmet_prerequisite_hours"] = unmet_prerequisite_hours(
                 prereq_template, profile_skill_ids
             )
-            annotated["covered_gap_skill_ids"] = []
-            core_by_filename[prereq_name] = annotated
+            if gaps_by_id:
+                covered = _gap_skill_ids_covered(prereq_template, gaps_by_id) - running_covered
+                annotated["covered_gap_skill_ids"] = sorted(covered)
+                running_covered |= covered
+            else:
+                annotated["covered_gap_skill_ids"] = []
+            core_by_filename[fname] = annotated
 
     all_nodes = list(core_by_filename.values())
 
@@ -344,7 +388,11 @@ def sequence_projects(
         capstone_annotated["unmet_prerequisite_hours"] = unmet_prerequisite_hours(
             capstone, profile_skill_ids
         )
-        capstone_annotated.setdefault("covered_gap_skill_ids", [])
+        if gaps_by_id:
+            covered = _gap_skill_ids_covered(capstone, gaps_by_id) - running_covered
+            capstone_annotated["covered_gap_skill_ids"] = sorted(covered)
+        else:
+            capstone_annotated.setdefault("covered_gap_skill_ids", [])
         order.append(capstone_annotated)
 
     return order
@@ -400,7 +448,9 @@ def plan(
     selected_core = select_core_projects(
         candidates, core_templates, filtered_gaps, profile_skill_ids, budget_hours
     )
-    sequenced = sequence_projects(selected_core, capstone, core_templates, profile_skill_ids)
+    sequenced = sequence_projects(
+        selected_core, capstone, core_templates, profile_skill_ids, filtered_gaps
+    )
 
     total_hours = sum(
         (t.get("frontmatter") or {}).get("estimated_hours", 0)

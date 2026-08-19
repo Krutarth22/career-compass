@@ -99,20 +99,24 @@ def _is_confirmed_closed(
     target_role: str,
     target_level: str,
 ) -> bool:
-    """Step 3: the most recent skill_confirmed event (by occurred_at) for
-    this skill closes the gap only if its confirmed_for_target_role/
-    confirmed_for_target_level exactly match the current run's target.
-    An older or target-mismatched skill_confirmed event does not affect
-    status even though it's a real historical event.
+    """Step 3: closes the gap when the most recent skill_confirmed event
+    *for this exact target* (confirmed_for_target_role/
+    confirmed_for_target_level matching the current run's target) exists.
+    Confirmations recorded for a different target are real historical
+    events but are filtered out before picking "most recent" — otherwise a
+    newer confirmation for another target would hide an older, still-valid
+    confirmation for the current one (e.g. confirm for senior, later
+    confirm for junior, then return to senior: the senior confirmation
+    must still count).
     """
-    confirmations = [e for e in events if e.get("event_type") == "skill_confirmed"]
-    if not confirmations:
-        return False
-    most_recent = max(confirmations, key=lambda e: e.get("occurred_at") or "")
-    return (
-        most_recent.get("confirmed_for_target_role") == target_role
-        and most_recent.get("confirmed_for_target_level") == target_level
-    )
+    confirmations = [
+        e
+        for e in events
+        if e.get("event_type") == "skill_confirmed"
+        and e.get("confirmed_for_target_role") == target_role
+        and e.get("confirmed_for_target_level") == target_level
+    ]
+    return bool(confirmations)
 
 
 def _compute_status(
