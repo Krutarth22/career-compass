@@ -139,6 +139,7 @@ def sequence_courses(courses: list[dict], program_length_years: int, current_yea
     error from curriculum research, not a case to silently resolve.
     """
     by_name = {course["course_name"]: course for course in courses}
+    _validate_prerequisites_exist(by_name)
     order = _topological_order(by_name)
 
     resolved: dict[str, dict] = {}
@@ -210,6 +211,26 @@ def sequence_courses(courses: list[dict], program_length_years: int, current_yea
         resolved[name] = out
 
     return [resolved[course["course_name"]] for course in courses]
+
+
+def _validate_prerequisites_exist(by_name: dict[str, dict]) -> None:
+    """Raise ValueError if any course lists a prerequisite whose
+    `course_name` is absent from `by_name`.
+
+    This is plausible, not just theoretical: curriculum synthesis can
+    legitimately exclude a course that fails the ≥2-school corroboration
+    threshold (see curriculum-research-protocol.md) even though some other
+    course still lists it as a prerequisite. Without this check, the
+    dangling reference surfaces later as a bare KeyError deep inside the
+    placement loop instead of a clear, actionable message.
+    """
+    for course in by_name.values():
+        for prereq_name in course.get("prerequisites") or []:
+            if prereq_name not in by_name:
+                raise ValueError(
+                    f"course {course['course_name']!r} lists unknown prerequisite "
+                    f"{prereq_name!r} (not present in course_sequence)"
+                )
 
 
 def _topological_order(by_name: dict[str, dict]) -> list[str]:

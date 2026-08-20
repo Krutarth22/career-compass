@@ -7,14 +7,20 @@ your target role, compares them with your existing skills and evidence, builds
 a sequenced portfolio-project plan, finds learning resources for uncovered
 gaps, and saves a dated roadmap that evolves as you make progress.
 
-The repository includes two skills. Claude Code uses slash invocation; Codex
-uses dollar-sign invocation:
+The repository includes three skills. Claude Code uses slash invocation;
+Codex uses dollar-sign invocation:
 
 - **`/skillpath` / `$skillpath`** builds and updates the complete career
   roadmap. It only runs when explicitly invoked because it writes personal
   state to the repository.
+- **`/college-plan` / `$college-plan`** answers an earlier, different
+  question: for a learner entering or already in college and majoring in a
+  given subject, what courses should they take, in what order, to end up
+  qualified for a target career? It only runs when explicitly invoked
+  because it writes a report to the repository.
 - **`/find-courses` / `$find-courses`** searches for 2–3 current learning
-  resources for one skill. It can run independently or as part of skillpath.
+  resources for one skill. It can run independently or as part of
+  skillpath or college-plan.
 
 ## Requirements
 
@@ -126,6 +132,52 @@ Each roadmap run creates a timestamped file under `roadmaps/` with:
 - courses for gaps not covered by projects; and
 - a “Since Last Report” summary of changes from the previous run.
 
+### College course planning
+
+`/college-plan` is for a different situation than `/skillpath`: a learner
+who is entering or already partway through a college degree and wants to
+know which courses in a typical curriculum for their major cover a target
+career's requirements, in what order. It is major-based, not tied to any
+specific school's catalog.
+
+```text
+# Claude Code
+/college-plan "Computer Science" "Data Scientist"
+
+# Codex
+$college-plan "Computer Science" "Data Scientist"
+```
+
+An optional third argument sets the target level (defaults to "entry-level
+/ new graduate" when omitted):
+
+```text
+# Claude Code
+/college-plan "Computer Science" "Data Scientist" "Senior"
+```
+
+Each run asks a short set of conversational questions (degree type,
+education system, current year, program length, course-load constraints,
+and any courses already completed or in progress) — nothing here is saved
+to `profile.yaml` or any tracker, so it's asked fresh every run. If
+`completed_courses`/`in_progress_courses` don't cleanly match the
+synthesized curriculum (including by real course code, e.g. "CS 2110"),
+you're asked once to disambiguate; anything that still doesn't match is
+recorded as self-reported coursework rather than discarded.
+
+Each run creates a timestamped file under `roadmaps/college-plans/` with:
+
+- sourced target-role requirements, tiered and confidence-scored;
+- a generic, multi-school-corroborated course sequence by year (with an
+  explicit "unscheduled" group for anything infeasible within the stated
+  program length);
+- single-school electives worth considering;
+- skills a typical curriculum doesn't cover, plus supplemental course
+  resources for them; and
+- an explicit disclaimer that this is a synthesized archetype, not any
+  one school's actual catalog — confirm exact course numbers and
+  prerequisites with an advisor.
+
 ## Implementation
 
 The skill deliberately separates research and conversational judgment from
@@ -165,7 +217,8 @@ the underlying sources change.
 | --- | --- | --- |
 | `profile.yaml` | Current role, target, skills, evidence, and constraints | No |
 | `tracker/skillpath_tracker.csv` | Append-only progress and report events | No |
-| `roadmaps/report-*.md` | Generated roadmap history | No |
+| `roadmaps/report-*.md` | Generated skillpath roadmap history | No |
+| `roadmaps/college-plans/report-*.md` | Generated college-plan report history | No |
 | `profile.yaml.example` | Example profile schema | Yes |
 | `tracker/skillpath_tracker.csv.example` | Example tracker schema | Yes |
 
@@ -177,12 +230,17 @@ commit or publish them from a fork.
 ```text
 .agents/skills/              # Codex discovery symlinks
 ├── skillpath -> ../../codex/skills/skillpath
+├── college-plan -> ../../codex/skills/college-plan
 └── find-courses -> ../../codex/skills/find-courses
 codex/skills/                # thin Codex-compatible entrypoints
 ├── skillpath/
 │   ├── SKILL.md
 │   ├── agents/openai.yaml
 │   └── {scripts,reference,templates} -> canonical resources
+├── college-plan/
+│   ├── SKILL.md
+│   ├── agents/openai.yaml
+│   └── {scripts,reference} -> canonical resources
 └── find-courses/
     ├── SKILL.md
     └── agents/openai.yaml
@@ -192,12 +250,17 @@ codex/skills/                # thin Codex-compatible entrypoints
 │   ├── scripts/              # deterministic state and planning modules
 │   ├── reference/            # schemas, taxonomy, aliases, and protocols
 │   └── templates/            # track-specific project definitions
+├── college-plan/
+│   ├── SKILL.md              # college course-sequencing orchestration
+│   ├── scripts/               # curriculum_planner.py (matching, sequencing, diff)
+│   └── reference/             # curriculum-research-protocol.md
 └── find-courses/
     └── SKILL.md              # focused course-research workflow
 tests/                        # pytest coverage for the Python modules
 profile.yaml.example          # safe sample profile
 tracker/                      # sample and local event history
-roadmaps/                     # local generated reports
+roadmaps/                     # local generated skillpath reports
+roadmaps/college-plans/       # local generated college-plan reports
 ```
 
 The initial implementation includes project templates for the

@@ -58,6 +58,7 @@ def _sample_college_plan_frontmatter():
                         "behind_typical_schedule": False,
                         "infeasible_within_program_length": False,
                         "source_disagreement": False,
+                        "blocked_by_unscheduled_prerequisite": False,
                         "sources": [],
                     }
                 ],
@@ -70,9 +71,53 @@ def _sample_college_plan_frontmatter():
     }
 
 
+# report_state.py performs no schema validation of its own (it round-trips
+# whatever dict it's given), so a fixture that silently drops a required
+# field would still pass a bare equality round-trip check. These key sets
+# mirror the design spec's Report Schema exactly, so this test fails loudly
+# if the fixture (or the schema itself) drifts.
+REQUIRED_TOP_LEVEL_KEYS = {
+    "report_id",
+    "generated_at",
+    "major",
+    "target_state",
+    "target_level",
+    "target_level_was_defaulted",
+    "research_confidence",
+    "learner_context",
+    "target_requirements",
+    "course_sequence",
+    "electives",
+    "self_reported_courses",
+    "uncovered_skills",
+    "supplemental_resources",
+}
+
+REQUIRED_COURSE_KEYS = {
+    "course_name",
+    "aliases",
+    "status",
+    "prerequisites",
+    "source_years",
+    "covers_skill_ids",
+    "coverage_evidence",
+    "confidence",
+    "compressed_from_source_year",
+    "behind_typical_schedule",
+    "infeasible_within_program_length",
+    "source_disagreement",
+    "blocked_by_unscheduled_prerequisite",
+    "sources",
+}
+
+
 def test_report_round_trips_exactly(tmp_path):
     roadmaps_dir = tmp_path / "roadmaps" / "college-plans"
     frontmatter = _sample_college_plan_frontmatter()
+
+    assert set(frontmatter.keys()) == REQUIRED_TOP_LEVEL_KEYS
+    sample_course = frontmatter["course_sequence"][0]["courses"][0]
+    assert set(sample_course.keys()) == REQUIRED_COURSE_KEYS
 
     path = report_state.write_report(str(roadmaps_dir), frontmatter, "# Body\n")
     read_back = report_state.read_report(path)

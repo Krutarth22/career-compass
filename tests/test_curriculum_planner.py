@@ -115,6 +115,12 @@ def test_sequence_straight_line_prerequisite_chain():
     assert by_name["Advanced"]["final_year"] == 3
 
 
+def test_sequence_unknown_prerequisite_raises_descriptive_error():
+    courses = [_course("Advanced", prereqs=["Nonexistent Course"], source_years=[2])]
+    with pytest.raises(ValueError, match="Nonexistent Course"):
+        cp.sequence_courses(courses, program_length_years=4, current_year=1)
+
+
 def test_sequence_cycle_raises():
     courses = [
         _course("A", prereqs=["B"]),
