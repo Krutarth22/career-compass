@@ -35,7 +35,7 @@ diff script, and a course-sequencing report. It does not require a prior
 `/skillpath` run or an existing `profile.yaml`; both are used
 opportunistically when present, never required.
 
-*Revision note: this is the fourth pass.* Round 1 found four blockers
+*Revision note: this is the fifth pass.* Round 1 found four blockers
 (filename, Codex packaging, undefined `tier`, no already-enrolled-student
 handling). Round 2 found the round-1 fix for that last point was itself
 incomplete (a self-contradictory "covered" definition, missing schema
@@ -49,7 +49,12 @@ codes; program-length clamping could silently violate prerequisite order;
 `source_stated_year: None` conflated "no year stated" with "sources
 disagree"; and an unmatched self-reported course was granted coverage
 credit from its title alone, contradicting this same spec's own
-no-title-only-coverage rule. All six are fixed below.
+no-title-only-coverage rule. All six were fixed in pass four. Round 4
+found two remaining implementation-contract gaps: `match_completed_courses`
+lost each input course's `completed`/`in_progress` status on the way to its
+result, and a course whose prerequisite is itself `"unscheduled"` (from
+source disagreement) had no defined behavior for its own placement — plus
+one unreachable branch in the clamping logic. All three are fixed below.
 
 ## Repo Layout (additions only)
 
@@ -143,13 +148,16 @@ being referenced throughout the rest of the document)
    real course codes seen at consulted schools, `source_years`,
    `prerequisites`, `covers_skill_ids`, `coverage_evidence`) and
    `electives[]` (single-school, target-aligned courses).
-5. **Match learner courses to the archetype.** Run
-   `curriculum_planner.match_completed_courses()` (deterministic — see
-   below) against `completed_courses`/`in_progress_courses` from Step 2 and
-   the raw `course_sequence[]` from Step 4. For each `ambiguous` result,
-   ask the learner once, conversationally, which candidate they mean. Each
+5. **Match learner courses to the archetype.** Build one combined input
+   list tagging each of `completed_courses`/`in_progress_courses` from
+   Step 2 with its own status (`[{course_name, status: completed |
+   in_progress}]`), and run `curriculum_planner.match_completed_courses()`
+   (deterministic — see below) once against that list and the raw
+   `course_sequence[]` from Step 4. For each `ambiguous` result, ask the
+   learner once, conversationally, which candidate they mean. Each
    `unmatched` result becomes a `self_reported_courses[]` entry (schema
-   below) — never discarded, never guessed into a match.
+   below), with the same `status` it was tagged with — never discarded,
+   never guessed into a match.
 6. **Sequence.** Run `curriculum_planner.sequence_courses()`
    (deterministic — see below) over the matched/updated `course_sequence[]`
    using `expected_program_length_years` and `current_year_number` from
@@ -224,9 +232,14 @@ with a new, purpose-built function:
   public, in `curriculum_planner.py` — not a reuse of `resolution.py`'s
   private helper, though it reuses `resolution.py`'s `_normalize_key`
   normalization directly by import, since duplicating that exact
-  normalization logic would only risk drift):
-  1. Normalize the learner's stated text and every candidate string (each
-     course's `course_name` plus all its `aliases`) the same way.
+  normalization logic would only risk drift). `learner_courses` is
+  `[{"course_name": str, "status": "completed" | "in_progress"}]` — status
+  travels alongside each entry through the whole function so it survives
+  into the result (round-4 finding: an earlier draft's signature carried
+  only bare names and silently lost this).
+  1. Normalize the learner's stated `course_name` and every candidate
+     string (each archetype course's `course_name` plus all its
+     `aliases`) the same way.
   2. **Exact normalized match** against any single course's candidate
      strings → that course, done.
   3. Else, **bounded whole-word phrase containment** (same
@@ -238,12 +251,16 @@ with a new, purpose-built function:
      helper couldn't do): zero distinct courses → `unmatched`; exactly one
      → `matched`; two or more → `ambiguous` **with the actual candidate
      course names returned**, not just `None`.
-  - Returns `{"matched": [{"learner_name": str, "course_name": str}],
-    "ambiguous": [{"learner_name": str, "candidates": [str]}],
-    "unmatched": [str]}`. `ambiguous`/`unmatched` are surfaced to the
-    conversational flow (Step 5) — never resolved by guessing inside this
-    function.
-- **Unmatched → `self_reported_courses[]`**, not discarded (schema below).
+  - Returns `{"matched": [{"learner_name": str, "course_name": str,
+    "status": str}], "ambiguous": [{"learner_name": str, "candidates":
+    [str], "status": str}], "unmatched": [{"learner_name": str, "status":
+    str}]}` — every entry in every bucket carries the `status` it was
+    given, so Step 5 can apply it to `course_sequence[]`/
+    `self_reported_courses[]` without re-deriving or re-asking for it.
+    `ambiguous`/`unmatched` are surfaced to the conversational flow
+    (Step 5) — never resolved by guessing inside this function.
+- **Unmatched → `self_reported_courses[]`**, not discarded, carrying the
+  same `status` (schema below).
 
 ## Sequencing, coverage, and the fixes that make them internally consistent
 
@@ -305,17 +322,38 @@ itself already been clamped to the final year. **Fixed — clamping only
 applies when it doesn't break prerequisite order; otherwise the course is
 infeasible, not silently misordered:**
 
+Courses are processed in prerequisite-topological order throughout, so
+every prerequisite's `final_year` is already resolved (to an integer or to
+`"unscheduled"`) by the time a dependent course is placed.
+
+**Unscheduled-prerequisite propagation (round-4 finding: previously
+undefined).** Before computing `prereq_floor`, check each prerequisite's
+already-resolved `final_year`: if **any** prerequisite's `final_year` is
+`"unscheduled"` (whether from `source_disagreement` or from its own
+`infeasible_within_program_length`), the dependent course is immediately
+`final_year = "unscheduled"` too, flagged
+`blocked_by_unscheduled_prerequisite: true` — `max()` over a set containing
+a non-numeric `"unscheduled"` value is undefined, and a course can't be
+meaningfully placed before a prerequisite that itself has no placement.
+This check runs first and short-circuits the rest of this section for that
+course; source-disagreement placement (above) and infeasibility placement
+(below) both therefore propagate forward through every course that
+depends on them, transitively, since each course's own resolved
+`final_year` is what the next dependent checks.
+
 For a course with `len(set(source_years)) <= 1` (i.e. not the
-disagreement case above):
+disagreement case above) and no unscheduled prerequisite:
 1. `prereq_floor = 1 + max(final_year of each prerequisite, default 0)`
-   (each prerequisite's `final_year` must already be resolved — this
-   requires processing courses in topological order; a cycle here is a
-   data error, detected and flagged, not looped on).
+   (a cycle among prerequisites is a data error, detected and flagged, not
+   looped on).
 2. `natural_year = max(source_years[0] if present else 1, prereq_floor)`.
 3. If `natural_year <= program_length_years`: `final_year =
-   natural_year`, with `compressed_from_source_year` set only if
-   `natural_year < source_years[0]` (i.e. compression actually happened
-   relative to what a source stated).
+   natural_year`. Since `natural_year` is a `max()` that includes
+   `source_years[0]` as one of its terms, it can never be *less* than
+   `source_years[0]` — so `compressed_from_source_year` is set only when
+   `natural_year > source_years[0]` (i.e. the prerequisite floor, not the
+   program-length clamp, pushed it later than the source stated; equality
+   means no compression happened).
 4. If `natural_year > program_length_years`:
    - If `prereq_floor <= program_length_years` (there's still room to
      place it without breaking prerequisite order): `final_year =
@@ -326,7 +364,8 @@ disagreement case above):
      flagged `infeasible_within_program_length: true` — the report states
      plainly that this course's prerequisite chain requires more years
      than the stated program length allows, rather than silently
-     misordering it.
+     misordering it. (This is the case that can propagate forward per the
+     unscheduled-prerequisite rule above.)
 5. **Behind-schedule reclassification** (unchanged from round 2): if the
    resulting `final_year < current_year_number` and the course was **not**
    matched to a `completed`/`in_progress` entry in Step 5, it is placed at
@@ -349,9 +388,10 @@ above:
    — see "Matching learner courses to the archetype."
 2. **`sequence_courses(courses, program_length_years, current_year) ->
    list[dict]`** — see "Sequencing, coverage, and the fixes..." above for
-   the exact branching on `source_years`, prerequisite floor, clamping vs.
-   infeasibility, and behind-schedule reclassification. Processes courses
-   in prerequisite-topological order; raises/flags a cycle rather than
+   the exact branching on `source_years`, unscheduled-prerequisite
+   propagation, prerequisite floor, clamping vs. infeasibility, and
+   behind-schedule reclassification. Processes courses in
+   prerequisite-topological order; raises/flags a cycle rather than
    looping.
 3. **`compute_uncovered(target_requirements, course_sequence,
    self_reported_courses) -> list[dict]`** — the single "covered"
@@ -382,7 +422,11 @@ CLI: `curriculum_planner.py match --learner-courses <path.json>
   `infeasible_within_program_length: true` instead of a silently-wrong
   year; a required course computed earlier than `current_year` and not
   matched to completed/in-progress → placed at `current_year` with
-  `behind_typical_schedule: true`.
+  `behind_typical_schedule: true`; a course whose prerequisite resolved to
+  `"unscheduled"` (via `source_disagreement`) → the dependent course is
+  also `"unscheduled"` with `blocked_by_unscheduled_prerequisite: true`;
+  a two-hop chain where the propagation carries through a second dependent
+  course as well (transitivity).
 - Coverage: each of the three statuses individually covers a requirement;
   a `self_reported_courses[]` entry (with its always-empty
   `covers_skill_ids`) contributes nothing; a Low-tier requirement never
@@ -517,6 +561,7 @@ course_sequence:
         behind_typical_schedule: boolean
         infeasible_within_program_length: boolean
         source_disagreement: boolean
+        blocked_by_unscheduled_prerequisite: boolean
         sources:
           - url: string
             title: string
@@ -553,9 +598,9 @@ Fixed section order, mirroring `skillpath`'s own `report-format.md` style:
    (`"unscheduled"` as its own final group), each course marked
    completed/in-progress/upcoming, skills covered with citations, and any
    `compressed_from_source_year` / `behind_typical_schedule` /
-   `infeasible_within_program_length` / `source_disagreement` flag
-   rendered as a plain-language note. Course-load/co-op advisories render
-   per-year where triggered.
+   `infeasible_within_program_length` / `source_disagreement` /
+   `blocked_by_unscheduled_prerequisite` flag rendered as a plain-language
+   note. Course-load/co-op advisories render per-year where triggered.
 4. **Electives Worth Considering** — `electives[]`, labeled single-school.
 5. **Skills Not Covered by a Typical Curriculum** — `uncovered_skills[]`
    with tier, immediately followed by **Supplemental Resources** (from
