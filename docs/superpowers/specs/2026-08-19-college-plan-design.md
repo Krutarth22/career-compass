@@ -35,7 +35,7 @@ diff script, and a course-sequencing report. It does not require a prior
 `/skillpath` run or an existing `profile.yaml`; both are used
 opportunistically when present, never required.
 
-*Revision note: this is the fifth pass.* Round 1 found four blockers
+*Revision note: this is the sixth pass.* Round 1 found four blockers
 (filename, Codex packaging, undefined `tier`, no already-enrolled-student
 handling). Round 2 found the round-1 fix for that last point was itself
 incomplete (a self-contradictory "covered" definition, missing schema
@@ -50,11 +50,15 @@ codes; program-length clamping could silently violate prerequisite order;
 disagree"; and an unmatched self-reported course was granted coverage
 credit from its title alone, contradicting this same spec's own
 no-title-only-coverage rule. All six were fixed in pass four. Round 4
-found two remaining implementation-contract gaps: `match_completed_courses`
-lost each input course's `completed`/`in_progress` status on the way to its
-result, and a course whose prerequisite is itself `"unscheduled"` (from
-source disagreement) had no defined behavior for its own placement — plus
-one unreachable branch in the clamping logic. All three are fixed below.
+found two remaining implementation-contract gaps (`match_completed_courses`
+losing each input course's `completed`/`in_progress` status, and undefined
+placement behavior for a course whose prerequisite is itself
+`"unscheduled"`) plus one unreachable clamping branch; the first two were
+fixed correctly in pass five, but the unreachable-branch fix was itself
+semantically wrong — it labeled a prerequisite-floor-driven *delay* as a
+*compression*. Round 5 caught this: fixed by leaving
+`compressed_from_source_year: null` whenever no program-length clamp
+actually fired, reserving that field exclusively for the real clamp case.
 
 ## Repo Layout (additions only)
 
@@ -348,12 +352,14 @@ disagreement case above) and no unscheduled prerequisite:
    looped on).
 2. `natural_year = max(source_years[0] if present else 1, prereq_floor)`.
 3. If `natural_year <= program_length_years`: `final_year =
-   natural_year`. Since `natural_year` is a `max()` that includes
-   `source_years[0]` as one of its terms, it can never be *less* than
-   `source_years[0]` — so `compressed_from_source_year` is set only when
-   `natural_year > source_years[0]` (i.e. the prerequisite floor, not the
-   program-length clamp, pushed it later than the source stated; equality
-   means no compression happened).
+   natural_year`, and `compressed_from_source_year` is **always `null`**
+   here — this branch never invokes the program-length clamp (step 4
+   below), so nothing was compressed. When `natural_year > source_years[0]`
+   the prerequisite floor pushed the course *later* than its source-stated
+   year, which is a delay, not a compression, and delay is already fully
+   captured by the course simply landing at `final_year` (no extra flag
+   needed — a reader comparing `final_year` to `source_years` can already
+   see it).
 4. If `natural_year > program_length_years`:
    - If `prereq_floor <= program_length_years` (there's still room to
      place it without breaking prerequisite order): `final_year =
@@ -416,9 +422,13 @@ CLI: `curriculum_planner.py match --learner-courses <path.json>
   placement; a cycle (raises/flags, doesn't loop); `source_years` empty
   (unspecified, prereq-floor-driven); `source_years` single-valued;
   `source_years` multi-valued (`"unscheduled"`, `source_disagreement:
-  true`, regardless of any prerequisite relationship); clamping that
+  true`, regardless of any prerequisite relationship); a prerequisite
+  floor that pushes a course later than its `source_years[0]` without
+  exceeding `program_length_years` (a delay, not a clamp) →
+  `compressed_from_source_year: null`; clamping that
   succeeds without violating prerequisite order
-  (`compressed_from_source_year` set); clamping that would violate order →
+  (`compressed_from_source_year` set to the pre-clamp `source_years[0]`);
+  clamping that would violate order →
   `infeasible_within_program_length: true` instead of a silently-wrong
   year; a required course computed earlier than `current_year` and not
   matched to completed/in-progress → placed at `current_year` with
