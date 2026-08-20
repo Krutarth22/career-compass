@@ -10,6 +10,9 @@ from pathlib import Path
 # Compute repo root from this file's location
 repo_root = Path(__file__).parent.parent
 
-# Add scripts directory to sys.path
+# Add scripts directories to sys.path
 scripts_dir = repo_root / ".claude" / "skills" / "skillpath" / "scripts"
 sys.path.insert(0, str(scripts_dir))
+
+college_plan_scripts_dir = repo_root / ".claude" / "skills" / "college-plan" / "scripts"
+sys.path.insert(0, str(college_plan_scripts_dir))
