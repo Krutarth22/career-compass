@@ -177,6 +177,7 @@ def test_codex_packaging_symlinks_resolve_to_canonical_files():
     assert codex_scripts.resolve() == canonical_scripts.resolve()
     assert codex_modes.resolve() == canonical_modes.resolve()
 
+    assert (canonical_modes / "roadmap.md").is_file()
     assert (canonical_modes / "college-plan.md").is_file()
     assert (canonical_modes / "find-courses.md").is_file()
 

@@ -51,7 +51,7 @@ For every skill a course is tagged with, resolve the free-text mention to
 a canonical skill id via the same script `skillpath` uses:
 
 ```bash
-python3 "${SKILL_DIR}/../skillpath/scripts/resolution.py" resolve-skill "<free text mention>"
+python3 "${SKILL_DIR}/scripts/resolution.py" resolve-skill "<free text mention>"
 ```
 
 Record the traceable evidence as `coverage_evidence: [{skill_id,

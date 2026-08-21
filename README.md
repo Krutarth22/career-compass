@@ -259,14 +259,15 @@ codex/skills/                # thin Codex-compatible entrypoint
     └── {scripts,reference,templates,modes} -> canonical resources
 .claude/skills/
 └── skillpath/
-    ├── SKILL.md              # router: roadmap, college-plan, find-courses,
-    │                          # record-evidence, and bare-invocation help
+    ├── SKILL.md              # router: parses arguments and dispatches to
+    │                          # a mode file; record-evidence stays inline
     ├── scripts/               # deterministic state and planning modules,
     │                          # including curriculum_planner.py (college-plan)
     ├── reference/             # schemas, taxonomy, aliases, and protocols,
     │                          # including curriculum-research-protocol.md
     ├── templates/             # track-specific project definitions
     └── modes/
+        ├── roadmap.md         # career-roadmap orchestration procedure
         ├── college-plan.md    # college course-sequencing procedure
         └── find-courses.md    # focused course-research procedure
 tests/                        # pytest coverage for the Python modules
