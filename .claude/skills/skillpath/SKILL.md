@@ -25,6 +25,15 @@ commands: `college-plan` (major-based college course sequencing --
 -- `modes/find-courses.md`). Step 1 below routes to them; see those files
 for their own step-by-step procedures once routed.
 
+**Behavior change:** `find-courses` previously existed as its own skill
+with no `disable-model-invocation` restriction, so a natural-language
+request ("find me resources for SQL") could trigger it directly. Now that
+it's a mode under `skillpath`, it inherits this skill's
+explicit-invocation-only policy -- natural-language requests no longer
+auto-trigger a course search; only `/skillpath find-courses <skill>` (or
+`$skillpath find-courses <skill>` in Codex) does. This was a deliberate
+trade-off in favor of a single entry point, not an oversight.
+
 ## Resolving paths
 
 Two path roots matter, and they resolve differently -- do not conflate them.
@@ -64,7 +73,7 @@ From `PROJECT_ROOT`, the runtime paths are:
 
 ## Bundled scripts used this run
 
-All six scripts are invoked from `${SKILL_DIR}/scripts/`:
+All seven scripts are invoked from `${SKILL_DIR}/scripts/`:
 
 | Script | CLI? | Used for |
 |---|---|---|
@@ -110,9 +119,13 @@ its own report-saving step.
 
 If `$0` is literally `find-courses`, read and follow
 `${SKILL_DIR}/modes/find-courses.md` in full for the rest of this run,
-with that file's own `$0` (skill) mapped to this invocation's `$1`, and
-using its direct-invocation "Print results" behavior (this is not the
-in-process case). Stop following this file once routed.
+with that file's own `$0` (skill) mapped to **all of this invocation's
+remaining words joined back together with single spaces** -- `$1` plus any
+further `$2`, `$3`, etc. A skill name is very often more than one word
+(e.g. "feature engineering", "SQL window functions"); mapping only `$1`
+silently truncates it, so never do that. Use its direct-invocation "Print
+results" behavior (this is not the in-process case). Stop following this
+file once routed.
 
 If `$0` is literally `confirm`:
 

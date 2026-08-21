@@ -21,7 +21,16 @@ dollar-sign invocation:
 - **`/skillpath find-courses <skill>` / `$skillpath find-courses <skill>`**
   searches for 2–3 current learning resources for one skill. It can run
   standalone, or in-process as part of the main roadmap flow or the
-  college-plan mode.
+  college-plan mode. Multi-word skill names don't need quoting -- every
+  word after `find-courses` is joined back together.
+
+> **Behavior change:** `find-courses` was previously its own skill with no
+> explicit-invocation restriction, so a natural-language request ("find me
+> resources for SQL") could trigger it directly. As a mode under
+> `skillpath`, it now inherits skillpath's explicit-invocation-only
+> policy -- only `/skillpath find-courses <skill>` (or `$skillpath
+> find-courses <skill>`) triggers a course search. This is a deliberate
+> trade-off in favor of a single entry point.
 
 ## Requirements
 
