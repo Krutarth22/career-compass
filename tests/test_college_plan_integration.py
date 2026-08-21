@@ -165,17 +165,23 @@ def test_resolve_profile_skills_cli_matches_documented_invocation():
 
 
 def test_codex_packaging_symlinks_resolve_to_canonical_files():
-    canonical_reference = REPO_ROOT / ".claude" / "skills" / "college-plan" / "reference"
-    canonical_scripts = REPO_ROOT / ".claude" / "skills" / "college-plan" / "scripts"
+    canonical_reference = REPO_ROOT / ".claude" / "skills" / "skillpath" / "reference"
+    canonical_scripts = REPO_ROOT / ".claude" / "skills" / "skillpath" / "scripts"
+    canonical_modes = REPO_ROOT / ".claude" / "skills" / "skillpath" / "modes"
 
-    codex_reference = REPO_ROOT / "codex" / "skills" / "college-plan" / "reference"
-    codex_scripts = REPO_ROOT / "codex" / "skills" / "college-plan" / "scripts"
+    codex_reference = REPO_ROOT / "codex" / "skills" / "skillpath" / "reference"
+    codex_scripts = REPO_ROOT / "codex" / "skills" / "skillpath" / "scripts"
+    codex_modes = REPO_ROOT / "codex" / "skills" / "skillpath" / "modes"
 
     assert codex_reference.resolve() == canonical_reference.resolve()
     assert codex_scripts.resolve() == canonical_scripts.resolve()
+    assert codex_modes.resolve() == canonical_modes.resolve()
 
-    agents_symlink = REPO_ROOT / ".agents" / "skills" / "college-plan"
-    codex_skill_dir = REPO_ROOT / "codex" / "skills" / "college-plan"
+    assert (canonical_modes / "college-plan.md").is_file()
+    assert (canonical_modes / "find-courses.md").is_file()
+
+    agents_symlink = REPO_ROOT / ".agents" / "skills" / "skillpath"
+    codex_skill_dir = REPO_ROOT / "codex" / "skills" / "skillpath"
     assert agents_symlink.resolve() == codex_skill_dir.resolve()
 
 

@@ -48,7 +48,7 @@ The rendered body follows this fixed order:
    state plainly that no templates exist yet for this target instead of
    rendering this section.
 5. **Course Resources** -- the resource-search results from Step 7 (via
-   `find-courses/SKILL.md`'s procedure), one block per Critical/High gap
+   `modes/find-courses.md`'s procedure), one block per Critical/High gap
    not covered by a selected project and per selected project's unmet
    `skill_prerequisites`: 2-3 resources each (name, URL, one-line reason,
    duration, cost).

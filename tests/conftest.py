@@ -10,9 +10,7 @@ from pathlib import Path
 # Compute repo root from this file's location
 repo_root = Path(__file__).parent.parent
 
-# Add scripts directories to sys.path
+# Add scripts directory to sys.path (college-plan's curriculum_planner.py
+# lives here too, folded into skillpath as its college-plan mode).
 scripts_dir = repo_root / ".claude" / "skills" / "skillpath" / "scripts"
 sys.path.insert(0, str(scripts_dir))
-
-college_plan_scripts_dir = repo_root / ".claude" / "skills" / "college-plan" / "scripts"
-sys.path.insert(0, str(college_plan_scripts_dir))

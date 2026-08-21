@@ -1,7 +1,8 @@
 ---
 name: skillpath
-description: Use only when the user explicitly invokes skillpath with `/skillpath` in Claude Code or `$skillpath` in Codex to generate or update a career roadmap, research target-role gaps, or confirm a skill. It researches current requirements, reconciles tracked gaps, plans projects, finds resources, and writes personal roadmap state. Never invoke it implicitly because it writes files.
+description: Generate or update your personal career roadmap — research target-role requirements, reconcile tracked skill gaps, plan hands-on projects, and surface course resources. Also routes to the college-plan (course sequencing for a major) and find-courses (single-skill resource search) modes. Invoke explicitly with `/skillpath` in Claude Code or `$skillpath` in Codex; it writes profile/tracker/roadmap files, so it never runs on its own.
 disable-model-invocation: true
+argument-hint: "[<current-state> <target-state> | confirm | college-plan | find-courses]"
 allowed-tools: Bash, Read, Write, WebSearch, WebFetch, AskUserQuestion
 ---
 
@@ -11,12 +12,18 @@ Research a user's target career role, reconcile it against their tracked
 skill-gap history, plan a sequenced set of hands-on projects, surface course
 resources for what's left, and write a personal roadmap report to disk.
 
-This is the primary, explicit-invocation-only skillpath skill. In Claude Code,
-invoke it with `/skillpath ...`; in Codex, invoke it with `$skillpath ...`.
-Claude's `disable-model-invocation` frontmatter and Codex's
-`agents/openai.yaml` both enforce that policy. It writes to `profile.yaml`,
-`tracker/skillpath_tracker.csv`, and `roadmaps/*.md`, all of which are
-personal, gitignored data.
+This is the single, explicit-invocation-only entry point for all skillpath
+functionality. In Claude Code, invoke it with `/skillpath ...`; in Codex,
+invoke it with `$skillpath ...`. Claude's `disable-model-invocation`
+frontmatter and Codex's `agents/openai.yaml` both enforce that policy. It
+writes to `profile.yaml`, `tracker/skillpath_tracker.csv`, and
+`roadmaps/*.md`, all of which are personal, gitignored data.
+
+Two other modes live under this same skill rather than as separate
+commands: `college-plan` (major-based college course sequencing --
+`modes/college-plan.md`) and `find-courses` (single-skill resource search
+-- `modes/find-courses.md`). Step 1 below routes to them; see those files
+for their own step-by-step procedures once routed.
 
 ## Resolving paths
 
@@ -67,6 +74,7 @@ All six scripts are invoked from `${SKILL_DIR}/scripts/`:
 | `resolution.py` | `resolve-skill`, `resolve-profile-skills`, `resolve-track` | Step 1, 2, 3, 5 |
 | `gap_state.py` | none -- pure function, no `__main__` at all | Step 4 |
 | `project_planner.py` | `plan` | Step 6 |
+| `curriculum_planner.py` | `match`, `sequence`, `diff` | `college-plan` mode only |
 
 Three of these -- `profile_io.py` saving a profile, `gap_state.py`'s
 `reconcile_assessments`, and `report_state.py` writing a report -- have no
@@ -77,19 +85,34 @@ the `Write` tool), then invoke the underlying pure function with a one-off
 and imports it directly. The exact snippets are given inline at each step
 below -- do not invent a CLI subcommand for these that doesn't exist.
 
-## Step 1 -- Parse arguments and confirm sub-command
+## Step 1 -- Parse arguments and route
 
-Two logical invocation shapes:
+Four logical invocation shapes:
 
 - **Main flow:** `/skillpath "<current-state>" "<target-state>"` in Claude
   Code, or `$skillpath "<current-state>" "<target-state>"` in Codex.
-- **Confirm sub-command:** `/skillpath confirm "<skill>" "<evidence>"` in
-  Claude Code, or `$skillpath confirm "<skill>" "<evidence>"` in Codex.
+- **Confirm sub-command:** `/skillpath confirm "<skill>" "<evidence>"`.
+- **college-plan mode:** `/skillpath college-plan "<major>" "<target_role>"
+  ["<target_level>"]`.
+- **find-courses mode:** `/skillpath find-courses "<skill>"`.
 
-Claude Code exposes positional arguments as `$0`, `$1`, and `$2`. Codex does
-not; parse the text following the `$skillpath` mention into the equivalent
-logical values. Below, `$0`/`$1`/`$2` mean those parsed values when running
-under Codex, not literal shell parameters.
+Claude Code exposes positional arguments as `$0`, `$1`, `$2`, `$3`. Codex
+does not; parse the text following the `$skillpath` mention into the
+equivalent logical values. Below, `$0`/`$1`/`$2`/`$3` mean those parsed
+values when running under Codex, not literal shell parameters.
+
+If `$0` is literally `college-plan`, read and follow
+`${SKILL_DIR}/modes/college-plan.md` in full for the rest of this run, with
+that file's own `$0`/`$1`/`$2` mapped to this invocation's `$1` (major),
+`$2` (target_role), `$3` (target_level) respectively. Stop following this
+file once routed -- the mode file is self-contained end to end, including
+its own report-saving step.
+
+If `$0` is literally `find-courses`, read and follow
+`${SKILL_DIR}/modes/find-courses.md` in full for the rest of this run,
+with that file's own `$0` (skill) mapped to this invocation's `$1`, and
+using its direct-invocation "Print results" behavior (this is not the
+in-process case). Stop following this file once routed.
 
 If `$0` is literally `confirm`:
 
@@ -325,7 +348,7 @@ For each Critical/High-tier gap from Step 4 not covered by any selected
 project's `covered_gap_skill_ids`, and for each selected project's unmet
 `skill_prerequisites` (an empty `skill_prerequisites` list, or one where
 every entry is already held, needs no resource search), run the exact
-resource-search procedure defined in `find-courses/SKILL.md`. Read that
+resource-search procedure defined in `modes/find-courses.md`. Read that
 file and follow it in-process for this purpose -- it explicitly documents
 this in-process usage at its top -- rather than re-describing the search
 procedure here. Collect its structured output (name, URL, reason,

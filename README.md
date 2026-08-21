@@ -7,20 +7,21 @@ your target role, compares them with your existing skills and evidence, builds
 a sequenced portfolio-project plan, finds learning resources for uncovered
 gaps, and saves a dated roadmap that evolves as you make progress.
 
-The repository includes three skills. Claude Code uses slash invocation;
-Codex uses dollar-sign invocation:
+The repository ships a single skill, `skillpath`, with two additional modes
+routed through it. Claude Code uses slash invocation; Codex uses
+dollar-sign invocation:
 
 - **`/skillpath` / `$skillpath`** builds and updates the complete career
   roadmap. It only runs when explicitly invoked because it writes personal
   state to the repository.
-- **`/college-plan` / `$college-plan`** answers an earlier, different
-  question: for a learner entering or already in college and majoring in a
-  given subject, what courses should they take, in what order, to end up
-  qualified for a target career? It only runs when explicitly invoked
-  because it writes a report to the repository.
-- **`/find-courses` / `$find-courses`** searches for 2–3 current learning
-  resources for one skill. It can run independently or as part of
-  skillpath or college-plan.
+- **`/skillpath college-plan ...` / `$skillpath college-plan ...`** answers
+  an earlier, different question: for a learner entering or already in
+  college and majoring in a given subject, what courses should they take,
+  in what order, to end up qualified for a target career?
+- **`/skillpath find-courses <skill>` / `$skillpath find-courses <skill>`**
+  searches for 2–3 current learning resources for one skill. It can run
+  standalone, or in-process as part of the main roadmap flow or the
+  college-plan mode.
 
 ## Requirements
 
@@ -118,10 +119,10 @@ To research learning resources without generating a full roadmap:
 
 ```text
 # Claude Code
-/find-courses feature engineering
+/skillpath find-courses feature engineering
 
 # Codex
-$find-courses feature engineering
+$skillpath find-courses feature engineering
 ```
 
 Each roadmap run creates a timestamped file under `roadmaps/` with:
@@ -134,18 +135,18 @@ Each roadmap run creates a timestamped file under `roadmaps/` with:
 
 ### College course planning
 
-`/college-plan` is for a different situation than `/skillpath`: a learner
-who is entering or already partway through a college degree and wants to
-know which courses in a typical curriculum for their major cover a target
-career's requirements, in what order. It is major-based, not tied to any
-specific school's catalog.
+`/skillpath college-plan` is for a different situation than the main
+`/skillpath` flow: a learner who is entering or already partway through a
+college degree and wants to know which courses in a typical curriculum for
+their major cover a target career's requirements, in what order. It is
+major-based, not tied to any specific school's catalog.
 
 ```text
 # Claude Code
-/college-plan "Computer Science" "Data Scientist"
+/skillpath college-plan "Computer Science" "Data Scientist"
 
 # Codex
-$college-plan "Computer Science" "Data Scientist"
+$skillpath college-plan "Computer Science" "Data Scientist"
 ```
 
 An optional third argument sets the target level (defaults to "entry-level
@@ -153,7 +154,7 @@ An optional third argument sets the target level (defaults to "entry-level
 
 ```text
 # Claude Code
-/college-plan "Computer Science" "Data Scientist" "Senior"
+/skillpath college-plan "Computer Science" "Data Scientist" "Senior"
 ```
 
 Each run asks a short set of conversational questions (degree type,
@@ -201,7 +202,7 @@ state handling and planning logic:
    `project_planner.py` deterministically selects templates that cover the most
    important gaps within the time budget, expands prerequisites, and places the
    capstone last.
-7. **Find remaining resources.** The find-courses workflow searches for current courses
+7. **Find remaining resources.** The find-courses mode searches for current courses
    only for gaps the selected projects do not cover.
 8. **Persist the result.** `report_state.py` writes Markdown with YAML
    frontmatter, while `tracker_io.py` appends the report event to the CSV
@@ -228,34 +229,24 @@ commit or publish them from a fork.
 ### Repository layout
 
 ```text
-.agents/skills/              # Codex discovery symlinks
-├── skillpath -> ../../codex/skills/skillpath
-├── college-plan -> ../../codex/skills/college-plan
-└── find-courses -> ../../codex/skills/find-courses
-codex/skills/                # thin Codex-compatible entrypoints
-├── skillpath/
-│   ├── SKILL.md
-│   ├── agents/openai.yaml
-│   └── {scripts,reference,templates} -> canonical resources
-├── college-plan/
-│   ├── SKILL.md
-│   ├── agents/openai.yaml
-│   └── {scripts,reference} -> canonical resources
-└── find-courses/
+.agents/skills/              # Codex discovery symlink
+└── skillpath -> ../../codex/skills/skillpath
+codex/skills/                # thin Codex-compatible entrypoint
+└── skillpath/
     ├── SKILL.md
-    └── agents/openai.yaml
+    ├── agents/openai.yaml
+    └── {scripts,reference,templates,modes} -> canonical resources
 .claude/skills/
-├── skillpath/
-│   ├── SKILL.md              # main orchestration instructions
-│   ├── scripts/              # deterministic state and planning modules
-│   ├── reference/            # schemas, taxonomy, aliases, and protocols
-│   └── templates/            # track-specific project definitions
-├── college-plan/
-│   ├── SKILL.md              # college course-sequencing orchestration
-│   ├── scripts/               # curriculum_planner.py (matching, sequencing, diff)
-│   └── reference/             # curriculum-research-protocol.md
-└── find-courses/
-    └── SKILL.md              # focused course-research workflow
+└── skillpath/
+    ├── SKILL.md              # router: main flow, confirm, and mode dispatch
+    ├── scripts/               # deterministic state and planning modules,
+    │                          # including curriculum_planner.py (college-plan mode)
+    ├── reference/             # schemas, taxonomy, aliases, and protocols,
+    │                          # including curriculum-research-protocol.md
+    ├── templates/             # track-specific project definitions
+    └── modes/
+        ├── college-plan.md    # college course-sequencing procedure
+        └── find-courses.md    # focused course-research procedure
 tests/                        # pytest coverage for the Python modules
 profile.yaml.example          # safe sample profile
 tracker/                      # sample and local event history

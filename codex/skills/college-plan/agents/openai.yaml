@@ -1,7 +1,0 @@
-interface:
-  display_name: "College Plan"
-  short_description: "Build a major-to-career college course sequence"
-  default_prompt: "Use $college-plan to plan my college courses toward my target career."
-
-policy:
-  allow_implicit_invocation: false

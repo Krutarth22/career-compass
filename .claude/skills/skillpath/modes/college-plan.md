@@ -1,69 +1,48 @@
----
-name: college-plan
-description: Use only when the user explicitly invokes college-plan with `/college-plan` in Claude Code or `$college-plan` in Codex to get a major-based, multi-year college course sequence toward a target career. It researches target-role requirements and a generic multi-school curriculum, matches the learner's own coursework, sequences remaining courses, and writes a personal college-plan report. Never invoke it implicitly because it writes a file.
-disable-model-invocation: true
-allowed-tools: Bash, Read, Write, WebSearch, WebFetch, AskUserQuestion
----
+# college-plan mode
 
-# college-plan
+Answer a different, earlier question than skillpath's main flow does: "I'm
+entering (or already in) college, majoring in `<major>` — what courses
+should I actually take, in what order, to end up qualified for
+`<target_role>`?"
 
-Answer a different, earlier question than `skillpath` does: "I'm entering
-(or already in) college, majoring in `<major>` — what courses should I
-actually take, in what order, to end up qualified for `<target_role>`?"
+Reached from `SKILL.md` Step 1 when `$0` is literally `college-plan`
+(`/skillpath college-plan "<major>" "<target_role>" ["<target_level>"]` in
+Claude Code, `$skillpath college-plan "<major>" "<target_role>"
+["<target_level>"]` in Codex). This file's own `$0`/`$1`/`$2` below refer
+to that routed invocation's major/target_role/target_level (i.e. the outer
+`$1`/`$2`/`$3`) -- the caller has already mapped them.
 
-Reuses `skillpath`'s target-role research procedure
-(`../skillpath/reference/research-protocol.md`), skill-resolution module
-(`../skillpath/scripts/resolution.py`), and report-file writer
-(`../skillpath/scripts/report_state.py`) exactly as they exist today. Adds
-a new curriculum-research pass and a new deterministic
+Reuses skillpath's target-role research procedure
+(`reference/research-protocol.md`), skill-resolution module
+(`scripts/resolution.py`), and report-file writer (`scripts/report_state.py`)
+exactly as they exist today, since both now live in the same skill package.
+Adds a new curriculum-research pass and a new deterministic
 matching/sequencing/coverage script (`scripts/curriculum_planner.py`).
-Does not require a prior `/skillpath` run or an existing `profile.yaml` —
+Does not require a prior main-flow run or an existing `profile.yaml` —
 both are used opportunistically when present, never required.
 
 ## Resolving paths
 
-Same convention as `skillpath`:
+`SKILL_DIR` and `PROJECT_ROOT` are already resolved by `SKILL.md`'s own
+"Resolving paths" section before routing here -- reuse them as-is.
 
-```bash
-PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-SKILL_DIR="${CLAUDE_SKILL_DIR:-${PROJECT_ROOT}/.agents/skills/college-plan}"
-SKILLPATH_SKILL_DIR="${SKILL_DIR}/../skillpath"
-```
-
-Claude Code supplies `CLAUDE_SKILL_DIR` directly. Codex discovers the
-repo-scoped symlink at `.agents/skills/college-plan`, resolving through to
-`codex/skills/college-plan/`, whose `reference/` and `scripts/` entries
-are themselves symlinks into `.claude/skills/college-plan/`.
-
-**Bundled resources** (`reference/*`, `scripts/*.py`, and the same for
-`skillpath` via `SKILLPATH_SKILL_DIR`) are addressed with these variables
-— never a bare relative path.
-
-**Runtime state** — only `roadmaps/college-plans/` (this skill writes no
+**Runtime state** — only `roadmaps/college-plans/` (this mode writes no
 `profile.yaml`, no tracker) — resolves relative to `PROJECT_ROOT`. Create
-`${PROJECT_ROOT}/roadmaps/.tmp/` (already gitignored, shared with
-`skillpath`) with `mkdir -p` before first use in a run, for the
-intermediate JSON files the CLI-less pure functions below need as file
-input.
-
-## Invocation
-
-`/college-plan "<major>" "<target_role>" ["<target_level>"]` in Claude
-Code, `$college-plan "<major>" "<target_role>" ["<target_level>"]` in
-Codex. Zero-indexed positional args: `$0` = major, `$1` = target_role,
-`$2` = optional target_level.
+`${PROJECT_ROOT}/roadmaps/.tmp/` (already gitignored, shared with the main
+flow) with `mkdir -p` before first use in a run, for the intermediate JSON
+files the CLI-less pure functions below need as file input.
 
 ## Step 1 — Parse args
 
-If `$2` is absent, default `target_level` to `"entry-level / new
-graduate"` and record `target_level_was_defaulted: true` in the
+If `$2` (target_level) is absent, default `target_level` to `"entry-level
+/ new graduate"` and record `target_level_was_defaulted: true` in the
 frontmatter; otherwise use `$2` and set that flag `false`.
 
 ## Step 2 — Learner-context intake
 
 Ask the learner, conversationally, for each field below. Nothing here is
 persisted to `profile.yaml` or any new state file — it's asked fresh every
-run (see the spec's Out of Scope: no cross-run course-tracking in v1).
+run (no cross-run course-tracking).
 
 - `degree_type` (e.g. "BS", "BA")
 - `education_system` (e.g. "United States", "United Kingdom") — scopes
@@ -83,36 +62,36 @@ run (see the spec's Out of Scope: no cross-run course-tracking in v1).
 Then, opportunistically, check for `${PROJECT_ROOT}/profile.yaml`:
 
 ```bash
-python3 "${SKILLPATH_SKILL_DIR}/scripts/profile_io.py" load "${PROJECT_ROOT}/profile.yaml"
+python3 "${SKILL_DIR}/scripts/profile_io.py" load "${PROJECT_ROOT}/profile.yaml"
 ```
 
 If present, use its `location` field to localize Step 3's research
-queries. If absent, proceed without that refinement — this skill never
+queries. If absent, proceed without that refinement — this mode never
 requires a profile.
 
 ## Step 3 — Research target-role requirements
 
-Follow `${SKILLPATH_SKILL_DIR}/reference/research-protocol.md` exactly —
-same evidence bar (≥4 fetched postings + ≥2 fetched practitioner sources
-per validated requirement), same current-year/evergreen query split.
-Resolve each surfaced skill mention:
+Follow `${SKILL_DIR}/reference/research-protocol.md` exactly — same
+evidence bar (≥4 fetched postings + ≥2 fetched practitioner sources per
+validated requirement), same current-year/evergreen query split. Resolve
+each surfaced skill mention:
 
 ```bash
-python3 "${SKILLPATH_SKILL_DIR}/scripts/resolution.py" resolve-skill "<free text mention>"
+python3 "${SKILL_DIR}/scripts/resolution.py" resolve-skill "<free text mention>"
 ```
 
-Unlike `skillpath`, this skill has no `gap_assessments[]` layer, so it
+Unlike the main flow, this mode has no `gap_assessments[]` layer, so it
 assigns `tier` (Critical/High/Medium/Low, by frequency signal +
 centrality, capped at Medium when confidence is low) and a per-requirement
 `confidence: high | medium | low` directly on each `target_requirements[]`
-entry here, using the identical judgment rule
-`research-protocol.md`/`skillpath`'s Step 4 documents. Also roll the set
-up into an overall `research_confidence` for the report.
+entry here, using the identical judgment rule `research-protocol.md`'s
+Step 4 documents. Also roll the set up into an overall
+`research_confidence` for the report.
 
 ## Step 4 — Research curriculum
 
-Follow `reference/curriculum-research-protocol.md` in full to produce two
-lists:
+Follow `${SKILL_DIR}/reference/curriculum-research-protocol.md` in full to
+produce two lists:
 
 - A raw `course_sequence[]` (not yet placed into years): each entry has
   `course_name`, `aliases` (real course codes seen at consulted schools),
@@ -186,11 +165,11 @@ in_progress, upcoming}).
 
 ## Step 8 — Supplemental resources
 
-For every `uncovered_skills[]` entry, follow
-`../find-courses/SKILL.md`'s existing procedure in-process — same
-`WebSearch`-only sourcing contract, never claiming to have fetched a page.
-Collect its structured output (name, URL, reason, duration, cost) for
-Step 10's report body, rather than printing it.
+For every `uncovered_skills[]` entry, follow `modes/find-courses.md`'s
+existing procedure in-process — same `WebSearch`-only sourcing contract,
+never claiming to have fetched a page. Collect its structured output
+(name, URL, reason, duration, cost) for Step 10's report body, rather than
+printing it.
 
 ## Step 9 — Apply course-load/co-op advisories
 
@@ -206,16 +185,17 @@ Presentation-only — never mutates any `final_year`:
 
 ## Step 10 — Compose & save
 
-Build the frontmatter (schema in `docs/superpowers/specs/2026-08-19-college-plan-design.md`'s
-"Report Schema") and render the body in this fixed order: Header, Target
-Role Requirements, Course Sequence by Year, Electives Worth Considering,
-Skills Not Covered by a Typical Curriculum + Supplemental Resources, Study
-Notes, Next Steps.
+Build the frontmatter (schema in
+`docs/superpowers/specs/2026-08-19-college-plan-design.md`'s "Report
+Schema") and render the body in this fixed order: Header, Target Role
+Requirements, Course Sequence by Year, Electives Worth Considering, Skills
+Not Covered by a Typical Curriculum + Supplemental Resources, Study Notes,
+Next Steps.
 
 **Study Notes canonicalization:** when `profile.yaml` is present, compare
 its `current_skills` against `covers_skill_ids` canonically — resolve
 `current_skills[].skill` free text via
-`resolution.py resolve-profile-skills` first, exactly as `skillpath`
+`resolution.py resolve-profile-skills` first, exactly as the main flow
 itself does, never compare raw `skill` text directly. List
 `self_reported_courses[]` plainly as "reported, but not counted toward
 requirement coverage — use `/skillpath confirm` if you can back a specific
@@ -228,7 +208,7 @@ first, then:
 ```bash
 python3 -c "
 import json, sys
-sys.path.insert(0, '${SKILLPATH_SKILL_DIR}/scripts')
+sys.path.insert(0, '${SKILL_DIR}/scripts')
 from report_state import write_report
 
 tmp = '${PROJECT_ROOT}/roadmaps/.tmp'
@@ -258,7 +238,7 @@ against (the same rule that keeps `course_sequence[]`/`electives[]` from
 ever inferring coverage from a bare title). They're listed in the report
 for the learner's own record, never for coverage credit.
 
-## Carried-over rules from `skillpath`
+## Carried-over rules from the main flow
 
 Never fabricate a course, source, or resource; every research-pass claim
 traces to a real fetched source (with `find-courses`'s one documented
