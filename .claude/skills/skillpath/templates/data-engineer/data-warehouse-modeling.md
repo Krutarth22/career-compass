@@ -86,3 +86,7 @@ source directly.
 - SQL schema design and database design tradeoffs
 - Translating business questions into a queryable data model
 - Data warehousing fundamentals independent of any specific vendor
+
+## Industry Relevance
+
+Retail, Ride-Hailing, Subscription Billing. Any company with high-volume transactional data needs a dimensional model behind its reporting layer, because querying raw normalized source tables directly for business questions like "revenue by region by month" doesn't scale as the business grows. This project's fact/dimension design and Type 2 slowly-changing-dimension logic mirror the exact warehouse-modeling work that lets these companies track how a customer's or product's attributes changed over time without losing historical accuracy in their reports.

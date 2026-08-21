@@ -89,3 +89,7 @@ against an events table.
 - Retention and funnel analysis frameworks
 - Segmentation-driven diagnosis of product/business problems
 - Data visualization (heatmaps, funnel charts) for behavioral data
+
+## Industry Relevance
+
+Mobile Apps, SaaS, Consumer Subscriptions. Product and growth teams in these sectors live or die by retention and conversion — a subscription business that doesn't know which cohort churns fastest or where users abandon signup is flying blind on its biggest cost driver. The SQL-driven cohort retention and funnel drop-off analysis this project builds is the exact diagnostic work growth and product analytics teams run every week to find where to invest engineering and marketing effort next.

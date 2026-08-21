@@ -87,3 +87,7 @@ the full request path across every agent.
 - Standardized, shared tool-server integration (MCP-style tool sharing)
 - Coordination pattern design (supervisor/routing) for agentic systems
 - Cross-agent tracing and debugging
+
+## Industry Relevance
+
+Enterprise Automation, Research & Knowledge Work, Developer Tools. Companies building complex AI-driven workflows — research synthesis, code review pipelines, back-office process automation — increasingly split work across specialized agents rather than one monolithic prompt, because a planner/executor/reviewer split is easier to reason about and debug than a single agent doing everything. Shared tool servers and end-to-end tracing across agents are exactly the coordination and observability patterns these teams need before trusting a multi-agent system with real work.

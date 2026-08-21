@@ -92,3 +92,7 @@ and why you engineered the features you did.
 - Python data-manipulation fluency (pandas-level EDA and transformation
   workflows)
 - Leakage-aware, target-driven feature design
+
+## Industry Relevance
+
+Ride-Hailing, Retail, Public Health Research. Modeling teams in these sectors spend most of a project's time turning messy raw logs — trip records, transaction histories, survey extracts — into a clean, leakage-free feature table before any model gets trained, and a feature that accidentally uses future information produces a model that looks great in testing and fails in production. This project's target-driven feature design and explicit leakage checks build the exact discipline that keeps a data science team's models trustworthy once they leave the notebook.

@@ -79,3 +79,7 @@ you can watch it execute in the UI.
   pipelines
 - Operational instincts around failure handling and alerting
 - Reading and debugging orchestration run history/logs
+
+## Industry Relevance
+
+Media & Entertainment, Logistics, Financial Reporting. Companies in these sectors run daily or hourly data pipelines that feed reporting, recommendation, or billing systems, and a silent failure in one step can leave downstream consumers working off stale or partial data without anyone noticing until a stakeholder complains. This project's DAG-based dependency management, retries with backoff, failure alerting, and backfill support are the standard orchestration practices that let a data engineering team trust that yesterday's pipeline actually ran, and recover cleanly when it didn't.

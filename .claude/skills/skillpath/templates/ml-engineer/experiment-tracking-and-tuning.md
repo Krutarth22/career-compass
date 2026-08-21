@@ -66,3 +66,7 @@ winning config and confirms it lands within noise of the original result.
 - Reproducible ML experimentation practices
 - Trial comparison and model selection discipline
 - MLOps instincts around experiment provenance
+
+## Industry Relevance
+
+Autonomous Systems, Ad Tech, Healthcare AI. Teams training models in these sectors run dozens to hundreds of trials per project, and without disciplined experiment tracking it becomes impossible to answer "which config actually produced our best model" months later when a stakeholder or auditor asks. This project's leaderboard comparison and reproducibility check are the exact practices that let an ML team trust and defend a model's provenance long after the original training run.

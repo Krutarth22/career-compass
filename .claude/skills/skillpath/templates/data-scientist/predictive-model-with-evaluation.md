@@ -91,3 +91,7 @@ just a single accuracy number.
   comparisons
 - Error analysis and honest reporting of model limitations
 - Python fluency across a full scikit-learn-style modeling workflow
+
+## Industry Relevance
+
+Consumer Lending, Fraud Detection, Real Estate. A model predicting default, fraud, or price in these sectors is only as trustworthy as the evaluation behind it, and a team that skips a proper baseline, cross-validation, or subgroup error analysis risks shipping a model that looks strong on a single held-out number but fails badly for a specific customer segment or edge case. This project's rigorous baseline-to-final-model evaluation harness and honest documentation of the model's limits is the exact bar these industries hold a model to before it's allowed to influence a real financial or business decision.

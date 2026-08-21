@@ -64,3 +64,7 @@ behavior on held-out prompts.
 - Training data curation and formatting for instruction tuning
 - Before/after model evaluation methodology
 - Adapter packaging and reuse
+
+## Industry Relevance
+
+Legal Tech, Customer Support Automation, Vertical SaaS. Companies building AI products for a narrow domain — a specific document format, a house style, a niche support workflow — often find prompting alone unreliable and turn to lightweight fine-tuning to lock in behavior without the cost of full retraining. This project's LoRA adapter workflow, from data curation through before/after evaluation and packaging for reuse, mirrors exactly how these companies customize an open-weight model to their domain while keeping training cheap enough to iterate on.

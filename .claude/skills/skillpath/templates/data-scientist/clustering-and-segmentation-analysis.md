@@ -90,3 +90,7 @@ should be treated differently.
 - Data visualization for dimensionality reduction and segment profiling
 - Business-oriented translation of an unsupervised result into
   recommendations
+
+## Industry Relevance
+
+Retail, Streaming Media, Telecommunications. Companies with large user bases in these sectors use behavioral segmentation to decide who gets a retention offer, which content gets recommended, or which usage pattern signals churn risk, and a poorly justified cluster count or unstable segmentation leads directly to misdirected marketing spend. This project's rigor around choosing k with multiple validation methods and checking segment stability mirrors what separates a segmentation a business can act on from one that looks plausible but falls apart on the next data refresh.

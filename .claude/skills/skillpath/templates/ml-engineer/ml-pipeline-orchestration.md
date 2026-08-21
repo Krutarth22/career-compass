@@ -67,3 +67,7 @@ stage that broke instead of restarting from scratch.
 - Building resilient, resumable multi-stage data pipelines
 - Run observability and structured logging
 - CI/CD instincts applied to recurring ML workflows
+
+## Industry Relevance
+
+E-commerce Personalization, Financial Risk Modeling, Ad Tech. Models in these sectors are commonly retrained on a recurring schedule as new data arrives, and a monolithic training script that fails midway through a multi-hour run forces an expensive full restart instead of resuming from the broken stage. This project's DAG-based pipeline with per-stage retries, structured run logging, and resume-from-failure is the orchestration discipline that keeps a retraining pipeline cheap to operate and easy to debug when a stage inevitably breaks.

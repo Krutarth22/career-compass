@@ -97,3 +97,7 @@ region but not another.
 - Causal inference on observational data (diff-in-diff or propensity
   matching)
 - Honest communication of causal claims and their assumptions
+
+## Industry Relevance
+
+E-commerce Pricing, Product Growth, Public Policy Evaluation. Companies changing prices or rolling out new features can't always randomize — a policy might change region by region, or a feature might launch to everyone at once — so teams need both proper A/B test design when randomization is available and causal-inference techniques like diff-in-diff or propensity matching when it isn't. This project's pairing of the two builds exactly the judgment a data scientist needs to know which situation they're in and to avoid presenting a biased observational comparison as if it were a clean experimental result.

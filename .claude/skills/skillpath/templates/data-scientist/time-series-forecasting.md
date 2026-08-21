@@ -87,3 +87,7 @@ uncertainty intervals and a comparison against a naive baseline.
 - Rigorous backtesting methodology for time-dependent data
 - Python fluency for time-series manipulation and forecasting libraries
 - Honest uncertainty communication in a forecast deliverable
+
+## Industry Relevance
+
+Retail Demand Planning, Energy & Utilities, SaaS Revenue Forecasting. Businesses in these sectors make concrete operational commitments — inventory orders, staffing levels, revenue guidance — off a forecast, and a forecast without honest uncertainty bounds or proper backtesting can lead to costly over- or under-provisioning when reality diverges from the point estimate. This project's rolling-origin backtesting against a naive baseline, with uncertainty intervals validated against actual outcomes, mirrors the rigor these industries require before a forecast is trusted enough to drive a purchasing or staffing decision.

@@ -108,3 +108,7 @@ the dashboard and lands on a recommendation.
 - Schema design and documentation for a reusable query layer
 - Portfolio-level stakeholder communication connecting query logic,
   dashboard, and business recommendation into one narrative
+
+## Industry Relevance
+
+Retail Operations, SaaS, Financial Reporting. Any business that reports metrics on a recurring cadence needs the query layer and the dashboard connected end to end, with data-quality checks in between, so leadership isn't looking at numbers a human manually patched before every meeting. This capstone's focus on a live SQL-to-dashboard pipeline with a documented refresh path mirrors the analytics-engineering responsibility many analyst roles in these industries actually own, not just the one-off analysis.

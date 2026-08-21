@@ -51,3 +51,7 @@ prediction distribution over time.
 - Containerization
 - Basic MLOps monitoring instincts
 - Load testing fundamentals
+
+## Industry Relevance
+
+Fraud Detection, Recommendation Engines, Insurance Underwriting. Once a model moves from a notebook to a real product, it needs to answer requests reliably behind an API, survive concurrent load, and give the team a way to notice when its predictions start drifting from what training data looked like. This project's containerized serving, request logging, and basic drift-proxy dashboard are the baseline MLOps practices these industries expect before a model is trusted to make or influence a live decision.

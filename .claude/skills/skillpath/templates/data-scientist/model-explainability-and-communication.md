@@ -90,3 +90,7 @@ short, non-technical stakeholder report with a clear recommendation.
 - Stakeholder communication: translating model internals into a decision
   narrative
 - Critical sanity-checking of model behavior against domain knowledge
+
+## Industry Relevance
+
+Insurance, Consumer Lending, HR Analytics. Decisions like loan approval, claim severity, or flagging employee attrition risk affect real people, and stakeholders in these sectors — and often regulators — need to know which factors actually drove a specific prediction, not just an aggregate accuracy score. This project's combination of global feature importance, partial dependence, and SHAP-based local explanations, translated into a plain-language stakeholder report, is exactly the interpretability work that lets these organizations act on a model's output with confidence instead of treating it as an unaccountable black box.

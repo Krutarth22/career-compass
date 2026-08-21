@@ -83,3 +83,7 @@ specific questions a stakeholder would actually ask about the data.
 - Descriptive statistics and outlier handling
 - Exploratory data visualization
 - Translating a raw dataset into a stakeholder-readable narrative
+
+## Industry Relevance
+
+Public Sector & Civic Data, Hospitality, Transportation. Government agencies and service businesses routinely publish or collect messy operational data — service requests, inspections, on-time performance — that only becomes useful once someone profiles it, makes defensible cleaning decisions, and answers the specific questions a stakeholder cares about. This project's emphasis on documenting every cleaning choice mirrors the transparency these sectors need when a report's conclusions might inform public policy or operational changes.

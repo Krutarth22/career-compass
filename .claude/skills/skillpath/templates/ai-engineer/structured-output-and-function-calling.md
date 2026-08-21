@@ -71,3 +71,7 @@ malformed responses and a test suite that catches prompt regressions.
 - Schema validation and failure-mode handling for generative output
 - Function-calling/tool-mode API usage
 - Regression testing discipline for prompt-driven systems
+
+## Industry Relevance
+
+Insurance Claims Processing, Logistics, Customer Operations. Businesses that process high volumes of unstructured text — invoices, support tickets, shipping documents — need to convert that text into structured data reliably enough to feed a downstream system without a human checking every record. Schema-validated extraction with automatic repair and regression testing is the difference between an LLM feature that quietly corrupts a database and one an operations team can actually depend on.

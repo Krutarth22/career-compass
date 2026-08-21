@@ -60,6 +60,12 @@ below):
   finishing the core build.
 - `## Skills Demonstrated` — a bullet list connecting the finished project
   back to the skills a reader/interviewer would recognize.
+- `## Industry Relevance` — 2-4 sentences naming the real industries or
+  sectors that hire for the skills this project builds (e.g. "Healthcare
+  Insurance, Fraud Detection, Public Health"), and briefly why this kind of
+  work matters there. Ground this in the project's actual subject matter and
+  skill_tags — don't invent a fictional company or client, and don't pad with
+  generic "this is valuable everywhere" filler; name specific sectors.
 
 See `ai-ml-engineer/rag-pipeline-with-eval.md` and
 `ai-ml-engineer/ml-model-serving-api.md` for fully worked examples.

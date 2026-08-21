@@ -88,3 +88,7 @@ significance testing, confidence intervals, and guardrail-metric checks.
   results
 - Data visualization of experiment results
 - Turning a statistical result into a business recommendation
+
+## Industry Relevance
+
+E-commerce, SaaS, Digital Marketing. Companies in these sectors run constant experiments on pricing, checkout flows, and email/ad copy, and every one of those tests needs someone who can check assignment health, run the right significance test, and separate a real lift from noise before real money follows the recommendation. The ship/no-ship discipline this project builds — guardrail metrics, confidence intervals, segment checks — is exactly what protects these companies from shipping a change that looks good in aggregate but hurts a key segment.

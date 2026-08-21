@@ -267,9 +267,14 @@ for exact content expectations.
 ## Step 9 -- Compose and save the report
 
 Compose the report body per `${SKILL_DIR}/reference/report-format.md`'s
-fixed section order (Header, Since Last Report, Gap Heatmap, Sequenced
-Project Plan, Course Resources, Suggested Study Order, Next Steps), and
-the frontmatter per the schema in that same reference doc.
+fixed section order (Header, Role Overview, Since Last Report, Gap
+Heatmap, Sequenced Project Plan, Course Resources, Suggested Study Order,
+Next Steps), and the frontmatter per the schema in that same reference
+doc. Note in particular that Role Overview and the expanded Sequenced
+Project Plan (full `What You'll Build`/`Steps`/`Skills Demonstrated` per
+project, not a one-line summary) are what make this report read as a
+complete document rather than a data dump -- see that reference doc's
+per-section detail before composing either.
 
 `report_state.py` has no CLI subcommand for writing a report -- only
 `read`/`last`. Write the frontmatter dict and the composed body to

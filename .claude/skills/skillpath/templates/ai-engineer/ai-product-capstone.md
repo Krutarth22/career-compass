@@ -91,3 +91,7 @@ observability, not two side-by-side projects.
   product context
 - Portfolio-level technical communication connecting retrieval, tool use,
   evaluation, and observability into one narrative
+
+## Industry Relevance
+
+Enterprise Software, Customer Support, Legal & Professional Services. Companies in these sectors are racing to ship AI products that combine grounded knowledge retrieval with agentic tool use — think a support copilot that answers from a knowledge base and can also file a ticket, or a research assistant that pulls documents and queries a database in the same session. Shipping this kind of integrated system, with observability that shows what it costs and where it breaks, is exactly what separates a demo from a product a company can actually put in front of customers.

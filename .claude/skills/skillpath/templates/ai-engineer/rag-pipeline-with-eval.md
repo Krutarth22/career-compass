@@ -58,3 +58,7 @@ eyeball it.
 - Building an evaluation harness for a generative system
 - Prompt engineering for grounded generation
 - Basic API deployment and monitoring instincts
+
+## Industry Relevance
+
+Legal Tech, Healthcare Knowledge Management, Internal Enterprise Search. Organizations that sit on large bodies of documents — case law, clinical guidelines, internal policy and product docs — need systems that answer questions grounded in that material instead of an LLM's unverified memory, because a hallucinated answer in these domains carries real legal, medical, or compliance risk. Building a RAG pipeline with a real evaluation harness demonstrates the retrieval-quality and answer-faithfulness discipline these sectors require before trusting an AI system with their documents.

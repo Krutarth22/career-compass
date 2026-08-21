@@ -85,3 +85,7 @@ numbers mean and what you'd recommend doing about them.
 - Dashboard information design and drill-down interaction design
 - Data visualization best practices
 - Stakeholder communication: translating numbers into a decision narrative
+
+## Industry Relevance
+
+Retail, Marketing, Financial Services. Leadership teams in these industries make recurring decisions — inventory, campaign spend, portfolio performance — off dashboards that need to surface the right KPIs at a glance and support drill-down when a number looks off. Building a dashboard that a VP-level stakeholder can actually use, paired with a written narrative connecting the numbers to a recommendation, is the day-to-day deliverable that separates a working analyst from someone who can just build charts.

@@ -84,3 +84,7 @@ two side-by-side projects.
 - Production-shaped monitoring and drift-detection instincts
 - Portfolio-level technical communication connecting pipeline, serving,
   and monitoring into one narrative
+
+## Industry Relevance
+
+Fraud Detection, Recommendation Systems, Demand Forecasting. Production ML teams in these sectors need retraining to flow automatically into a served model without manual redeployment, and a live model that silently degrades as real-world data drifts away from training data can cost real money before anyone notices. This capstone's closed loop of training, promotion-on-improvement, containerized serving, and drift monitoring mirrors the full lifecycle an ML engineering team owns once a model is no longer a one-off notebook experiment but a system other parts of the business depend on.

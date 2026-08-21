@@ -85,3 +85,7 @@ from basic joins and aggregations up through CTEs and window functions.
 - Translating ambiguous business questions into precise queries
 - Query validation and basic performance awareness
 - Data storytelling from query results to stakeholder-ready findings
+
+## Industry Relevance
+
+Retail & E-commerce, Ride-Hailing/Marketplace, Subscription Services. Analyst roles at companies in these sectors spend much of their week translating ambiguous questions from sales, ops, or product leaders into precise SQL against a real multi-table schema they didn't design. The progression from basic aggregation to window functions and CTEs this project builds is the exact SQL fluency bar these companies screen for in analyst interviews, because it's the daily work of answering "why did revenue drop last month" against real relational data.

@@ -42,6 +42,7 @@ REQUIRED_SECTIONS = (
     "Steps",
     "Extension Ideas",
     "Skills Demonstrated",
+    "Industry Relevance",
 )
 
 

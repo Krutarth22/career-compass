@@ -90,3 +90,7 @@ version was slow versus a tuned second version.
 - Reading and acting on a Spark execution plan and UI
 - Batch processing of larger-than-memory datasets
 - Performance tuning grounded in observed bottlenecks, not guesswork
+
+## Industry Relevance
+
+Ad Tech, Telecommunications, Streaming Media. These industries generate clickstream, call-detail, or viewership data at a volume that no longer fits comfortably in memory on a single machine, so processing it requires understanding partitioning, shuffle cost, and join strategy rather than just calling pandas functions. This project's naive-versus-tuned comparison, grounded in reading an actual Spark execution plan, mirrors the performance-debugging work data engineers in these sectors do whenever a batch job's runtime becomes a cost or SLA problem.

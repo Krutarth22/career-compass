@@ -82,3 +82,7 @@ without duplicating or dropping already-processed events.
 - Consumer group semantics, offset management, and idempotent sinks
 - Windowed aggregation and handling out-of-order/duplicate events
 - Operational health signals for streaming systems (lag, restart safety)
+
+## Industry Relevance
+
+IoT & Industrial Monitoring, Ad Tech, E-commerce Clickstream. Businesses in these sectors need near-real-time visibility into events as they happen — a sensor reading, an ad impression, a click — rather than waiting for the next scheduled batch job, and getting that wrong means either double-counting events or silently dropping them after a crash. This project's windowed aggregation, dedup-on-event-ID, and restart-safe consumer offset handling are the exact concerns that separate a streaming pipeline these companies can trust from one that quietly corrupts its own metrics.

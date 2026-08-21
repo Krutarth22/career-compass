@@ -116,3 +116,7 @@ it in a system design interview.
 - Failure handling and recovery design for multi-stage data pipelines
 - Portfolio-level technical communication connecting ingestion, modeling,
   orchestration, and data quality into one system narrative
+
+## Industry Relevance
+
+Retail, Healthcare, Financial Services. Data platform teams at companies in these sectors are responsible for the full path from raw source data to a trustworthy warehouse that the rest of the business queries, and a validation failure that silently reaches the warehouse can mislead every downstream report or dashboard built on it. This capstone's quality gate that blocks a warehouse load when bad data is detected, combined with scheduled, idempotent, resumable runs, mirrors the operational bar a real data platform team is held to once other teams depend on its output.

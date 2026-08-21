@@ -64,3 +64,7 @@ fetch the latest feature values for an entity (user, product, etc.) by ID.
 - Batch data pipeline construction
 - Point-in-time correctness reasoning for ML training data
 - Online/offline feature store architecture at a small scale
+
+## Industry Relevance
+
+Fraud Detection, Personalization/Recommendation, Credit Risk. Real-time ML systems in these sectors need to fetch a user's or transaction's current feature values in milliseconds while also guaranteeing the exact same feature logic was used consistently at training time, and a point-in-time correctness bug silently leaks future information into training data, producing a model that looks great offline and fails online. This project's registry, batch computation, and leakage-testing discipline mirrors the feature-store architecture that keeps these production ML systems both fast and honest.

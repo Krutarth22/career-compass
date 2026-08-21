@@ -116,3 +116,7 @@ on the model's output.
   audience
 - Portfolio-level technical writing connecting modeling rigor to business
   impact
+
+## Industry Relevance
+
+Consumer Lending, Insurance Underwriting, Manufacturing Quality Control. Decisions in these sectors — who gets a loan, which claim gets flagged, which unit gets inspected — routinely need a model whose predictions are both rigorously evaluated and explainable enough that a human reviewer or regulator can understand why it flagged what it flagged. This capstone's requirement that explainability sit on the same final model as the evaluation, not a separate toy example, mirrors the real constraint these industries operate under: a model that performs well but can't be explained often can't be deployed at all.

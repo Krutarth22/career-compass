@@ -87,3 +87,7 @@ narrative you'd deliver to leadership.
 - Advanced spreadsheet modeling (formulas-driven, not hardcoded)
 - Recurring/templated business reporting
 - Data storytelling and stakeholder-facing presentation structure
+
+## Industry Relevance
+
+Subscription Businesses, Marketplaces, B2B SaaS. These business models live and die by a small set of core metrics — retention, LTV:CAC, marketplace liquidity — and leadership needs a recurring report that separates the KPIs that drive decisions from vanity metrics that just look good. The metric-definition discipline and formulas-driven reporting structure this project builds is precisely what keeps a growing company's leadership team aligned on what "healthy" actually means period over period.

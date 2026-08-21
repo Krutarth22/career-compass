@@ -67,3 +67,7 @@ replay and debug.
 - Tool/function-calling contracts for LLMs
 - Guardrail design for agentic systems
 - Debugging agentic behavior via transcript logging
+
+## Industry Relevance
+
+Software Automation, FinTech, E-commerce Operations. Firms in these sectors increasingly rely on LLM agents to handle multi-step tasks that used to require a human stitching together several tools by hand, such as looking up an account, computing a value, and taking an action. Building an agent loop with real guardrails and transcript logging mirrors the reliability bar these companies require before letting an agent touch production systems or customer-facing workflows.
