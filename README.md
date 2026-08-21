@@ -7,26 +7,35 @@ your target role, compares them with your existing skills and evidence, builds
 a sequenced portfolio-project plan, finds learning resources for uncovered
 gaps, and saves a dated roadmap that evolves as you make progress.
 
-The repository ships a single skill, `skillpath`, with two additional modes
-routed through it. Claude Code uses slash invocation; Codex uses
-dollar-sign invocation:
+The repository ships a single skill, `skillpath`, that routes to four
+commands keyed off a mandatory first word. Claude Code uses slash
+invocation; Codex uses dollar-sign invocation:
 
-- **`/skillpath` / `$skillpath`** builds and updates the complete career
-  roadmap. It only runs when explicitly invoked because it writes personal
-  state to the repository.
+- **`/skillpath roadmap ...` / `$skillpath roadmap ...`** builds and
+  updates the complete career roadmap. It only runs when explicitly
+  invoked because it writes personal state to the repository.
 - **`/skillpath college-plan ...` / `$skillpath college-plan ...`** answers
   an earlier, different question: for a learner entering or already in
   college and majoring in a given subject, what courses should they take,
   in what order, to end up qualified for a target career?
 - **`/skillpath find-courses <skill>` / `$skillpath find-courses <skill>`**
   searches for 2–3 current learning resources for one skill. It can run
-  standalone, or in-process as part of the main roadmap flow or the
-  college-plan mode. Multi-word skill names don't need quoting -- every
-  word after `find-courses` is joined back together.
+  standalone, or in-process as part of the roadmap flow or the college-plan
+  command. Multi-word skill names don't need quoting -- every word after
+  `find-courses` is joined back together.
+- **`/skillpath record-evidence "<skill>" "<evidence>"` /
+  `$skillpath record-evidence "<skill>" "<evidence>"`** records evidence
+  that closes a tracked skill gap.
+
+A bare `/skillpath` (or `$skillpath`) with no command prints this same
+list. Requiring an explicit command word, rather than treating a bare
+current-state string as the default flow, removes the ambiguity of a
+current-state that happens to collide with a reserved word like
+`college-plan` or `find-courses`.
 
 > **Behavior change:** `find-courses` was previously its own skill with no
 > explicit-invocation restriction, so a natural-language request ("find me
-> resources for SQL") could trigger it directly. As a mode under
+> resources for SQL") could trigger it directly. As a command under
 > `skillpath`, it now inherits skillpath's explicit-invocation-only
 > policy -- only `/skillpath find-courses <skill>` (or `$skillpath
 > find-courses <skill>`) triggers a course search. This is a deliberate
@@ -92,10 +101,10 @@ Use the command for your host:
 
 ```text
 # Claude Code
-/skillpath "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
+/skillpath roadmap "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
 
 # Codex
-$skillpath "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
+$skillpath roadmap "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
 ```
 
 On the first run, skillpath asks for any missing profile details, such as your
@@ -104,24 +113,27 @@ Later runs can reuse the saved profile:
 
 ```text
 # Claude Code
-/skillpath
+/skillpath roadmap
 
 # Codex
-$skillpath
+$skillpath roadmap
 ```
 
 Arguments supplied on a later run are temporary overrides unless you choose to
 save them to the profile.
 
-When you have evidence that you can apply a skill, confirm it so future reports
-can close the corresponding gap:
+Running `/skillpath` (or `$skillpath`) with no command prints a short list
+of the four available commands.
+
+When you have evidence that you can apply a skill, record it so future
+reports can close the corresponding gap:
 
 ```text
 # Claude Code
-/skillpath confirm "model deployment"
+/skillpath record-evidence "model deployment"
 
 # Codex
-$skillpath confirm "model deployment"
+$skillpath record-evidence "model deployment"
 ```
 
 To research learning resources without generating a full roadmap:
@@ -144,8 +156,8 @@ Each roadmap run creates a timestamped file under `roadmaps/` with:
 
 ### College course planning
 
-`/skillpath college-plan` is for a different situation than the main
-`/skillpath` flow: a learner who is entering or already partway through a
+`/skillpath college-plan` is for a different situation than the
+`/skillpath roadmap` flow: a learner who is entering or already partway through a
 college degree and wants to know which courses in a typical curriculum for
 their major cover a target career's requirements, in what order. It is
 major-based, not tied to any specific school's catalog.
@@ -211,7 +223,7 @@ state handling and planning logic:
    `project_planner.py` deterministically selects templates that cover the most
    important gaps within the time budget, expands prerequisites, and places the
    capstone last.
-7. **Find remaining resources.** The find-courses mode searches for current courses
+7. **Find remaining resources.** The find-courses command searches for current courses
    only for gaps the selected projects do not cover.
 8. **Persist the result.** `report_state.py` writes Markdown with YAML
    frontmatter, while `tracker_io.py` appends the report event to the CSV
@@ -247,9 +259,10 @@ codex/skills/                # thin Codex-compatible entrypoint
     └── {scripts,reference,templates,modes} -> canonical resources
 .claude/skills/
 └── skillpath/
-    ├── SKILL.md              # router: main flow, confirm, and mode dispatch
+    ├── SKILL.md              # router: roadmap, college-plan, find-courses,
+    │                          # record-evidence, and bare-invocation help
     ├── scripts/               # deterministic state and planning modules,
-    │                          # including curriculum_planner.py (college-plan mode)
+    │                          # including curriculum_planner.py (college-plan)
     ├── reference/             # schemas, taxonomy, aliases, and protocols,
     │                          # including curriculum-research-protocol.md
     ├── templates/             # track-specific project definitions

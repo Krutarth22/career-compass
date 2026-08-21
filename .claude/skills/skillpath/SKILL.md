@@ -1,8 +1,8 @@
 ---
 name: skillpath
-description: Generate or update your personal career roadmap — research target-role requirements, reconcile tracked skill gaps, plan hands-on projects, and surface course resources. Also routes to the college-plan (course sequencing for a major) and find-courses (single-skill resource search) modes. Invoke explicitly with `/skillpath` in Claude Code or `$skillpath` in Codex; it writes profile/tracker/roadmap files, so it never runs on its own.
+description: Generate or update your personal career roadmap — research target-role requirements, reconcile tracked skill gaps, plan hands-on projects, and surface course resources. Also routes to the college-plan (course sequencing for a major), find-courses (single-skill resource search), and record-evidence (close a tracked gap) commands. Invoke explicitly with `/skillpath` in Claude Code or `$skillpath` in Codex; it writes profile/tracker/roadmap files, so it never runs on its own.
 disable-model-invocation: true
-argument-hint: "[<current-state> <target-state> | confirm | college-plan | find-courses]"
+argument-hint: "[roadmap | college-plan | find-courses | record-evidence]"
 allowed-tools: Bash, Read, Write, WebSearch, WebFetch, AskUserQuestion
 ---
 
@@ -13,16 +13,28 @@ skill-gap history, plan a sequenced set of hands-on projects, surface course
 resources for what's left, and write a personal roadmap report to disk.
 
 This is the single, explicit-invocation-only entry point for all skillpath
-functionality. In Claude Code, invoke it with `/skillpath ...`; in Codex,
-invoke it with `$skillpath ...`. Claude's `disable-model-invocation`
-frontmatter and Codex's `agents/openai.yaml` both enforce that policy. It
-writes to `profile.yaml`, `tracker/skillpath_tracker.csv`, and
-`roadmaps/*.md`, all of which are personal, gitignored data.
+functionality. In Claude Code, invoke it with `/skillpath <command> ...`;
+in Codex, invoke it with `$skillpath <command> ...`. Claude's
+`disable-model-invocation` frontmatter and Codex's `agents/openai.yaml`
+both enforce that policy. It writes to `profile.yaml`,
+`tracker/skillpath_tracker.csv`, and `roadmaps/*.md`, all of which are
+personal, gitignored data.
 
-Two other modes live under this same skill rather than as separate
-commands: `college-plan` (major-based college course sequencing --
-`modes/college-plan.md`) and `find-courses` (single-skill resource search
--- `modes/find-courses.md`). Step 1 below routes to them; see those files
+Four commands hang off this one router, each keyed by a mandatory first
+word (`$0`) rather than a positional guess -- this removes the ambiguity
+of a bare current-state string colliding with a reserved word like
+`college-plan`, and lets a bare `/skillpath` print help instead of
+silently assuming intent:
+
+- `roadmap` -- the main flow described by this file's own Steps 2-9.
+- `college-plan` -- major-based college course sequencing
+  (`modes/college-plan.md`).
+- `find-courses` -- single-skill resource search
+  (`modes/find-courses.md`).
+- `record-evidence` -- record evidence that closes a tracked gap (Step 1,
+  below).
+
+Step 1 routes to whichever command `$0` names; see the linked mode files
 for their own step-by-step procedures once routed.
 
 **Behavior change:** `find-courses` previously existed as its own skill
@@ -96,19 +108,54 @@ below -- do not invent a CLI subcommand for these that doesn't exist.
 
 ## Step 1 -- Parse arguments and route
 
-Four logical invocation shapes:
+Five logical invocation shapes, all keyed off a mandatory first word,
+`$0`, naming the command:
 
-- **Main flow:** `/skillpath "<current-state>" "<target-state>"` in Claude
-  Code, or `$skillpath "<current-state>" "<target-state>"` in Codex.
-- **Confirm sub-command:** `/skillpath confirm "<skill>" "<evidence>"`.
-- **college-plan mode:** `/skillpath college-plan "<major>" "<target_role>"
+- **Bare invocation (help):** `/skillpath` / `$skillpath` with no
+  arguments at all.
+- **`roadmap`:** `/skillpath roadmap "<current-state>" "<target-state>"`
+  in Claude Code, or `$skillpath roadmap "<current-state>" "<target-state>"`
+  in Codex -- builds/updates the full career roadmap (this file's Steps
+  2-9). Both state arguments are optional (see below).
+- **`college-plan`:** `/skillpath college-plan "<major>" "<target_role>"
   ["<target_level>"]`.
-- **find-courses mode:** `/skillpath find-courses "<skill>"`.
+- **`find-courses`:** `/skillpath find-courses <skill>`.
+- **`record-evidence`:** `/skillpath record-evidence "<skill>" "<evidence>"`
+  -- records evidence that closes a tracked gap.
 
 Claude Code exposes positional arguments as `$0`, `$1`, `$2`, `$3`. Codex
 does not; parse the text following the `$skillpath` mention into the
 equivalent logical values. Below, `$0`/`$1`/`$2`/`$3` mean those parsed
 values when running under Codex, not literal shell parameters.
+
+Requiring `roadmap` as an explicit first word (rather than treating a bare
+`<current-state>` as the default flow) is deliberate: it removes the
+ambiguity of a current-state string that happens to collide with a
+reserved command word like `college-plan` or `find-courses`, and it lets
+bare `/skillpath` show help instead of silently guessing what the user
+wants.
+
+**If `$0` is empty** (bare invocation), print a short command list and
+stop -- do not guess a command or fall into any flow below:
+
+```text
+skillpath -- career roadmap and course-planning commands
+
+  /skillpath roadmap ["<current-state>" "<target-state>"]
+      Build or update your full career roadmap. Reuses your saved
+      profile.yaml when no arguments are given.
+
+  /skillpath college-plan "<major>" "<target-role>" ["<target-level>"]
+      Sequence college coursework for a major toward a target career.
+
+  /skillpath find-courses <skill>
+      Search for 2-3 current learning resources for one skill.
+
+  /skillpath record-evidence "<skill>" "<evidence>"
+      Record evidence that closes a tracked skill gap.
+```
+
+(Substitute `$skillpath` for `/skillpath` when printing this under Codex.)
 
 If `$0` is literally `college-plan`, read and follow
 `${SKILL_DIR}/modes/college-plan.md` in full for the rest of this run, with
@@ -127,7 +174,7 @@ silently truncates it, so never do that. Use its direct-invocation "Print
 results" behavior (this is not the in-process case). Stop following this
 file once routed.
 
-If `$0` is literally `confirm`:
+If `$0` is literally `record-evidence`:
 
 1. Resolve the skill mention to a canonical id:
    ```bash
@@ -152,20 +199,23 @@ If `$0` is literally `confirm`:
      --confirmed-for-target-role "<profile.target_role>" \
      --confirmed-for-target-level "<profile.target_level, or empty>"
    ```
+   (The `skill_confirmed` event type and `--confirmed-for-*` flag names
+   are the tracker's existing schema and stay as-is -- only the slash
+   command that reaches this step is named `record-evidence` now.)
 5. Report success to the user and **stop** -- do not continue into
-   research/report generation for a `confirm` invocation.
+   research/report generation for a `record-evidence` invocation.
 
-Otherwise (main flow), determine the merge mode:
+If `$0` is literally `roadmap`, determine the merge mode:
 
 ```bash
 python3 "${SKILL_DIR}/scripts/profile_io.py" merge \
   "${PROJECT_ROOT}/profile.yaml" \
-  --current-state "$0" \
-  --target-state "$1"
+  --current-state "$1" \
+  --target-state "$2"
 ```
 
 (Omit `--current-state`/`--target-state` entirely -- not empty strings --
-when `$0`/`$1` are empty, so `merge_profile` sees `None` and falls back to
+when `$1`/`$2` are empty, so `merge_profile` sees `None` and falls back to
 the conversational flow per the three-branch rule.) This prints
 `{"profile": {...}, "mode": "first_run" | "override" | "as_is"}`.
 
@@ -178,13 +228,17 @@ the conversational flow per the three-branch rule.) This prints
   present so the user isn't asked to retype what they already gave on the
   command line. At the end, save via the `python3 -c` snippet under
   Step 2 below -- a first run always ends with a saved `profile.yaml`.
-- **`override`:** A saved profile exists and `$0`/`$1` were supplied. Use
-  the printed `profile` object (the saved profile with `$0`/`$1` applied
+- **`override`:** A saved profile exists and `$1`/`$2` were supplied. Use
+  the printed `profile` object (the saved profile with `$1`/`$2` applied
   on top) for this run only -- never overwrite `profile.yaml` silently.
   After the run completes (Step 9), ask once whether to save the override
   permanently; only an explicit yes saves it.
 - **`as_is`:** A saved profile exists and no args were supplied. Use it
   unchanged, no prompts.
+
+If `$0` is anything else (an unrecognized word), print the same help text
+as the bare-invocation case above, noting that `$0` wasn't a recognized
+command, and stop.
 
 ## Step 2 -- Load state
 
@@ -453,7 +507,7 @@ wait for Step 9, and do not treat this as implied by report generation.
 3. Tell the user which skill ids the completion was recorded against, so a
    mis-mapped skill can be corrected. To move a skill the rest of the way
    from `practiced` to `confirmed-closed`, they run
-   `/skillpath confirm "<skill>" "<evidence>"` (Step 1).
+   `/skillpath record-evidence "<skill>" "<evidence>"` (Step 1).
 
 If Step 1 was an `override` run, ask now (once) whether to save the
 override permanently; on an explicit yes, save via:

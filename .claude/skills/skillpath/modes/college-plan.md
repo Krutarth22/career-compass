@@ -198,7 +198,7 @@ its `current_skills` against `covers_skill_ids` canonically — resolve
 `resolution.py resolve-profile-skills` first, exactly as the main flow
 itself does, never compare raw `skill` text directly. List
 `self_reported_courses[]` plainly as "reported, but not counted toward
-requirement coverage — use `/skillpath confirm` if you can back a specific
+requirement coverage — use `/skillpath record-evidence` if you can back a specific
 skill claim with evidence."
 
 `report_state.py` has no CLI subcommand for writing — write the
