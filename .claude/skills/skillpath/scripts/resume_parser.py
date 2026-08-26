@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import posixpath
 import sys
 import zipfile
 from xml.etree import ElementTree
@@ -33,8 +34,25 @@ _R_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 _R_ID_ATTR = f"{_R_NS}id"
 
 
+def _resolve_target(target: str) -> str:
+    """Resolve an OPC relationship `Target` to a zip member path.
+
+    Per the OPC spec, a relative target (the common case, e.g.
+    `"header1.xml"`, or one with `..` segments) is resolved relative to the
+    *source part's* directory -- `word/document.xml` lives in `word/`, so
+    `"header1.xml"` -> `"word/header1.xml"`. A target starting with `/` is
+    already package-root-relative (e.g. `"/word/header1.xml"`) and is used
+    as-is, not joined under `word/` again -- naively prefixing every target
+    with `word/` turns that into the nonexistent `word//word/header1.xml`.
+    `posixpath.normpath` collapses any `..`/`.` segments in both cases.
+    """
+    if target.startswith("/"):
+        return posixpath.normpath(target.lstrip("/"))
+    return posixpath.normpath(posixpath.join("word", target))
+
+
 def _referenced_part_names(zf: zipfile.ZipFile, doc_tree, ref_tag: str) -> list[str]:
-    """Ordered, deduplicated `word/<target>` names actually referenced by
+    """Ordered, deduplicated zip member names actually referenced by
     `doc_tree` via `ref_tag` (`w:headerReference` / `w:footerReference`),
     resolved through `word/_rels/document.xml.rels`.
 
@@ -52,17 +70,20 @@ def _referenced_part_names(zf: zipfile.ZipFile, doc_tree, ref_tag: str) -> list[
     rel_targets = {
         rel.get("Id"): rel.get("Target")
         for rel in rels_tree.iter(_RELATIONSHIP_TAG)
+        if rel.get("TargetMode") != "External"
     }
 
+    zip_names = set(zf.namelist())
     names: list[str] = []
     for ref in doc_tree.iter(ref_tag):
         rid = ref.get(_R_ID_ATTR)
         target = rel_targets.get(rid)
         if not target:
             continue
-        name = f"word/{target}" if not target.startswith("word/") else target
-        if name not in names:
-            names.append(name)
+        name = _resolve_target(target)
+        if name not in zip_names or name in names:
+            continue
+        names.append(name)
     return names
 
 

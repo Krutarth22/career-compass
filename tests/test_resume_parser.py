@@ -200,6 +200,85 @@ def test_extract_docx_text_ignores_unreferenced_orphan_parts(tmp_path):
     assert text == "Body only"
 
 
+def _write_docx_with_raw_rels(tmp_path, document_xml: str, rels_target: str, part_name: str, part_paragraphs: str):
+    """Like `_make_docx`, but writes the relationship `Target` attribute
+    verbatim (no derivation from `part_name`) so a raw OPC target string --
+    absolute (`/word/...`) or containing `..` segments -- can be tested
+    against the actual resolution logic instead of the test helper's own
+    shortcut."""
+    path = tmp_path / "resume.docx"
+    rels_xml = _RELS_TEMPLATE.format(
+        relationships=f'<Relationship Id="rId1" Type="{_HEADER_REL_TYPE}" Target="{rels_target}"/>'
+    )
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("word/document.xml", document_xml)
+        zf.writestr("word/_rels/document.xml.rels", rels_xml)
+        zf.writestr(part_name, _HDR_FTR_TEMPLATE.format(w_ns=_W_NS, paragraphs=part_paragraphs))
+    return path
+
+
+def test_extract_docx_text_resolves_package_root_absolute_target(tmp_path):
+    document_xml = _PART_TEMPLATE.format(
+        w_ns=f"{_W_NS} {_R_NS}",
+        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
+        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
+    )
+    path = _write_docx_with_raw_rels(
+        tmp_path,
+        document_xml,
+        rels_target="/word/header1.xml",
+        part_name="word/header1.xml",
+        part_paragraphs="""<w:p><w:r><w:t>Jane Doe</w:t></w:r></w:p>""",
+    )
+
+    text = resume_parser.extract_docx_text(path)
+
+    assert text == "Jane Doe\nBody"
+
+
+def test_extract_docx_text_resolves_dot_segment_relative_target(tmp_path):
+    document_xml = _PART_TEMPLATE.format(
+        w_ns=f"{_W_NS} {_R_NS}",
+        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
+        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
+    )
+    # A target relative to word/document.xml's own directory ("word/") that
+    # climbs out and back in -- normalizes to the same word/header1.xml.
+    path = _write_docx_with_raw_rels(
+        tmp_path,
+        document_xml,
+        rels_target="../word/header1.xml",
+        part_name="word/header1.xml",
+        part_paragraphs="""<w:p><w:r><w:t>Jane Doe</w:t></w:r></w:p>""",
+    )
+
+    text = resume_parser.extract_docx_text(path)
+
+    assert text == "Jane Doe\nBody"
+
+
+def test_extract_docx_text_skips_reference_to_missing_part(tmp_path):
+    """A relationship/reference pointing at a target that isn't actually in
+    the zip (broken/malformed package) is skipped rather than raising."""
+    document_xml = _PART_TEMPLATE.format(
+        w_ns=f"{_W_NS} {_R_NS}",
+        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
+        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
+    )
+    path = tmp_path / "resume.docx"
+    rels_xml = _RELS_TEMPLATE.format(
+        relationships=f'<Relationship Id="rId1" Type="{_HEADER_REL_TYPE}" Target="header1.xml"/>'
+    )
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("word/document.xml", document_xml)
+        zf.writestr("word/_rels/document.xml.rels", rels_xml)
+        # note: word/header1.xml is never written
+
+    text = resume_parser.extract_docx_text(path)
+
+    assert text == "Body"
+
+
 def test_extract_docx_text_missing_file_raises(tmp_path):
     with pytest.raises(FileNotFoundError):
         resume_parser.extract_docx_text(tmp_path / "nope.docx")
