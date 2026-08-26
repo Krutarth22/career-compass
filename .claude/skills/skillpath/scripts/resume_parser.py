@@ -23,6 +23,47 @@ _TEXT_TAG = f"{_WORD_NS}t"
 _PARA_TAG = f"{_WORD_NS}p"
 _BREAK_TAG = f"{_WORD_NS}br"
 _TAB_TAG = f"{_WORD_NS}tab"
+_HEADER_REF_TAG = f"{_WORD_NS}headerReference"
+_FOOTER_REF_TAG = f"{_WORD_NS}footerReference"
+
+_REL_NS = "{http://schemas.openxmlformats.org/package/2006/relationships}"
+_RELATIONSHIP_TAG = f"{_REL_NS}Relationship"
+
+_R_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
+_R_ID_ATTR = f"{_R_NS}id"
+
+
+def _referenced_part_names(zf: zipfile.ZipFile, doc_tree, ref_tag: str) -> list[str]:
+    """Ordered, deduplicated `word/<target>` names actually referenced by
+    `doc_tree` via `ref_tag` (`w:headerReference` / `w:footerReference`),
+    resolved through `word/_rels/document.xml.rels`.
+
+    A .docx package can retain orphan header/footer parts left over from
+    template edits that no relationship or section points at any more --
+    globbing `word/header*.xml`/`word/footer*.xml` directly would pull in
+    that stale content (or a malformed leftover part) alongside whatever
+    the document actually renders. Only parts reachable from the document's
+    own relationship graph are real.
+    """
+    try:
+        rels_tree = ElementTree.fromstring(zf.read("word/_rels/document.xml.rels"))
+    except KeyError:
+        return []
+    rel_targets = {
+        rel.get("Id"): rel.get("Target")
+        for rel in rels_tree.iter(_RELATIONSHIP_TAG)
+    }
+
+    names: list[str] = []
+    for ref in doc_tree.iter(ref_tag):
+        rid = ref.get(_R_ID_ATTR)
+        target = rel_targets.get(rid)
+        if not target:
+            continue
+        name = f"word/{target}" if not target.startswith("word/") else target
+        if name not in names:
+            names.append(name)
+    return names
 
 
 def _paragraph_lines(xml_bytes: bytes) -> list[str]:
@@ -46,29 +87,30 @@ def extract_docx_text(path) -> str:
 
     Resume templates commonly place the candidate's name or title in a
     header, or contact details in a footer, rather than in the document
-    body -- both live in separate XML parts (`word/header*.xml` /
-    `word/footer*.xml`) from `word/document.xml`, so all three are read.
-    Header text is emitted first (it visually appears at the top of the
-    page), then the body, then footer text -- headers/footers that don't
-    exist in a given file are simply absent from the zip and skipped.
+    body. Those live in separate XML parts from `word/document.xml`, but
+    which parts are actually active is determined by the document's own
+    `w:headerReference`/`w:footerReference` section elements resolved
+    through `word/_rels/document.xml.rels` -- not by every `word/header*.xml`
+    /`word/footer*.xml` file present in the zip, since orphaned/unreferenced
+    parts can remain in a .docx from earlier template edits (see
+    `_referenced_part_names`). Header text is emitted first (it visually
+    appears at the top of the page), then the body, then footer text; a
+    document with no header/footer relationships yields body text only.
 
     Raises FileNotFoundError / zipfile.BadZipFile / KeyError as-is on a
     missing, corrupt, or non-docx file — the caller (the model, via the CLI
     below) surfaces those to the user rather than this function guessing.
     """
     with zipfile.ZipFile(path) as zf:
-        names = zf.namelist()
-        header_names = sorted(
-            n for n in names if n.startswith("word/header") and n.endswith(".xml")
-        )
-        footer_names = sorted(
-            n for n in names if n.startswith("word/footer") and n.endswith(".xml")
-        )
+        document_xml = zf.read("word/document.xml")
+        doc_tree = ElementTree.fromstring(document_xml)
+        header_names = _referenced_part_names(zf, doc_tree, _HEADER_REF_TAG)
+        footer_names = _referenced_part_names(zf, doc_tree, _FOOTER_REF_TAG)
 
         lines: list[str] = []
         for name in header_names:
             lines.extend(_paragraph_lines(zf.read(name)))
-        lines.extend(_paragraph_lines(zf.read("word/document.xml")))
+        lines.extend(_paragraph_lines(document_xml))
         for name in footer_names:
             lines.extend(_paragraph_lines(zf.read(name)))
 
