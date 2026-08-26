@@ -1,0 +1,5 @@
+occurred_at,event_type,item_name,related_skill_ids,report_id,notes,confirmed_for_target_role,confirmed_for_target_level
+2026-01-15T10:30:00Z,report_generated,ML/AI Engineer,python|ml-fundamentals|sql|retrieval-augmented-generation,9f3b1c04-7d2e-4a86-b515-2c8e0af61d33,Initial assessment for transition from Mechanical Engineer to ML Engineer,,
+2026-02-20T14:15:00Z,project_completed,Feature Store Lite: Batch + Online Lookup,feature-engineering|data-pipelines|python|sql,9f3b1c04-7d2e-4a86-b515-2c8e0af61d33,Completed end-to-end using pandas and DuckDB over plant telemetry data,,
+2026-03-05T09:00:00Z,course_completed,Machine Learning Specialization (Coursera),ml-fundamentals|statistics,9f3b1c04-7d2e-4a86-b515-2c8e0af61d33,Finished all three courses plus the graded labs,,
+2026-03-12T09:00:00Z,skill_confirmed,Machine Learning Fundamentals,ml-fundamentals,9f3b1c04-7d2e-4a86-b515-2c8e0af61d33,Validated through course completion and the feature-store project,ML/AI Engineer,Senior ML Engineer

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Skillpath"
+  short_description: "Build and track a personalized career roadmap, plan college coursework, or find courses"
+  default_prompt: "Use $skillpath roadmap to build a roadmap from my current experience to my target role."
+
+policy:
+  allow_implicit_invocation: false
