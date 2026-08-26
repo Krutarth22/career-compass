@@ -15,11 +15,13 @@ _DOCUMENT_XML_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalone="yes
 """
 
 
-def _make_docx(tmp_path, paragraphs_xml: str):
+def _make_docx(tmp_path, paragraphs_xml: str, extra_parts: dict | None = None):
     path = tmp_path / "resume.docx"
     document_xml = _DOCUMENT_XML_TEMPLATE.format(paragraphs=paragraphs_xml)
     with zipfile.ZipFile(path, "w") as zf:
         zf.writestr("word/document.xml", document_xml)
+        for name, paragraphs in (extra_parts or {}).items():
+            zf.writestr(name, _DOCUMENT_XML_TEMPLATE.format(paragraphs=paragraphs))
     return path
 
 
@@ -63,6 +65,51 @@ def test_extract_docx_text_skips_blank_paragraphs(tmp_path):
     text = resume_parser.extract_docx_text(path)
 
     assert text == "Line one\nLine two"
+
+
+def test_extract_docx_text_includes_header_before_body(tmp_path):
+    path = _make_docx(
+        tmp_path,
+        """<w:p><w:r><w:t>Experience section</w:t></w:r></w:p>""",
+        extra_parts={
+            "word/header1.xml": """<w:p><w:r><w:t>Jane Doe, AI Engineer</w:t></w:r></w:p>""",
+        },
+    )
+
+    text = resume_parser.extract_docx_text(path)
+
+    assert text == "Jane Doe, AI Engineer\nExperience section"
+
+
+def test_extract_docx_text_includes_footer_after_body(tmp_path):
+    path = _make_docx(
+        tmp_path,
+        """<w:p><w:r><w:t>Experience section</w:t></w:r></w:p>""",
+        extra_parts={
+            "word/footer1.xml": """<w:p><w:r><w:t>jane@example.com | 555-0100</w:t></w:r></w:p>""",
+        },
+    )
+
+    text = resume_parser.extract_docx_text(path)
+
+    assert text == "Experience section\njane@example.com | 555-0100"
+
+
+def test_extract_docx_text_handles_multiple_headers_and_footers_in_order(tmp_path):
+    path = _make_docx(
+        tmp_path,
+        """<w:p><w:r><w:t>Body</w:t></w:r></w:p>""",
+        extra_parts={
+            "word/header2.xml": """<w:p><w:r><w:t>Header two</w:t></w:r></w:p>""",
+            "word/header1.xml": """<w:p><w:r><w:t>Header one</w:t></w:r></w:p>""",
+            "word/footer1.xml": """<w:p><w:r><w:t>Footer one</w:t></w:r></w:p>""",
+            "word/footer2.xml": """<w:p><w:r><w:t>Footer two</w:t></w:r></w:p>""",
+        },
+    )
+
+    text = resume_parser.extract_docx_text(path)
+
+    assert text == "Header one\nHeader two\nBody\nFooter one\nFooter two"
 
 
 def test_extract_docx_text_missing_file_raises(tmp_path):

@@ -91,19 +91,40 @@ current logistics, not resume content -- always still ask for them
 conversationally regardless of whether a resume was supplied.
 
 On `override`/`as_is` (a profile already exists), treat a confirmed
-resume-derived skill as an edit to the in-memory profile for this run:
-resolve each candidate skill's `skill_id` with
-`resolution.py resolve-skill` (same call as Step 3) purely to match it
-against the existing `current_skills` list, then merge into
-`current_skills` by that id -- add skills not already present; for a skill
-that's already present, keep the existing entry as-is unless the user
-explicitly confirms raising it, never lower an existing proficiency
-automatically. This is a separate, earlier use of `resolve-skill` from
-Step 2b's bulk `resolve-profile-skills` pass over the full list further
-below -- Step 2b still runs as normal afterward and needs no special-casing
-for these entries. The edited profile then flows into the same "ask once
-whether to save permanently" prompt Step 9 already uses for overrides -- a
-resume refresh does not bypass that confirmation.
+resume-derived skill as an edit to the in-memory profile for this run.
+Saved `current_skills` entries carry no `skill_id` (per
+`reference/profile-schema.md`, that field is never persisted), so matching
+a resume-derived skill against the existing list by free text alone is
+unreliable -- "Python" from a resume must match a saved "Python (Django)"
+entry, not silently duplicate it. Resolve **both sides** to canonical ids
+before comparing:
+
+1. Resolve the *existing* `current_skills` list with
+   `resolution.py resolve-profile-skills` (the same call Step 2b makes --
+   it's fine, and expected, to run it here too; it's idempotent and Step 2b
+   still runs again in its own place further below for the rest of the
+   pipeline).
+2. Resolve each candidate resume skill individually with
+   `resolution.py resolve-skill`.
+3. Merge by `skill_id`: add candidates whose id isn't already present; for
+   an id that's already present, keep the existing entry as-is unless the
+   user explicitly confirms raising it -- never lower an existing
+   proficiency automatically.
+4. Before this merged list is written anywhere (the this-run-only override
+   profile, or `profile.yaml` itself), strip the transient `skill_id` key
+   back out of every entry -- only `skill`/`proficiency`/`evidence` are
+   part of the persisted schema; `skill_id` is a run-time resolution
+   artifact, same rule as Step 2b's existing note not to write it back.
+
+The edited profile is now a pending change regardless of merge mode.
+**Save prompting must track whether the in-memory profile actually
+changed, not just the Step 1 merge mode** -- set a flag (e.g. "profile
+edited this run") the moment either an `override` arg was applied *or* a
+resume edit was confirmed here, on `override` or `as_is` alike. Step 9's
+save prompt below checks that flag, not the merge mode directly, so an
+`as_is` run with a confirmed resume refresh still gets offered a save --
+without this, a resume-driven refresh on a plain `$skillpath roadmap` (no
+CLI args, `as_is` mode) would silently vanish at the end of the run.
 
 ## Step 1 -- Parse arguments and determine merge mode
 
@@ -413,8 +434,10 @@ wait for Step 9, and do not treat this as implied by report generation.
    `/skillpath record-evidence "<skill>" "<evidence>"` (see `SKILL.md`
    Step 1).
 
-If Step 1 was an `override` run, ask now (once) whether to save the
-override permanently; on an explicit yes, save via:
+If the "profile edited this run" flag from Step 0 is set -- i.e. Step 1
+was an `override` run, **or** a resume-derived edit was confirmed during
+Step 0 on any merge mode including `as_is` -- ask now (once) whether to
+save the changes permanently; on an explicit yes, save via:
 
 ```bash
 python3 -c "

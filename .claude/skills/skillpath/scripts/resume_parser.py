@@ -25,19 +25,10 @@ _BREAK_TAG = f"{_WORD_NS}br"
 _TAB_TAG = f"{_WORD_NS}tab"
 
 
-def extract_docx_text(path) -> str:
-    """Return the visible text of a .docx file, one paragraph per line.
-
-    Raises FileNotFoundError / zipfile.BadZipFile / KeyError as-is on a
-    missing, corrupt, or non-docx file — the caller (the model, via the CLI
-    below) surfaces those to the user rather than this function guessing.
-    """
-    with zipfile.ZipFile(path) as zf:
-        with zf.open("word/document.xml") as f:
-            tree = ElementTree.parse(f)
-
+def _paragraph_lines(xml_bytes: bytes) -> list[str]:
+    tree = ElementTree.fromstring(xml_bytes)
     lines: list[str] = []
-    for para in tree.getroot().iter(_PARA_TAG):
+    for para in tree.iter(_PARA_TAG):
         parts: list[str] = []
         for node in para.iter():
             if node.tag == _TEXT_TAG:
@@ -47,6 +38,40 @@ def extract_docx_text(path) -> str:
         line = "".join(parts).strip()
         if line:
             lines.append(line)
+    return lines
+
+
+def extract_docx_text(path) -> str:
+    """Return the visible text of a .docx file, one paragraph per line.
+
+    Resume templates commonly place the candidate's name or title in a
+    header, or contact details in a footer, rather than in the document
+    body -- both live in separate XML parts (`word/header*.xml` /
+    `word/footer*.xml`) from `word/document.xml`, so all three are read.
+    Header text is emitted first (it visually appears at the top of the
+    page), then the body, then footer text -- headers/footers that don't
+    exist in a given file are simply absent from the zip and skipped.
+
+    Raises FileNotFoundError / zipfile.BadZipFile / KeyError as-is on a
+    missing, corrupt, or non-docx file — the caller (the model, via the CLI
+    below) surfaces those to the user rather than this function guessing.
+    """
+    with zipfile.ZipFile(path) as zf:
+        names = zf.namelist()
+        header_names = sorted(
+            n for n in names if n.startswith("word/header") and n.endswith(".xml")
+        )
+        footer_names = sorted(
+            n for n in names if n.startswith("word/footer") and n.endswith(".xml")
+        )
+
+        lines: list[str] = []
+        for name in header_names:
+            lines.extend(_paragraph_lines(zf.read(name)))
+        lines.extend(_paragraph_lines(zf.read("word/document.xml")))
+        for name in footer_names:
+            lines.extend(_paragraph_lines(zf.read(name)))
+
     return "\n".join(lines)
 
 
