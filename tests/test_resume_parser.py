@@ -257,9 +257,11 @@ def test_extract_docx_text_resolves_dot_segment_relative_target(tmp_path):
     assert text == "Jane Doe\nBody"
 
 
-def test_extract_docx_text_skips_reference_to_missing_part(tmp_path):
-    """A relationship/reference pointing at a target that isn't actually in
-    the zip (broken/malformed package) is skipped rather than raising."""
+def test_extract_docx_text_raises_for_reference_to_missing_part(tmp_path):
+    """An *active* reference (a real w:headerReference in document.xml)
+    pointing at a target that isn't actually in the zip means the package
+    itself is broken -- this must raise, not silently fall back to
+    partial body-only text."""
     document_xml = _PART_TEMPLATE.format(
         w_ns=f"{_W_NS} {_R_NS}",
         paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
@@ -273,6 +275,64 @@ def test_extract_docx_text_skips_reference_to_missing_part(tmp_path):
         zf.writestr("word/document.xml", document_xml)
         zf.writestr("word/_rels/document.xml.rels", rels_xml)
         # note: word/header1.xml is never written
+
+    with pytest.raises(ValueError):
+        resume_parser.extract_docx_text(path)
+
+
+def test_extract_docx_text_raises_for_reference_with_no_relationship_defined(tmp_path):
+    """An active reference whose r:id has no matching <Relationship> at
+    all (not even a broken Target) is the same kind of corruption."""
+    document_xml = _PART_TEMPLATE.format(
+        w_ns=f"{_W_NS} {_R_NS}",
+        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
+        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
+    )
+    path = tmp_path / "resume.docx"
+    rels_xml = _RELS_TEMPLATE.format(relationships="")
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("word/document.xml", document_xml)
+        zf.writestr("word/_rels/document.xml.rels", rels_xml)
+
+    with pytest.raises(ValueError):
+        resume_parser.extract_docx_text(path)
+
+
+def test_extract_docx_text_raises_when_rels_file_missing_but_reference_present(tmp_path):
+    """An active reference with no word/_rels/document.xml.rels at all in
+    the package (not even the file) is corruption, not "no header"."""
+    document_xml = _PART_TEMPLATE.format(
+        w_ns=f"{_W_NS} {_R_NS}",
+        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
+        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
+    )
+    path = tmp_path / "resume.docx"
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("word/document.xml", document_xml)
+        # note: no word/_rels/document.xml.rels at all
+
+    with pytest.raises(ValueError):
+        resume_parser.extract_docx_text(path)
+
+
+def test_extract_docx_text_skips_external_header_reference(tmp_path):
+    """An External-mode relationship target is legitimately not a zip
+    part -- valid OPC, not corruption -- and is skipped without error."""
+    document_xml = _PART_TEMPLATE.format(
+        w_ns=f"{_W_NS} {_R_NS}",
+        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
+        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
+    )
+    path = tmp_path / "resume.docx"
+    rels_xml = _RELS_TEMPLATE.format(
+        relationships=(
+            f'<Relationship Id="rId1" Type="{_HEADER_REL_TYPE}" '
+            'Target="https://example.com/header.xml" TargetMode="External"/>'
+        )
+    )
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("word/document.xml", document_xml)
+        zf.writestr("word/_rels/document.xml.rels", rels_xml)
 
     text = resume_parser.extract_docx_text(path)
 

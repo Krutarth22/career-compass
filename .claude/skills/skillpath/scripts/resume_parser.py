@@ -61,29 +61,58 @@ def _referenced_part_names(zf: zipfile.ZipFile, doc_tree, ref_tag: str) -> list[
     globbing `word/header*.xml`/`word/footer*.xml` directly would pull in
     that stale content (or a malformed leftover part) alongside whatever
     the document actually renders. Only parts reachable from the document's
-    own relationship graph are real.
+    own relationship graph are real, so an *unreferenced* part is silently
+    ignored.
+
+    An *active* reference that fails to resolve is a different situation --
+    it means the package itself is broken (the document points at a
+    relationship or part that doesn't exist), not that the header/footer is
+    legitimately absent. That must raise, not silently fall back to
+    partial body-only text, matching this module's documented contract of
+    surfacing a corrupt/malformed file rather than guessing.
     """
-    try:
-        rels_tree = ElementTree.fromstring(zf.read("word/_rels/document.xml.rels"))
-    except KeyError:
+    ref_ids = [
+        ref.get(_R_ID_ATTR) for ref in doc_tree.iter(ref_tag) if ref.get(_R_ID_ATTR)
+    ]
+    if not ref_ids:
         return []
-    rel_targets = {
-        rel.get("Id"): rel.get("Target")
+
+    try:
+        rels_bytes = zf.read("word/_rels/document.xml.rels")
+    except KeyError:
+        raise ValueError(
+            "document.xml references a header/footer but "
+            "word/_rels/document.xml.rels is missing (corrupt .docx)"
+        ) from None
+    rels_tree = ElementTree.fromstring(rels_bytes)
+    rel_info = {
+        rel.get("Id"): (rel.get("Target"), rel.get("TargetMode"))
         for rel in rels_tree.iter(_RELATIONSHIP_TAG)
-        if rel.get("TargetMode") != "External"
     }
 
     zip_names = set(zf.namelist())
     names: list[str] = []
-    for ref in doc_tree.iter(ref_tag):
-        rid = ref.get(_R_ID_ATTR)
-        target = rel_targets.get(rid)
-        if not target:
+    for rid in ref_ids:
+        info = rel_info.get(rid)
+        if info is None:
+            raise ValueError(
+                f"document.xml references relationship id {rid!r}, which is "
+                "not defined in word/_rels/document.xml.rels (corrupt .docx)"
+            )
+        target, target_mode = info
+        if target_mode == "External":
+            # A deliberately external header/footer target -- not a zip
+            # part, and not corruption; nothing to extract from it.
             continue
         name = _resolve_target(target)
-        if name not in zip_names or name in names:
-            continue
-        names.append(name)
+        if name not in zip_names:
+            raise ValueError(
+                f"document.xml references {name!r} via relationship "
+                f"{rid!r}, but that part is missing from the .docx "
+                "(corrupt file)"
+            )
+        if name not in names:
+            names.append(name)
     return names
 
 
@@ -119,8 +148,10 @@ def extract_docx_text(path) -> str:
     document with no header/footer relationships yields body text only.
 
     Raises FileNotFoundError / zipfile.BadZipFile / KeyError as-is on a
-    missing, corrupt, or non-docx file — the caller (the model, via the CLI
-    below) surfaces those to the user rather than this function guessing.
+    missing, corrupt, or non-docx file, and ValueError when an active
+    header/footer reference can't be resolved to a real part (see
+    `_referenced_part_names`) -- the caller (the model, via the CLI below)
+    surfaces those to the user rather than this function guessing.
     """
     with zipfile.ZipFile(path) as zf:
         document_xml = zf.read("word/document.xml")
