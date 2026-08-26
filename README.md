@@ -129,6 +129,13 @@ SkillPath will ask a few follow-up questions about your experience, skills,
 location, available study time, and any constraints. Answer naturally; you do
 not need to use a special format.
 
+Instead of typing out your experience and skills, you can share a resume
+(PDF, DOCX, or pasted text) at any point, and SkillPath will pull out your
+current role, years of experience, and skills from it, then show you what it
+found so you can confirm or correct it before anything is saved. This also
+works later, if you want to refresh an existing profile with an updated
+resume.
+
 It then creates a dated roadmap containing:
 
 - the skills commonly expected for your target role;

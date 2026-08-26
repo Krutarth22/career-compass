@@ -126,7 +126,10 @@ skillpath -- career roadmap and course-planning commands
 
   /skillpath roadmap ["<current-state>" "<target-state>"]
       Build or update your full career roadmap. Reuses your saved
-      profile.yaml when no arguments are given.
+      profile.yaml when no arguments are given. You can share a resume
+      (PDF, DOCX, or pasted text) at any point to pre-fill or refresh
+      your current role/experience/skills instead of answering one by
+      one.
 
   /skillpath college-plan "<major>" "<target-role>" ["<target-level>"]
       Sequence college coursework for a major toward a target career.

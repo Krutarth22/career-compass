@@ -19,14 +19,15 @@ already mapped them.
 
 ## Bundled scripts used this run
 
-Six scripts are invoked from `${SKILL_DIR}/scripts/`:
+Seven scripts are invoked from `${SKILL_DIR}/scripts/`:
 
 | Script | CLI? | Used for |
 |---|---|---|
+| `resume_parser.py` | `extract-docx` | Step 0 |
 | `profile_io.py` | `load`, `merge` (no `save` subcommand) | Step 1, 2 |
 | `tracker_io.py` | `append`, `read` (also has `last-report`, unused below -- `report_state.py last` is called directly instead) | Step 1, 2, 9 |
 | `report_state.py` | `read`, `last` (no `write-report` subcommand) | Step 2, 9 |
-| `resolution.py` | `resolve-skill`, `resolve-profile-skills`, `resolve-track` | Step 2, 3, 5 |
+| `resolution.py` | `resolve-skill`, `resolve-profile-skills`, `resolve-track` | Step 0, 2, 3, 5 |
 | `gap_state.py` | none -- pure function, no `__main__` at all | Step 4 |
 | `project_planner.py` | `plan` | Step 6 |
 
@@ -38,6 +39,71 @@ the `Write` tool), then invoke the underlying pure function with a one-off
 `python3 -c` snippet that adds `${SKILL_DIR}/scripts` to `sys.path`
 and imports it directly. The exact snippets are given inline at each step
 below -- do not invent a CLI subcommand for these that doesn't exist.
+
+## Step 0 -- Offer resume input (optional, all merge modes)
+
+Early in the conversation -- before or during profile creation on a
+`first_run`, or at any point on `override`/`as_is` when the user offers one
+unprompted ("here's my resume", "here's my updated resume") -- offer to
+accept a resume to speed up or refresh `current_role`/`years_experience`/
+`current_skills` instead of, or in addition to, asking those fields one by
+one. Three input shapes are accepted:
+
+- **A PDF file path.** Read it directly with the `Read` tool -- Claude
+  Code's `Read` already extracts PDF text/visual content natively; no
+  script is involved.
+- **A `.docx` file path.** Neither `Read` nor any installed library handles
+  `.docx`, so extract it with the bundled parser:
+  ```bash
+  python3 "${SKILL_DIR}/scripts/resume_parser.py" extract-docx "<path>"
+  ```
+  Prints `{"text": "..."}`, one resume line per line of `text`. Surface a
+  parse error (bad/corrupt file, wrong extension) to the user plainly and
+  fall back to asking the fields conversationally instead -- do not treat a
+  failed parse as "no skills."
+- **Pasted resume text.** The user pastes the resume body directly into the
+  conversation; use it as-is.
+
+From whichever text you obtain, pulling out `current_role` (most recent
+job title), `years_experience` (compute from the earliest listed role's
+start date to now, unless the resume states a total explicitly), and
+candidate `current_skills` entries is **the model's own judgment call, not
+a script's** -- there is no parser for this. For each candidate skill:
+
+- Set `evidence` from a concrete bullet point that uses it, when the resume
+  has one (e.g. "Built an ETL pipeline processing 2M rows/day with
+  Airflow").
+- Default `proficiency` conservatively: `proficient` only when the resume
+  shows sustained ownership (a role built around it, multiple projects,
+  years of listed use); `practiced` for a skill used concretely in at least
+  one bullet; `aware` for a skill that only appears in a bare skills list
+  with no usage evidence. Never infer `proficient` from a skills list alone
+  -- resumes routinely over-list skills relative to actual depth.
+
+**A resume pre-fills fields -- it never silently sets them.** Show the user
+what you extracted (current_role, years_experience, and the candidate
+skills with their proficiency/evidence) and let them confirm or correct
+each before it's treated as final, the same as any other conversationally
+gathered field. A resume also never supplies `target_role`, `target_level`,
+`location`, `industry_preference`, `weekly_time_budget_hours`,
+`horizon_weeks`, or `constraints` -- those describe the desired future or
+current logistics, not resume content -- always still ask for them
+conversationally regardless of whether a resume was supplied.
+
+On `override`/`as_is` (a profile already exists), treat a confirmed
+resume-derived skill as an edit to the in-memory profile for this run:
+resolve each candidate skill's `skill_id` with
+`resolution.py resolve-skill` (same call as Step 3) purely to match it
+against the existing `current_skills` list, then merge into
+`current_skills` by that id -- add skills not already present; for a skill
+that's already present, keep the existing entry as-is unless the user
+explicitly confirms raising it, never lower an existing proficiency
+automatically. This is a separate, earlier use of `resolve-skill` from
+Step 2b's bulk `resolve-profile-skills` pass over the full list further
+below -- Step 2b still runs as normal afterward and needs no special-casing
+for these entries. The edited profile then flows into the same "ask once
+whether to save permanently" prompt Step 9 already uses for overrides -- a
+resume refresh does not bypass that confirmation.
 
 ## Step 1 -- Parse arguments and determine merge mode
 
@@ -60,7 +126,9 @@ the conversational flow per the three-branch rule.) This prints
   constraints -- per `reference/profile-schema.md`), pre-filling
   `current_role`/`target_role` from the printed `profile` object where
   present so the user isn't asked to retype what they already gave on the
-  command line. At the end, save via the `python3 -c` snippet under
+  command line, and offering the Step 0 resume flow to pre-fill
+  `current_role`/`years_experience`/`current_skills` instead of asking
+  those individually. At the end, save via the `python3 -c` snippet under
   Step 2 below -- a first run always ends with a saved `profile.yaml`.
 - **`override`:** A saved profile exists and `$0`/`$1` were supplied. Use
   the printed `profile` object (the saved profile with `$0`/`$1` applied
