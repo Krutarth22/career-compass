@@ -49,8 +49,29 @@ def _resolve_first_seen(
     assessment unchanged, or stamp them fresh for a newly-seen skill.
     """
     if prior is not None:
-        return prior.get("first_seen_at"), prior.get("first_seen_report_id")
+        first_seen_at = prior.get("first_seen_at")
+        first_seen_report_id = prior.get("first_seen_report_id")
+        if (
+            isinstance(first_seen_at, str)
+            and first_seen_at
+            and isinstance(first_seen_report_id, str)
+            and first_seen_report_id
+        ):
+            try:
+                _parse_timestamp(first_seen_at)
+            except ValueError:
+                pass
+            else:
+                return first_seen_at, first_seen_report_id
     return now_iso, this_report_id
+
+
+def _parse_timestamp(value: str) -> datetime:
+    """Parse ISO 8601 text and normalize it for chronological comparison."""
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def _pass1_covered(skill_id: str, profile: dict) -> bool:
@@ -78,12 +99,17 @@ def _events_for_skill(
     occurred_at >= first_seen_at for this skill.
     """
     relevant = []
+    first_seen_timestamp = _parse_timestamp(first_seen_at)
     for event in tracker_events:
         related = event.get("related_skill_ids") or []
         if skill_id not in related:
             continue
         occurred_at = event.get("occurred_at") or ""
-        if occurred_at < first_seen_at:
+        try:
+            occurred_timestamp = _parse_timestamp(occurred_at)
+        except (TypeError, ValueError):
+            continue
+        if occurred_timestamp < first_seen_timestamp:
             continue
         relevant.append(event)
     return relevant

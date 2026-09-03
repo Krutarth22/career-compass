@@ -552,3 +552,33 @@ def test_sequence_capstone_forced_prerequisite_coverage_reflects_own_skill_tags(
     by_name = {t["_filename"]: t for t in sequenced}
     assert by_name["00-forced.md"]["covered_gap_skill_ids"] == ["rag"]
     assert by_name["99-capstone.md"]["covered_gap_skill_ids"] == ["docker"]
+
+
+def test_resolve_cascade_deduplicates_diamond_dependency():
+    shared = make_template("00-shared.md", estimated_hours=3)
+    left = make_template(
+        "01-left.md", estimated_hours=5, project_prerequisites=["00-shared.md"]
+    )
+    right = make_template(
+        "02-right.md", estimated_hours=7, project_prerequisites=["00-shared.md"]
+    )
+    root = make_template(
+        "03-root.md",
+        estimated_hours=11,
+        project_prerequisites=["01-left.md", "02-right.md"],
+    )
+    templates = [shared, left, right, root]
+
+    cascade = pp._resolve_cascade(
+        root,
+        {template["_filename"]: template for template in templates},
+        set(),
+        [],
+    )
+
+    assert [template["_filename"] for template in cascade] == [
+        "00-shared.md",
+        "01-left.md",
+        "02-right.md",
+        "03-root.md",
+    ]

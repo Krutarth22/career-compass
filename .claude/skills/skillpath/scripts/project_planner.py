@@ -144,30 +144,50 @@ def _gap_skill_ids_covered(template: dict, gaps_by_id: dict) -> set[str]:
     return skill_tags & set(gaps_by_id.keys())
 
 
-def _resolve_cascade(template: dict, by_filename: dict, selected_filenames: set[str], stack: list[str]) -> list[dict]:
+def _resolve_cascade(
+    template: dict,
+    by_filename: dict,
+    selected_filenames: set[str],
+    stack: list[str],
+    planned_filenames: set[str] | None = None,
+) -> list[dict]:
     """Return the list of templates to add for `template` (its not-yet-
     selected project_prerequisites, resolved recursively, followed by
     `template` itself). Raises ValueError on a cycle.
     """
+    if planned_filenames is None:
+        planned_filenames = set(selected_filenames)
+
     fname = template.get("_filename")
+    if not isinstance(fname, str) or not fname:
+        raise ValueError("project template is missing a valid _filename")
     if fname in stack:
         cycle = stack[stack.index(fname):] + [fname]
         raise ValueError(
             "cycle detected in project_prerequisites: " + " -> ".join(cycle)
         )
+    if fname in planned_filenames:
+        return []
     stack = stack + [fname]
 
     chain: list[dict] = []
     fm = template.get("frontmatter") or {}
     for prereq_name in fm.get("project_prerequisites") or []:
-        if prereq_name in selected_filenames or any(
-            c.get("_filename") == prereq_name for c in chain
-        ):
+        if prereq_name in planned_filenames:
             continue
         prereq_template = by_filename.get(prereq_name)
         if prereq_template is None:
             continue  # dangling reference; Task 5's linter is responsible for catching this
-        chain.extend(_resolve_cascade(prereq_template, by_filename, selected_filenames, stack))
+        chain.extend(
+            _resolve_cascade(
+                prereq_template,
+                by_filename,
+                selected_filenames,
+                stack,
+                planned_filenames,
+            )
+        )
+    planned_filenames.add(fname)
     chain.append(template)
     return chain
 

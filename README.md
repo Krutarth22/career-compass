@@ -1,80 +1,89 @@
-# skillpath
+<div align="center">
 
-SkillPath helps you answer practical career questions:
+# 🧭 SkillPath
 
-- What skills am I missing for the job I want?
-- What projects should I build, and in what order?
-- Which courses are worth taking for a particular skill?
-- If I am in college, which classes will best prepare me for my target career?
-- What career paths does my degree actually open up?
+### Turn a career goal into an evidence-backed learning plan
 
-It researches current role expectations, compares them with your experience,
-and creates a step-by-step plan. You do not need to understand the code in
-this repository to use it.
+Research current role expectations, find your skill gaps, and build a practical
+roadmap of projects, courses, and college classes—directly inside Claude Code or
+Codex.
 
-SkillPath works inside [Claude Code](https://claude.com/claude-code) and
-[Codex](https://learn.chatgpt.com/codex). The examples below show both forms:
-Claude Code commands begin with `/skillpath`, while Codex commands begin with
-`$skillpath`.
+[![CI](https://github.com/Krutarth22/skillpath/actions/workflows/ci.yml/badge.svg)](https://github.com/Krutarth22/skillpath/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## Choose what you want to do
+[Get started](#-quick-start) · [Explore commands](#-what-you-can-do) · [Contribute](CONTRIBUTING.md)
 
-| I want to… | Command |
-| --- | --- |
-| Plan a move from my current career to a target role | `roadmap` |
-| Plan my college classes around a target career | `college-plan` |
-| Find learning resources for one skill | `find-courses` |
-| Explore career paths for my degree | `career-suggestions` |
-| Add proof that I have learned or applied a skill | `record-evidence` |
+</div>
+
+---
+
+## Why SkillPath?
+
+Career advice is often broad. SkillPath turns it into a sequence you can act on:
+
+1. Research the skills employers currently expect for your target role.
+2. Compare those expectations with your experience and evidence.
+3. Prioritize the gaps that matter most.
+4. Select portfolio projects in prerequisite-safe order.
+5. Recommend focused courses only where projects are not enough.
+6. Carry your progress into the next roadmap.
+
+You get a dated Word report you can review, edit, and keep—not a disposable chat
+answer.
+
+## ✨ What you can do
+
+| Goal | Command | Result |
+| --- | --- | --- |
+| Move toward a target role | `roadmap` | Skill gaps, sequenced projects, and learning resources |
+| Plan a degree around a career | `college-plan` | A prerequisite-aware course sequence by year |
+| Learn one specific skill | `find-courses` | A short list of current, relevant resources |
+| Explore options for a degree | `career-suggestions` | Grounded career paths and a suggested next command |
+| Record proof of progress | `record-evidence` | Evidence saved for future roadmap updates |
 
 If you forget the commands, enter `/skillpath` in Claude Code or `$skillpath`
-in Codex. SkillPath will show a short help list.
+in Codex to see the built-in help.
 
-## Requirements
+## 📦 How it is packaged
 
-Before installing SkillPath, you need:
+| Host | Package in this repository | Invocation |
+| --- | --- | --- |
+| Claude Code | Installable plugin in `plugins/skillpath/` | `/skillpath …` |
+| Codex | Project-local skill in `codex/skills/skillpath/` | `$skillpath …` |
 
-- [Claude Code](https://claude.com/claude-code) or
-  [Codex](https://learn.chatgpt.com/codex), installed and signed in;
-- [Git](https://git-scm.com/downloads);
-- [Python 3.11 or newer](https://www.python.org/downloads/); and
-- an internet connection while SkillPath researches roles and courses.
+Codex supports plugins, but this repository does not yet contain a
+`.codex-plugin/plugin.json` package. Its current Codex distribution is the
+project-local skill discovered through `.agents/skills/skillpath`. See the
+[official Codex plugin guide](https://learn.chatgpt.com/docs/build-plugins) for
+the distinction.
 
-If you are unsure whether Python is installed, open Terminal on macOS/Linux or
-PowerShell on Windows and enter `python3 --version`. On Windows, try
-`python --version` if the first command does not work.
+## 🚀 Quick start
 
-## Installation
+### Claude Code plugin
 
-You only need to install SkillPath once.
-
-### Claude Code: install as a plugin (recommended)
-
-If you use Claude Code, this is the fastest way to get started — no clone,
-virtual environment, or `pip install` step. Open Claude Code anywhere and
-run:
+Install SkillPath once from its marketplace:
 
 ```text
 /plugin marketplace add Krutarth22/skillpath
 /plugin install skillpath@skillpath
 ```
 
-Once installed, `/skillpath roadmap ...` (and the other commands below) work
-immediately, in any project. Skip straight to
-[Quick start: create a career roadmap](#quick-start-create-a-career-roadmap).
+Then create your first roadmap from any project:
 
-The first time you run a command, SkillPath installs its small Python
-dependencies (`pyyaml`, `python-docx`) automatically if they aren't
-already on your system.
+```text
+/skillpath roadmap "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
+```
 
-Codex has no plugin mechanism, so Codex users need the from-source install
-below.
+The plugin installs its small Python dependencies (`pyyaml` and `python-docx`)
+the first time they are needed.
 
-### From source (required for Codex; also works for Claude Code)
+### Codex skill
 
-#### macOS or Linux
+Clone the repository and install the Python dependencies:
 
-Open Terminal, paste the following commands, and press Enter:
+<details open>
+<summary><strong>macOS or Linux</strong></summary>
 
 ```bash
 git clone https://github.com/Krutarth22/skillpath.git
@@ -83,11 +92,13 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e .
+codex
 ```
 
-#### Windows
+</details>
 
-Open PowerShell, paste these commands, and press Enter:
+<details>
+<summary><strong>Windows PowerShell</strong></summary>
 
 ```powershell
 git clone https://github.com/Krutarth22/skillpath.git
@@ -96,333 +107,205 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e .
-```
-
-After installation, stay inside the `skillpath` folder and start the assistant
-you use:
-
-```bash
-# Claude Code
-claude
-
-# Codex CLI
 codex
 ```
 
-Keep the assistant open in this folder whenever you use SkillPath. If Codex
-does not show SkillPath immediately after installation, close and restart
-Codex once.
+</details>
 
-### Use SkillPath again later
-
-Each time you open a new Terminal or PowerShell window, return to the cloned
-folder and reactivate its Python environment before starting Claude Code or
-Codex.
-
-On macOS or Linux:
-
-```bash
-cd skillpath
-source .venv/bin/activate
-claude  # or: codex
-```
-
-On Windows PowerShell:
-
-```powershell
-cd skillpath
-.venv\Scripts\Activate.ps1
-claude  # or: codex
-```
-
-If `cd skillpath` says that the folder cannot be found, first move to the
-folder where you originally ran the installation commands.
-
-## Quick start: create a career roadmap
-
-Tell SkillPath where you are now and which job you want. Replace the example
-text with your own details.
+From Codex, run:
 
 ```text
-# Claude Code
-/skillpath roadmap "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
-
-# Codex
 $skillpath roadmap "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
 ```
 
-SkillPath will ask a few follow-up questions about your experience, skills,
-location, available study time, and any constraints. Answer naturally; you do
-not need to use a special format.
+Keep Codex open in the repository so it can discover the project-local skill.
+If SkillPath does not appear after installation, restart Codex once.
 
-Instead of typing out your experience and skills, you can share a resume
-(PDF, DOCX, or pasted text) at any point, and SkillPath will pull out your
-current role, years of experience, and skills from it, then show you what it
-found so you can confirm or correct it before anything is saved. This also
-works later, if you want to refresh an existing profile with an updated
-resume.
+### Requirements
 
-It then creates a dated roadmap containing:
+- Claude Code or Codex, installed and signed in
+- Git
+- Python 3.11 or newer
+- Internet access while researching roles, schools, and courses
 
-- the skills commonly expected for your target role;
-- the gaps between those expectations and your current experience;
-- portfolio projects arranged in a sensible order;
-- courses for important gaps that the projects do not cover; and
-- changes since your previous roadmap, if you have one.
+Check your Python version with `python3 --version` on macOS/Linux or
+`python --version` on Windows.
 
-Your roadmap is saved in the `roadmaps` folder. To refresh it later using your
-saved answers, run:
+## 🛠️ Usage
+
+The examples below show Claude Code first and Codex second.
+
+### Create or refresh a career roadmap
 
 ```text
-# Claude Code
-/skillpath roadmap
+/skillpath roadmap "Data analyst with strong SQL" "Data Scientist"
+$skillpath roadmap "Data analyst with strong SQL" "Data Scientist"
+```
 
-# Codex
+SkillPath asks about your experience, location, available study time, and other
+constraints. You may also provide a PDF or DOCX resume; SkillPath extracts the
+relevant details and asks you to confirm them before saving anything.
+
+Run the command without arguments later to refresh the roadmap from your saved
+profile:
+
+```text
+/skillpath roadmap
 $skillpath roadmap
 ```
 
-If you describe a different starting point or target role on a later run,
-SkillPath treats it as temporary and asks before replacing your saved profile.
+A roadmap includes:
 
-## Record your progress
+- current target-role requirements, grouped by importance;
+- gaps between those requirements and your existing evidence;
+- portfolio projects in a sensible prerequisite order;
+- courses for important gaps the projects do not cover; and
+- changes since your previous roadmap.
 
-When you learn or apply a skill, give SkillPath a short description of what you
-did. Evidence might be a project, work task, course result, portfolio link, or
-another concrete example.
+### Record evidence
 
 ```text
-# Claude Code
 /skillpath record-evidence "model deployment" "Deployed a prediction API to AWS and added monitoring"
-
-# Codex
 $skillpath record-evidence "model deployment" "Deployed a prediction API to AWS and added monitoring"
 ```
 
-Future roadmaps will use this evidence when updating that skill gap. SkillPath
-will not record an empty claim.
+Evidence can be a project, work task, course result, portfolio link, or another
+concrete example. Future roadmaps use it when updating your gap status.
 
-## Find courses for one skill
-
-Use this when you want a few focused learning recommendations without creating
-a complete career roadmap:
+### Find courses for one skill
 
 ```text
-# Claude Code
 /skillpath find-courses feature engineering
-
-# Codex
 $skillpath find-courses feature engineering
 ```
 
-SkillPath returns two or three current resources, explains why each one is a
-good fit, and includes duration and cost when that information is available.
-Multi-word skills such as `feature engineering` do not need quotation marks.
+SkillPath returns two or three focused resources, explains the fit, and includes
+duration and cost when available.
 
-## Explore career paths for a degree
-
-Use this when you have (or are completing) a degree and want to know what
-career paths it actually opens up, before committing to a target role:
+### Explore careers for a degree
 
 ```text
-# Claude Code
-/skillpath career-suggestions "BS in Mathematics"
-
-# Codex
-$skillpath career-suggestions "BS in Mathematics"
+/skillpath career-suggestions "BS in Mathematics" "more interested in research than industry"
+$skillpath career-suggestions "BS in Mathematics" "more interested in research than industry"
 ```
 
-SkillPath researches and returns several named career paths with a short,
-grounded reason each one fits the degree. You can add a second argument to
-steer the suggestions toward your interests, e.g.
-`/skillpath career-suggestions "BS in Mathematics" "more interested in
-research than industry"`. This command only prints suggestions and a
-suggested next command — it never saves a file. When you're ready, it
-points you to the exact `roadmap` command to run for a full plan toward
-whichever path you pick.
+This command prints several grounded career paths and an exact `roadmap` command
+for your preferred option. It does not save a file.
 
-## Plan your college courses
-
-Use `college-plan` if you are entering college or already partway through a
-degree. It recommends the kinds of courses to take, and the order to take them,
-based on your major and target career.
+### Plan college courses
 
 ```text
-# Claude Code
 /skillpath college-plan "Computer Science" "Data Scientist"
-
-# Codex
 $skillpath college-plan "Computer Science" "Data Scientist"
 ```
 
-SkillPath assumes you are planning for an entry-level or new-graduate role. If
-you want to plan toward a different level, add it at the end:
+Add a target level as a third argument when needed:
 
 ```text
-# Claude Code
 /skillpath college-plan "Computer Science" "Data Scientist" "Senior"
-
-# Codex
 $skillpath college-plan "Computer Science" "Data Scientist" "Senior"
 ```
 
-It will ask about your degree, country or education system, current year,
-course-load limits, and courses you have already taken. These answers are
-asked again on every college-plan run rather than being added to your career
-profile.
+SkillPath asks about your education system, current year, completed classes, and
+course-load constraints. The result includes:
 
-The result is saved in `roadmaps/college-plans` and includes:
+- a course sequence organized by year;
+- useful single-school electives;
+- target skills a typical degree may not cover;
+- extra learning resources for those gaps; and
+- warnings for prerequisite or scheduling conflicts.
 
-- the skills expected for the target career;
-- a suggested course sequence organized by year;
-- single-school electives worth considering;
-- important skills that a typical degree may not cover, with extra learning
-  resources; and
-- warnings when prerequisites or time limits make part of the plan difficult
-  to schedule.
+> [!IMPORTANT]
+> College plans synthesize patterns across schools; they are not your
+> university’s official catalog. Confirm course names, prerequisites, and degree
+> requirements with an academic advisor.
 
-This is a general plan built from several schools, not your university's
-official catalog. Always confirm exact course names, prerequisites, and degree
-requirements with an academic advisor.
+## 🗂️ Outputs and privacy
 
-## Your privacy and saved files
+SkillPath keeps personal working data inside your local repository:
 
-SkillPath stores its working information inside this repository on your
-computer. It creates:
+| Path | Contents | Tracked by Git? |
+| --- | --- | --- |
+| `profile.yaml` | Goals, experience, skills, and preferences | No |
+| `tracker/skillpath_tracker.csv` | Progress and report events | No |
+| `roadmaps/report-*.docx` | Career-roadmap history | No |
+| `roadmaps/college-plans/report-*.docx` | College-plan history | No |
+| `*.meta.yaml` beside each report | Cross-run state used by SkillPath | No |
 
-- `profile.yaml` for your career goals, experience, and preferences;
-- `tracker/skillpath_tracker.csv` for progress you record;
-- `roadmaps/report-*.docx` for career roadmaps (each with a small
-  `report-*.meta.yaml` sidecar SkillPath uses to track progress across
-  runs — not meant to be opened directly); and
-- `roadmaps/college-plans/report-*.docx` for college plans, with the same
-  sidecar convention.
+These paths are ignored by Git to reduce accidental commits. They may still
+contain personal information, so review them before sharing or uploading the
+repository.
 
-These files are excluded from Git by default, which helps prevent accidental
-commits. They still contain personal information, so review them before sharing
-the folder or uploading files anywhere.
+## 🎯 Included project tracks
 
-## Technical details for contributors
+SkillPath currently includes deterministic project templates for:
 
-The sections below explain SkillPath's internal design. They are not required
-for normal use. To work on the code, install the development dependencies:
+- AI Engineer
+- ML Engineer
+- Data Engineer
+- Data Analyst
+- Data Scientist
+
+Other target roles still receive researched gaps and course recommendations.
+Project sequencing requires a matching template track.
+
+## 🧩 How it works
+
+```text
+Profile or resume
+      ↓
+Current role research → skill resolution → gap reconciliation
+                                           ↓
+                         project selection + course research
+                                           ↓
+                           DOCX roadmap + progress metadata
+```
+
+The assistant handles research and conversational judgment. Small Python modules
+handle deterministic state, matching, planning, sequencing, and report output.
+Given the same profile, requirements, templates, evidence, and time budget, the
+planner produces the same project order. Live research can change as its sources
+change.
+
+<details>
+<summary><strong>Repository layout</strong></summary>
+
+```text
+.agents/skills/skillpath        # Codex discovery symlink
+codex/skills/skillpath/         # Codex-compatible skill entry point
+.claude-plugin/marketplace.json # Claude marketplace listing
+plugins/skillpath/              # Claude plugin package
+.claude/skills/skillpath/       # Canonical workflow and resources
+├── SKILL.md                    # command router
+├── modes/                      # command procedures
+├── scripts/                    # deterministic Python modules
+├── reference/                  # schemas, taxonomy, aliases, protocols
+└── templates/                  # track-specific portfolio projects
+tests/                          # pytest suite
+tracker/                        # example and local event history
+roadmaps/                       # generated reports and metadata
+```
+
+The Claude plugin and Codex entry point link back to the canonical tree under
+`.claude/skills/skillpath/`, so the implementation stays in one place.
+
+</details>
+
+## 🧪 Development
+
+Install development dependencies and run the checks:
 
 ```bash
 python -m pip install -e ".[dev]"
-```
-
-### Implementation
-
-The skill deliberately separates research and conversational judgment from
-state handling and planning logic:
-
-1. **Parse and merge the profile.** The active host gathers missing details and
-   `profile_io.py` applies the documented merge rules without silently
-   overwriting the saved profile.
-2. **Load prior state.** The latest roadmap and the append-only tracker are
-   loaded so progress carries across runs.
-3. **Resolve names.** `resolution.py` maps free-text skills to stable taxonomy
-   IDs and maps the target role to a supported template track. Unmapped skills
-   remain visible as provisional gaps instead of stopping the run.
-4. **Research the target role.** The active host searches current job-market sources,
-   records citations, and tiers requirements by importance using the research
-   protocol in `reference/research-protocol.md`.
-5. **Reconcile gaps.** `gap_state.py` compares requirements with profile
-   evidence and tracker events. Gaps move through `open`, `practiced`, and
-   `confirmed-closed` states.
-6. **Build the project sequence.** For a resolved track,
-   `project_planner.py` deterministically selects templates that cover the most
-   important gaps within the time budget, expands prerequisites, and places the
-   capstone last.
-7. **Find remaining resources.** The find-courses command searches for current courses
-   only for gaps the selected projects do not cover.
-8. **Persist the result.** `report_state.py` renders the report as a Word
-   document (`.docx`) via `markdown_docx.py`, plus a small `.meta.yaml`
-   sidecar carrying the cross-run state that used to live in the file's
-   frontmatter, while `tracker_io.py` appends the report event to the CSV
-   history.
-
-Given the same templates, profile, assessments, and budget, the Python planner
-produces the same project order. Live role and course research can change as
-the underlying sources change.
-
-### State and data files
-
-| Path | Purpose | Version controlled |
-| --- | --- | --- |
-| `profile.yaml` | Current role, target, skills, evidence, and constraints | No |
-| `tracker/skillpath_tracker.csv` | Append-only progress and report events | No |
-| `roadmaps/report-*.docx` (+ `.meta.yaml`) | Generated skillpath roadmap history | No |
-| `roadmaps/college-plans/report-*.docx` (+ `.meta.yaml`) | Generated college-plan report history | No |
-| `profile.yaml.example` | Example profile schema | Yes |
-| `tracker/skillpath_tracker.csv.example` | Example tracker schema | Yes |
-
-The personal files are excluded by `.gitignore`. Do not force-add them to a
-commit or publish them from a fork.
-
-### Repository layout
-
-```text
-.agents/skills/              # Codex discovery symlink
-└── skillpath -> ../../codex/skills/skillpath
-codex/skills/                # thin Codex-compatible entrypoint
-└── skillpath/
-    ├── SKILL.md
-    ├── agents/openai.yaml
-    └── {scripts,reference,templates,modes} -> canonical resources
-.claude-plugin/marketplace.json  # self-hosted plugin marketplace listing
-plugins/skillpath/            # thin Claude Code plugin entrypoint
-    ├── .claude-plugin/plugin.json
-    └── {SKILL.md,scripts,reference,templates,modes} -> canonical resources
-.claude/skills/
-└── skillpath/
-    ├── SKILL.md              # router: parses arguments and dispatches to
-    │                          # a mode file; record-evidence stays inline
-    ├── scripts/               # deterministic state and planning modules,
-    │                          # including curriculum_planner.py (college-plan)
-    │                          # and markdown_docx.py (report rendering)
-    ├── reference/             # schemas, taxonomy, aliases, and protocols,
-    │                          # including curriculum-research-protocol.md
-    ├── templates/             # track-specific project definitions
-    └── modes/
-        ├── roadmap.md              # career-roadmap orchestration procedure
-        ├── college-plan.md         # college course-sequencing procedure
-        ├── find-courses.md         # focused course-research procedure
-        └── career-suggestions.md   # degree -> career-path exploration procedure
-tests/                        # pytest coverage for the Python modules
-profile.yaml.example          # safe sample profile
-tracker/                      # sample and local event history
-roadmaps/                     # local generated skillpath reports (.docx + .meta.yaml)
-roadmaps/college-plans/       # local generated college-plan reports
-```
-
-The initial implementation includes project templates for the
-`ai-engineer`, `ml-engineer`, `data-engineer`, `data-analyst`, and
-`data-scientist` tracks. `ai-engineer` and `ml-engineer` are kept separate
-on purpose — live research shows they're distinct roles (model-building vs.
-model-using), not one merged "AI/ML Engineer" track. Other target roles
-still receive researched gaps and course recommendations, but project
-planning requires a matching track. See
-[`CONTRIBUTING.md`](CONTRIBUTING.md) for the template schema and instructions
-for adding taxonomy entries or new tracks.
-
-### Development and verification
-
-Run the full test suite:
-
-```bash
 python -m pytest tests/ -v
-```
-
-Validate all project templates and their taxonomy references:
-
-```bash
-python3 .claude/skills/skillpath/scripts/lint_templates.py \
+python .claude/skills/skillpath/scripts/lint_templates.py \
   .claude/skills/skillpath/templates \
   .claude/skills/skillpath/reference/skill-taxonomy.yaml
 ```
 
-CI runs both checks on Python 3.11 and 3.12.
+CI runs the suite on Python 3.11 and 3.12. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for the template schema, taxonomy rules, and instructions for adding tracks.
 
-## License
+## 📄 License
 
-This project is available under the [MIT License](LICENSE).
+SkillPath is available under the [MIT License](LICENSE).

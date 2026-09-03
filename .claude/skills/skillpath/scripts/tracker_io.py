@@ -9,7 +9,7 @@ import argparse
 import csv
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 COLUMNS = [
@@ -31,6 +31,18 @@ ALLOWED_EVENT_TYPES = {
     "course_completed",
     "skill_confirmed",
 }
+
+
+def _parse_timestamp(value: str) -> datetime:
+    """Parse an ISO 8601 timestamp and normalize it to UTC.
+
+    Naive timestamps are treated as UTC for compatibility with existing
+    tracker files.
+    """
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def append_row(
@@ -80,14 +92,16 @@ def read_rows(
     since: str | None = None,
     event_types: list[str] | None = None,
 ) -> list[dict]:
-    """Read tracker rows as dicts, filtered by occurred_at >= since (ISO
-    string comparison) and event_type in event_types when given.
+    """Read tracker rows as dicts, filtered by occurred_at >= since and
+    event_type in event_types when given.
 
     Malformed/hand-edited rows are skipped silently rather than raising.
     """
     path = Path(csv_path)
     if not path.exists():
         return []
+
+    since_timestamp = _parse_timestamp(since) if since is not None else None
 
     rows: list[dict] = []
     with open(path, newline="", encoding="utf-8") as f:
@@ -113,11 +127,11 @@ def read_rows(
                 if not occurred_at:
                     continue
                 try:
-                    datetime.fromisoformat(occurred_at.replace("Z", "+00:00"))
+                    occurred_timestamp = _parse_timestamp(occurred_at)
                 except ValueError:
                     continue
 
-                if since is not None and occurred_at < since:
+                if since_timestamp is not None and occurred_timestamp < since_timestamp:
                     continue
                 if event_types is not None and event_type not in event_types:
                     continue

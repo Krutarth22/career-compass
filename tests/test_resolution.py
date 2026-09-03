@@ -296,6 +296,63 @@ def test_open_to_practiced_via_project_completed_event():
     assert result[0]["first_seen_report_id"] == "report-old-0001"
 
 
+def test_event_filter_compares_instants_across_timezone_offsets():
+    prior_assessments = [
+        {
+            "skill_id": "rag",
+            "tier": "Critical",
+            "status": "open",
+            "first_seen_at": "2026-07-01T00:00:00Z",
+            "first_seen_report_id": "report-old-0001",
+        }
+    ]
+    tracker_events = [
+        {
+            # This is 2026-06-30T23:30:00Z, before first_seen_at.
+            "occurred_at": "2026-07-01T01:30:00+02:00",
+            "event_type": "project_completed",
+            "related_skill_ids": ["rag"],
+        }
+    ]
+
+    result = gap_state.reconcile_assessments(
+        [_requirement()],
+        _profile(),
+        prior_assessments,
+        tracker_events,
+        target_role="ai-ml-engineer",
+        target_level="senior",
+        this_report_id=THIS_REPORT_ID,
+        now=NOW,
+    )
+
+    assert result[0]["status"] == "open"
+
+
+def test_malformed_prior_first_seen_falls_back_to_current_report():
+    result = gap_state.reconcile_assessments(
+        [_requirement()],
+        _profile(),
+        [
+            {
+                "skill_id": "rag",
+                "tier": "Critical",
+                "status": "open",
+                "first_seen_at": None,
+                "first_seen_report_id": None,
+            }
+        ],
+        [],
+        target_role="ai-ml-engineer",
+        target_level="senior",
+        this_report_id=THIS_REPORT_ID,
+        now=NOW,
+    )
+
+    assert result[0]["first_seen_at"] == NOW.isoformat()
+    assert result[0]["first_seen_report_id"] == THIS_REPORT_ID
+
+
 def test_practiced_to_confirmed_closed_via_target_matching_event():
     requirements = [_requirement()]
     profile = _profile()

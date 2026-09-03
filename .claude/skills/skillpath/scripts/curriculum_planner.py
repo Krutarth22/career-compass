@@ -21,7 +21,6 @@ if str(_SKILLPATH_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SKILLPATH_SCRIPTS))
 
 from resolution import (  # noqa: E402
-    MIN_PHRASE_TOKEN_LEN,
     _is_phrase_eligible,
     _normalize_key,
     _phrase_contains,

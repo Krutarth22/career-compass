@@ -154,6 +154,40 @@ def test_read_rows_filters_by_since(tmp_path):
     assert rows[0]["item_name"] == "New"
 
 
+def test_read_rows_since_compares_instants_across_timezone_offsets(tmp_path):
+    csv_path = tmp_path / "tracker.csv"
+    tracker_io.append_row(
+        csv_path,
+        "2026-01-15T01:00:00+02:00",
+        "report_generated",
+        "Actually older",
+        [],
+        "r1",
+    )
+    tracker_io.append_row(
+        csv_path,
+        "2026-01-14T19:30:00-05:00",
+        "report_generated",
+        "Actually newer",
+        [],
+        "r2",
+    )
+
+    rows = tracker_io.read_rows(csv_path, since="2026-01-15T00:00:00Z")
+
+    assert [row["item_name"] for row in rows] == ["Actually newer"]
+
+
+def test_read_rows_rejects_invalid_since_timestamp(tmp_path):
+    csv_path = tmp_path / "tracker.csv"
+    tracker_io.append_row(
+        csv_path, "2026-01-15T00:00:00Z", "report_generated", "A", [], "r1"
+    )
+
+    with pytest.raises(ValueError):
+        tracker_io.read_rows(csv_path, since="not-a-timestamp")
+
+
 def test_read_rows_filters_by_event_types(tmp_path):
     csv_path = tmp_path / "tracker.csv"
     tracker_io.append_row(
