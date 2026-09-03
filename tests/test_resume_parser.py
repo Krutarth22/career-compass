@@ -42,19 +42,27 @@ def _make_docx(
     body_paragraphs_xml: str,
     parts: dict | None = None,
     references: list | None = None,
+    target_overrides: dict | None = None,
 ):
     """Build a minimal .docx.
 
     `parts`: {"word/header1.xml": "<w:p>...</w:p>"} -- part files written
     into the zip regardless of whether they're referenced (so a test can
-    plant an orphan part).
+    plant an orphan part, or omit an entry to leave an active reference
+    dangling at a missing part).
     `references`: [("rId1", "word/header1.xml", "header"), ...] -- each
     becomes both a relationship in `word/_rels/document.xml.rels` and a
     `w:headerReference`/`w:footerReference` in `document.xml`'s `w:sectPr`,
     i.e. an *actually active* header/footer.
+    `target_overrides`: {"rId1": "/word/header1.xml"} -- write this raw OPC
+    target string verbatim as that id's Relationship `Target`, instead of
+    deriving it from the matching `references` entry's `target`. Lets a
+    test exercise `_resolve_target`'s absolute/dot-segment handling without
+    a second zip-building helper.
     """
     path = tmp_path / "resume.docx"
     references = references or []
+    target_overrides = target_overrides or {}
 
     ref_tags = []
     rels = []
@@ -62,7 +70,10 @@ def _make_docx(
         tag = "w:headerReference" if kind == "header" else "w:footerReference"
         ref_tags.append(f'<{tag} w:type="default" r:id="{rid}"/>')
         rel_type = _HEADER_REL_TYPE if kind == "header" else _FOOTER_REL_TYPE
-        target_rel = target[len("word/") :] if target.startswith("word/") else target
+        if rid in target_overrides:
+            target_rel = target_overrides[rid]
+        else:
+            target_rel = target[len("word/") :] if target.startswith("word/") else target
         rels.append(f'<Relationship Id="{rid}" Type="{rel_type}" Target="{target_rel}"/>')
 
     sect_pr = f"<w:sectPr>{''.join(ref_tags)}</w:sectPr>" if ref_tags else ""
@@ -81,6 +92,19 @@ def _make_docx(
         for name, paragraphs in (parts or {}).items():
             zf.writestr(name, _HDR_FTR_TEMPLATE.format(w_ns=_W_NS, paragraphs=paragraphs))
     return path
+
+
+def _document_with_header_ref(body: str = "Body") -> str:
+    """`document.xml` for a body paragraph plus a single active
+    `w:headerReference` (`r:id="rId1"`) -- the shared shape needed by every
+    test below that exercises a *resolved* or *broken* header reference,
+    independent of how `word/_rels/document.xml.rels` and the header part
+    itself are (or aren't) provided."""
+    return _PART_TEMPLATE.format(
+        w_ns=f"{_W_NS} {_R_NS}",
+        paragraphs=f'<w:p><w:r><w:t>{body}</w:t></w:r></w:p>'
+        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
+    )
 
 
 def test_extract_docx_text_reads_simple_paragraphs(tmp_path):
@@ -200,35 +224,13 @@ def test_extract_docx_text_ignores_unreferenced_orphan_parts(tmp_path):
     assert text == "Body only"
 
 
-def _write_docx_with_raw_rels(tmp_path, document_xml: str, rels_target: str, part_name: str, part_paragraphs: str):
-    """Like `_make_docx`, but writes the relationship `Target` attribute
-    verbatim (no derivation from `part_name`) so a raw OPC target string --
-    absolute (`/word/...`) or containing `..` segments -- can be tested
-    against the actual resolution logic instead of the test helper's own
-    shortcut."""
-    path = tmp_path / "resume.docx"
-    rels_xml = _RELS_TEMPLATE.format(
-        relationships=f'<Relationship Id="rId1" Type="{_HEADER_REL_TYPE}" Target="{rels_target}"/>'
-    )
-    with zipfile.ZipFile(path, "w") as zf:
-        zf.writestr("word/document.xml", document_xml)
-        zf.writestr("word/_rels/document.xml.rels", rels_xml)
-        zf.writestr(part_name, _HDR_FTR_TEMPLATE.format(w_ns=_W_NS, paragraphs=part_paragraphs))
-    return path
-
-
 def test_extract_docx_text_resolves_package_root_absolute_target(tmp_path):
-    document_xml = _PART_TEMPLATE.format(
-        w_ns=f"{_W_NS} {_R_NS}",
-        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
-        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
-    )
-    path = _write_docx_with_raw_rels(
+    path = _make_docx(
         tmp_path,
-        document_xml,
-        rels_target="/word/header1.xml",
-        part_name="word/header1.xml",
-        part_paragraphs="""<w:p><w:r><w:t>Jane Doe</w:t></w:r></w:p>""",
+        "<w:p><w:r><w:t>Body</w:t></w:r></w:p>",
+        parts={"word/header1.xml": """<w:p><w:r><w:t>Jane Doe</w:t></w:r></w:p>"""},
+        references=[("rId1", "word/header1.xml", "header")],
+        target_overrides={"rId1": "/word/header1.xml"},
     )
 
     text = resume_parser.extract_docx_text(path)
@@ -237,19 +239,14 @@ def test_extract_docx_text_resolves_package_root_absolute_target(tmp_path):
 
 
 def test_extract_docx_text_resolves_dot_segment_relative_target(tmp_path):
-    document_xml = _PART_TEMPLATE.format(
-        w_ns=f"{_W_NS} {_R_NS}",
-        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
-        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
-    )
     # A target relative to word/document.xml's own directory ("word/") that
     # climbs out and back in -- normalizes to the same word/header1.xml.
-    path = _write_docx_with_raw_rels(
+    path = _make_docx(
         tmp_path,
-        document_xml,
-        rels_target="../word/header1.xml",
-        part_name="word/header1.xml",
-        part_paragraphs="""<w:p><w:r><w:t>Jane Doe</w:t></w:r></w:p>""",
+        "<w:p><w:r><w:t>Body</w:t></w:r></w:p>",
+        parts={"word/header1.xml": """<w:p><w:r><w:t>Jane Doe</w:t></w:r></w:p>"""},
+        references=[("rId1", "word/header1.xml", "header")],
+        target_overrides={"rId1": "../word/header1.xml"},
     )
 
     text = resume_parser.extract_docx_text(path)
@@ -262,54 +259,34 @@ def test_extract_docx_text_raises_for_reference_to_missing_part(tmp_path):
     pointing at a target that isn't actually in the zip means the package
     itself is broken -- this must raise, not silently fall back to
     partial body-only text."""
-    document_xml = _PART_TEMPLATE.format(
-        w_ns=f"{_W_NS} {_R_NS}",
-        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
-        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
+    path = _make_docx(
+        tmp_path,
+        "<w:p><w:r><w:t>Body</w:t></w:r></w:p>",
+        references=[("rId1", "word/header1.xml", "header")],
+        # note: no `parts` entry -- word/header1.xml is never written
     )
-    path = tmp_path / "resume.docx"
-    rels_xml = _RELS_TEMPLATE.format(
-        relationships=f'<Relationship Id="rId1" Type="{_HEADER_REL_TYPE}" Target="header1.xml"/>'
-    )
-    with zipfile.ZipFile(path, "w") as zf:
-        zf.writestr("word/document.xml", document_xml)
-        zf.writestr("word/_rels/document.xml.rels", rels_xml)
-        # note: word/header1.xml is never written
 
     with pytest.raises(ValueError):
         resume_parser.extract_docx_text(path)
 
 
-def test_extract_docx_text_raises_for_reference_with_no_relationship_defined(tmp_path):
-    """An active reference whose r:id has no matching <Relationship> at
-    all (not even a broken Target) is the same kind of corruption."""
-    document_xml = _PART_TEMPLATE.format(
-        w_ns=f"{_W_NS} {_R_NS}",
-        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
-        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
-    )
-    path = tmp_path / "resume.docx"
-    rels_xml = _RELS_TEMPLATE.format(relationships="")
-    with zipfile.ZipFile(path, "w") as zf:
-        zf.writestr("word/document.xml", document_xml)
-        zf.writestr("word/_rels/document.xml.rels", rels_xml)
-
-    with pytest.raises(ValueError):
-        resume_parser.extract_docx_text(path)
-
-
-def test_extract_docx_text_raises_when_rels_file_missing_but_reference_present(tmp_path):
-    """An active reference with no word/_rels/document.xml.rels at all in
-    the package (not even the file) is corruption, not "no header"."""
-    document_xml = _PART_TEMPLATE.format(
-        w_ns=f"{_W_NS} {_R_NS}",
-        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
-        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
-    )
+@pytest.mark.parametrize(
+    "rels_xml, write_rels_part",
+    [
+        pytest.param(_RELS_TEMPLATE.format(relationships=""), True, id="no-matching-relationship"),
+        pytest.param(None, False, id="rels-file-entirely-missing"),
+    ],
+)
+def test_extract_docx_text_raises_for_unresolvable_reference(tmp_path, rels_xml, write_rels_part):
+    """An active reference (`r:id="rId1"` in `document.xml`) with no way to
+    resolve it -- whether because no `<Relationship>` defines that id, or
+    because `word/_rels/document.xml.rels` isn't in the package at all --
+    is package corruption either way and must raise."""
     path = tmp_path / "resume.docx"
     with zipfile.ZipFile(path, "w") as zf:
-        zf.writestr("word/document.xml", document_xml)
-        # note: no word/_rels/document.xml.rels at all
+        zf.writestr("word/document.xml", _document_with_header_ref())
+        if write_rels_part:
+            zf.writestr("word/_rels/document.xml.rels", rels_xml)
 
     with pytest.raises(ValueError):
         resume_parser.extract_docx_text(path)
@@ -318,11 +295,6 @@ def test_extract_docx_text_raises_when_rels_file_missing_but_reference_present(t
 def test_extract_docx_text_skips_external_header_reference(tmp_path):
     """An External-mode relationship target is legitimately not a zip
     part -- valid OPC, not corruption -- and is skipped without error."""
-    document_xml = _PART_TEMPLATE.format(
-        w_ns=f"{_W_NS} {_R_NS}",
-        paragraphs='<w:p><w:r><w:t>Body</w:t></w:r></w:p>'
-        '<w:sectPr><w:headerReference w:type="default" r:id="rId1"/></w:sectPr>',
-    )
     path = tmp_path / "resume.docx"
     rels_xml = _RELS_TEMPLATE.format(
         relationships=(
@@ -331,7 +303,7 @@ def test_extract_docx_text_skips_external_header_reference(tmp_path):
         )
     )
     with zipfile.ZipFile(path, "w") as zf:
-        zf.writestr("word/document.xml", document_xml)
+        zf.writestr("word/document.xml", _document_with_header_ref())
         zf.writestr("word/_rels/document.xml.rels", rels_xml)
 
     text = resume_parser.extract_docx_text(path)

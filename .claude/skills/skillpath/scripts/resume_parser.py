@@ -51,10 +51,21 @@ def _resolve_target(target: str) -> str:
     return posixpath.normpath(posixpath.join("word", target))
 
 
-def _referenced_part_names(zf: zipfile.ZipFile, doc_tree, ref_tag: str) -> list[str]:
-    """Ordered, deduplicated zip member names actually referenced by
-    `doc_tree` via `ref_tag` (`w:headerReference` / `w:footerReference`),
-    resolved through `word/_rels/document.xml.rels`.
+def _reference_ids(doc_tree, ref_tag: str) -> list[str]:
+    """`r:id` values of every `ref_tag` element (`w:headerReference` /
+    `w:footerReference`) in `doc_tree`, in document order."""
+    return [
+        ref.get(_R_ID_ATTR) for ref in doc_tree.iter(ref_tag) if ref.get(_R_ID_ATTR)
+    ]
+
+
+def _referenced_part_names(
+    ref_ids: list[str], rel_info: dict[str, tuple[str, str | None]], zip_names: set[str]
+) -> list[str]:
+    """Ordered, deduplicated zip member names for `ref_ids`, resolved
+    against `rel_info` (`word/_rels/document.xml.rels`'s `{Id: (Target,
+    TargetMode)}`, loaded once by the caller and shared across the header
+    and footer lookups -- both need the same file).
 
     A .docx package can retain orphan header/footer parts left over from
     template edits that no relationship or section points at any more --
@@ -62,35 +73,16 @@ def _referenced_part_names(zf: zipfile.ZipFile, doc_tree, ref_tag: str) -> list[
     that stale content (or a malformed leftover part) alongside whatever
     the document actually renders. Only parts reachable from the document's
     own relationship graph are real, so an *unreferenced* part is silently
-    ignored.
+    ignored (the caller never passes its id in `ref_ids`).
 
-    An *active* reference that fails to resolve is a different situation --
-    it means the package itself is broken (the document points at a
-    relationship or part that doesn't exist), not that the header/footer is
-    legitimately absent. That must raise, not silently fall back to
-    partial body-only text, matching this module's documented contract of
-    surfacing a corrupt/malformed file rather than guessing.
+    An *active* reference (an id present in `ref_ids`) that fails to
+    resolve is a different situation -- it means the package itself is
+    broken (the document points at a relationship or part that doesn't
+    exist), not that the header/footer is legitimately absent. That must
+    raise, not silently fall back to partial body-only text, matching this
+    module's documented contract of surfacing a corrupt/malformed file
+    rather than guessing.
     """
-    ref_ids = [
-        ref.get(_R_ID_ATTR) for ref in doc_tree.iter(ref_tag) if ref.get(_R_ID_ATTR)
-    ]
-    if not ref_ids:
-        return []
-
-    try:
-        rels_bytes = zf.read("word/_rels/document.xml.rels")
-    except KeyError:
-        raise ValueError(
-            "document.xml references a header/footer but "
-            "word/_rels/document.xml.rels is missing (corrupt .docx)"
-        ) from None
-    rels_tree = ElementTree.fromstring(rels_bytes)
-    rel_info = {
-        rel.get("Id"): (rel.get("Target"), rel.get("TargetMode"))
-        for rel in rels_tree.iter(_RELATIONSHIP_TAG)
-    }
-
-    zip_names = set(zf.namelist())
     names: list[str] = []
     for rid in ref_ids:
         info = rel_info.get(rid)
@@ -156,8 +148,29 @@ def extract_docx_text(path) -> str:
     with zipfile.ZipFile(path) as zf:
         document_xml = zf.read("word/document.xml")
         doc_tree = ElementTree.fromstring(document_xml)
-        header_names = _referenced_part_names(zf, doc_tree, _HEADER_REF_TAG)
-        footer_names = _referenced_part_names(zf, doc_tree, _FOOTER_REF_TAG)
+        header_ids = _reference_ids(doc_tree, _HEADER_REF_TAG)
+        footer_ids = _reference_ids(doc_tree, _FOOTER_REF_TAG)
+
+        header_names: list[str] = []
+        footer_names: list[str] = []
+        if header_ids or footer_ids:
+            # Both lookups need the same rels part -- read/parse it once
+            # here rather than once per tag.
+            try:
+                rels_bytes = zf.read("word/_rels/document.xml.rels")
+            except KeyError:
+                raise ValueError(
+                    "document.xml references a header/footer but "
+                    "word/_rels/document.xml.rels is missing (corrupt .docx)"
+                ) from None
+            rels_tree = ElementTree.fromstring(rels_bytes)
+            rel_info = {
+                rel.get("Id"): (rel.get("Target"), rel.get("TargetMode"))
+                for rel in rels_tree.iter(_RELATIONSHIP_TAG)
+            }
+            zip_names = set(zf.namelist())
+            header_names = _referenced_part_names(header_ids, rel_info, zip_names)
+            footer_names = _referenced_part_names(footer_ids, rel_info, zip_names)
 
         lines: list[str] = []
         for name in header_names:

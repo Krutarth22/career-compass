@@ -96,21 +96,16 @@ Saved `current_skills` entries carry no `skill_id` (per
 `reference/profile-schema.md`, that field is never persisted), so matching
 a resume-derived skill against the existing list by free text alone is
 unreliable -- "Python" from a resume must match a saved "Python (Django)"
-entry, not silently duplicate it. Resolve **both sides** to canonical ids
-before comparing:
+entry, not silently duplicate it. Resolve every skill on both sides
+individually with `resolution.py resolve-skill` before comparing:
 
-1. Resolve the *existing* `current_skills` list with
-   `resolution.py resolve-profile-skills` (the same call Step 2b makes --
-   it's fine, and expected, to run it here too; it's idempotent and Step 2b
-   still runs again in its own place further below for the rest of the
-   pipeline).
-2. Resolve each candidate resume skill individually with
-   `resolution.py resolve-skill`.
-3. Merge by `skill_id`: add candidates whose id isn't already present; for
+1. Resolve each existing `current_skills` entry's `skill_id`, and each
+   candidate resume skill's `skill_id`, with the same `resolve-skill` call.
+2. Merge by `skill_id`: add candidates whose id isn't already present; for
    an id that's already present, keep the existing entry as-is unless the
    user explicitly confirms raising it -- never lower an existing
    proficiency automatically.
-4. Before this merged list is written anywhere (the this-run-only override
+3. Before this merged list is written anywhere (the this-run-only override
    profile, or `profile.yaml` itself), strip the transient `skill_id` key
    back out of every entry -- only `skill`/`proficiency`/`evidence` are
    part of the persisted schema; `skill_id` is a run-time resolution
@@ -121,10 +116,7 @@ The edited profile is now a pending change regardless of merge mode.
 changed, not just the Step 1 merge mode** -- set a flag (e.g. "profile
 edited this run") the moment either an `override` arg was applied *or* a
 resume edit was confirmed here, on `override` or `as_is` alike. Step 9's
-save prompt below checks that flag, not the merge mode directly, so an
-`as_is` run with a confirmed resume refresh still gets offered a save --
-without this, a resume-driven refresh on a plain `$skillpath roadmap` (no
-CLI args, `as_is` mode) would silently vanish at the end of the run.
+save prompt below checks that flag, not the merge mode directly.
 
 ## Step 1 -- Parse arguments and determine merge mode
 
