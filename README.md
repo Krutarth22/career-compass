@@ -2,32 +2,69 @@
 
 # 🧭 SkillPath
 
-### Turn a career goal into an evidence-backed learning plan
+### From college choices to career evidence—one connected journey
 
-Research current role expectations, find your skill gaps, and build a practical
-roadmap of projects, courses, and college classes—directly inside Claude Code or
-Codex.
+Choose the right college courses, explore where your degree can take you, build
+a practical career roadmap, close focused skill gaps, and keep proof of every
+step—directly inside Claude Code or Codex.
 
 [![CI](https://github.com/Krutarth22/skillpath/actions/workflows/ci.yml/badge.svg)](https://github.com/Krutarth22/skillpath/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[Get started](#-quick-start) · [Explore commands](#-what-you-can-do) · [Contribute](CONTRIBUTING.md)
+[Follow the journey](#-your-skillpath-journey) · [Get started](#-quick-start) · [Contribute](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## Why SkillPath?
+## 🌱 Your SkillPath journey
 
-Career advice is often broad. SkillPath turns it into a sequence you can act on:
+SkillPath is designed as a progression, not a collection of disconnected tools.
+Start with your education, turn it into a career direction, and build evidence
+that makes each new plan smarter.
 
-1. Research the skills employers currently expect for your target role.
-2. Compare those expectations with your experience and evidence.
-3. Prioritize the gaps that matter most.
-4. Select portfolio projects in prerequisite-safe order.
-5. Recommend focused courses only where projects are not enough.
-6. Carry your progress into the next roadmap.
+```text
+🎓 Plan college courses
+          ↓
+🧭 Explore career possibilities
+          ↓
+🗺️ Build your career roadmap
+          ↓
+📚 Find focused courses for remaining gaps
+          ↓
+🏆 Record evidence of what you accomplished
+          └───────────────↺ strengthens your next roadmap
+```
+
+### 1. Build your academic foundation
+
+Use `college-plan` to organize required classes, useful electives, and
+prerequisites around the direction you are considering. The result is a
+year-by-year course sequence you can validate with an academic advisor.
+
+### 2. Discover where your degree can lead
+
+Use `career-suggestions` to explore realistic paths connected to your degree,
+interests, and preferences. Pick the direction that feels worth pursuing.
+
+### 3. Turn that direction into a roadmap
+
+Use `roadmap` to compare your current experience with real role expectations.
+SkillPath prioritizes the gaps and sequences hands-on portfolio projects so you
+know what to build next—and why.
+
+### 4. Learn exactly what the roadmap requires
+
+Use `find-courses` when a specific gap needs focused instruction. Instead of a
+huge course catalog, you get a short, relevant list with fit, duration, and cost
+when available.
+
+### 5. Convert progress into proof
+
+Use `record-evidence` after a project, class, course, or meaningful work task.
+That evidence is carried into future roadmaps, turning SkillPath into a living
+cycle rather than a one-time report.
 
 You get a dated Word report you can review, edit, and keep—not a disposable chat
 answer.
@@ -36,11 +73,11 @@ answer.
 
 | Goal | Command | Result |
 | --- | --- | --- |
-| Move toward a target role | `roadmap` | Skill gaps, sequenced projects, and learning resources |
-| Plan a degree around a career | `college-plan` | A prerequisite-aware course sequence by year |
-| Learn one specific skill | `find-courses` | A short list of current, relevant resources |
-| Explore options for a degree | `career-suggestions` | Grounded career paths and a suggested next command |
-| Record proof of progress | `record-evidence` | Evidence saved for future roadmap updates |
+| 1. Plan a degree around a career | `college-plan` | A prerequisite-aware course sequence by year |
+| 2. Explore options for a degree | `career-suggestions` | Grounded career paths and a suggested next command |
+| 3. Move toward a target role | `roadmap` | Skill gaps, sequenced projects, and learning resources |
+| 4. Learn one specific skill | `find-courses` | A short list of current, relevant resources |
+| 5. Record proof of progress | `record-evidence` | Evidence saved for future roadmap updates |
 
 If you forget the commands, enter `/skillpath` in Claude Code or `$skillpath`
 in Codex to see the built-in help.
@@ -69,10 +106,10 @@ Install SkillPath once from its marketplace:
 /plugin install skillpath@skillpath
 ```
 
-Then create your first roadmap from any project:
+Then begin with your college plan from any project:
 
 ```text
-/skillpath roadmap "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
+/skillpath college-plan "Computer Science" "Data Scientist"
 ```
 
 The plugin installs its small Python dependencies (`pyyaml` and `python-docx`)
@@ -112,10 +149,10 @@ codex
 
 </details>
 
-From Codex, run:
+From Codex, begin the same journey with:
 
 ```text
-$skillpath roadmap "Mechanical engineer, 8 years, strong in Python and CAD" "Senior ML Engineer"
+$skillpath college-plan "Computer Science" "Data Scientist"
 ```
 
 Keep Codex open in the repository so it can discover the project-local skill.
@@ -131,68 +168,11 @@ If SkillPath does not appear after installation, restart Codex once.
 Check your Python version with `python3 --version` on macOS/Linux or
 `python --version` on Windows.
 
-## 🛠️ Usage
+## 🛠️ Walk through the journey
 
 The examples below show Claude Code first and Codex second.
 
-### Create or refresh a career roadmap
-
-```text
-/skillpath roadmap "Data analyst with strong SQL" "Data Scientist"
-$skillpath roadmap "Data analyst with strong SQL" "Data Scientist"
-```
-
-SkillPath asks about your experience, location, available study time, and other
-constraints. You may also provide a PDF or DOCX resume; SkillPath extracts the
-relevant details and asks you to confirm them before saving anything.
-
-Run the command without arguments later to refresh the roadmap from your saved
-profile:
-
-```text
-/skillpath roadmap
-$skillpath roadmap
-```
-
-A roadmap includes:
-
-- current target-role requirements, grouped by importance;
-- gaps between those requirements and your existing evidence;
-- portfolio projects in a sensible prerequisite order;
-- courses for important gaps the projects do not cover; and
-- changes since your previous roadmap.
-
-### Record evidence
-
-```text
-/skillpath record-evidence "model deployment" "Deployed a prediction API to AWS and added monitoring"
-$skillpath record-evidence "model deployment" "Deployed a prediction API to AWS and added monitoring"
-```
-
-Evidence can be a project, work task, course result, portfolio link, or another
-concrete example. Future roadmaps use it when updating your gap status.
-
-### Find courses for one skill
-
-```text
-/skillpath find-courses feature engineering
-$skillpath find-courses feature engineering
-```
-
-SkillPath returns two or three focused resources, explains the fit, and includes
-duration and cost when available.
-
-### Explore careers for a degree
-
-```text
-/skillpath career-suggestions "BS in Mathematics" "more interested in research than industry"
-$skillpath career-suggestions "BS in Mathematics" "more interested in research than industry"
-```
-
-This command prints several grounded career paths and an exact `roadmap` command
-for your preferred option. It does not save a file.
-
-### Plan college courses
+### 1. Plan college courses
 
 ```text
 /skillpath college-plan "Computer Science" "Data Scientist"
@@ -219,6 +199,63 @@ course-load constraints. The result includes:
 > College plans synthesize patterns across schools; they are not your
 > university’s official catalog. Confirm course names, prerequisites, and degree
 > requirements with an academic advisor.
+
+### 2. Explore careers for your degree
+
+```text
+/skillpath career-suggestions "BS in Mathematics" "more interested in research than industry"
+$skillpath career-suggestions "BS in Mathematics" "more interested in research than industry"
+```
+
+This command presents several grounded career paths and an exact `roadmap`
+command for the option you choose. It does not save a file.
+
+### 3. Create or refresh your career roadmap
+
+```text
+/skillpath roadmap "Data analyst with strong SQL" "Data Scientist"
+$skillpath roadmap "Data analyst with strong SQL" "Data Scientist"
+```
+
+SkillPath asks about your experience, location, available study time, and other
+constraints. You may also provide a PDF or DOCX resume; SkillPath extracts the
+relevant details and asks you to confirm them before saving anything.
+
+A roadmap includes:
+
+- current target-role requirements, grouped by importance;
+- gaps between those requirements and your existing evidence;
+- portfolio projects in a sensible prerequisite order;
+- courses for important gaps the projects do not cover; and
+- changes since your previous roadmap.
+
+Run the command without arguments later to refresh it from your saved profile:
+
+```text
+/skillpath roadmap
+$skillpath roadmap
+```
+
+### 4. Find courses for a specific gap
+
+```text
+/skillpath find-courses feature engineering
+$skillpath find-courses feature engineering
+```
+
+SkillPath returns two or three focused resources, explains the fit, and includes
+duration and cost when available.
+
+### 5. Record what you accomplished
+
+```text
+/skillpath record-evidence "model deployment" "Deployed a prediction API to AWS and added monitoring"
+$skillpath record-evidence "model deployment" "Deployed a prediction API to AWS and added monitoring"
+```
+
+Evidence can be a project, work task, course result, portfolio link, or another
+concrete example. Your next roadmap uses it to update gap status and recommend
+the next best step—closing the loop back to stage three.
 
 ## 🗂️ Outputs and privacy
 
