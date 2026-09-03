@@ -1,8 +1,8 @@
 ---
 name: skillpath
-description: Generate or update your personal career roadmap — research target-role requirements, reconcile tracked skill gaps, plan hands-on projects, and surface course resources. Also routes to the college-plan (course sequencing for a major), find-courses (single-skill resource search), and record-evidence (close a tracked gap) commands. Invoke explicitly with `/skillpath` in Claude Code or `$skillpath` in Codex; it writes profile/tracker/roadmap files, so it never runs on its own.
+description: Generate or update your personal career roadmap — research target-role requirements, reconcile tracked skill gaps, plan hands-on projects, and surface course resources. Also routes to the college-plan (course sequencing for a major), find-courses (single-skill resource search), career-suggestions (career paths for a degree), and record-evidence (close a tracked gap) commands. Invoke explicitly with `/skillpath` in Claude Code or `$skillpath` in Codex; it writes profile/tracker/roadmap files, so it never runs on its own.
 disable-model-invocation: true
-argument-hint: "[roadmap | college-plan | find-courses | record-evidence]"
+argument-hint: "[roadmap | college-plan | find-courses | career-suggestions | record-evidence]"
 allowed-tools: Bash, Read, Write, WebSearch, WebFetch, AskUserQuestion
 ---
 
@@ -17,10 +17,10 @@ functionality. In Claude Code, invoke it with `/skillpath <command> ...`;
 in Codex, invoke it with `$skillpath <command> ...`. Claude's
 `disable-model-invocation` frontmatter and Codex's `agents/openai.yaml`
 both enforce that policy. It writes to `profile.yaml`,
-`tracker/skillpath_tracker.csv`, and `roadmaps/*.md`, all of which are
+`tracker/skillpath_tracker.csv`, and `roadmaps/*.docx`, all of which are
 personal, gitignored data.
 
-Four commands hang off this one router, each keyed by a mandatory first
+Five commands hang off this one router, each keyed by a mandatory first
 word (`$0`) rather than a positional guess -- this removes the ambiguity
 of a bare current-state string colliding with a reserved word like
 `college-plan`, and lets a bare `/skillpath` print help instead of
@@ -31,6 +31,8 @@ silently assuming intent:
   (`modes/college-plan.md`).
 - `find-courses` -- single-skill resource search
   (`modes/find-courses.md`).
+- `career-suggestions` -- explore career paths for a degree/major
+  (`modes/career-suggestions.md`).
 - `record-evidence` -- record evidence that closes a tracked gap (Step 1,
   below).
 
@@ -56,13 +58,36 @@ values are substituted directly:
 
 ```bash
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-SKILL_DIR="${CLAUDE_SKILL_DIR:-${PROJECT_ROOT}/.agents/skills/skillpath}"
+SKILL_DIR="${CLAUDE_PLUGIN_ROOT:-${CLAUDE_SKILL_DIR:-${PROJECT_ROOT}/.agents/skills/skillpath}}"
 ```
 
-Claude Code supplies `CLAUDE_SKILL_DIR`. Codex discovers the repo-scoped
-symlink at `.agents/skills/skillpath`; the fallback resolves through it to the
-same canonical resources. Stop with a clear installation error if `SKILL_DIR`
-does not contain this `SKILL.md` and the `scripts/` directory.
+Claude Code supplies `CLAUDE_PLUGIN_ROOT` when this skill is loaded as a
+plugin, or `CLAUDE_SKILL_DIR` when loaded as a standalone `.claude/skills`
+entry. Codex discovers the repo-scoped symlink at `.agents/skills/skillpath`;
+the last fallback resolves through it to the same canonical resources. Stop
+with a clear installation error if `SKILL_DIR` does not contain this
+`SKILL.md` and the `scripts/` directory.
+
+**Dependency bootstrap:** the scripts below import `pyyaml` and
+`python-docx` (import name `docx`, used by `report_state.py` to render the
+roadmap report as a Word document). A checkout run via `pip install -e .`
+(see the repo's `README.md`) already has both; a plugin install does not,
+since plugin installation doesn't run project setup steps. Run this once,
+right after resolving `SKILL_DIR` above and before the first script call
+of the run -- it's a fast no-op once both are importable:
+
+```bash
+python3 -c "import yaml, docx" 2>/dev/null || \
+  python3 -m pip install --quiet --user pyyaml python-docx 2>/dev/null || \
+  python3 -m pip install --quiet --user --break-system-packages pyyaml python-docx
+```
+
+`--user` installs land in the default user site-packages directory, which
+Python already searches on every subsequent call -- no `PYTHONPATH` needs to
+be threaded through, which matters because each script invocation below is
+a separate shell call and does not inherit exported variables from prior
+ones. The `--break-system-packages` fallback covers PEP 668-locked system
+Pythons (e.g. Homebrew's).
 
 **Bundled resources** (`templates/`, `reference/*`, `scripts/*.py`) are
 part of this skill's own package and are addressed with the
@@ -86,12 +111,13 @@ From `PROJECT_ROOT`, the runtime paths are:
 This root file only parses arguments and routes (Step 1, below). Each
 command's own scripts, reference docs, and step-by-step procedure are
 documented in its mode file (`modes/roadmap.md`, `modes/college-plan.md`,
-`modes/find-courses.md`) or, for `record-evidence`, inline in Step 1
-itself, since that command is short enough not to need its own file.
+`modes/find-courses.md`, `modes/career-suggestions.md`) or, for
+`record-evidence`, inline in Step 1 itself, since that command is short
+enough not to need its own file.
 
 ## Step 1 -- Parse arguments and route
 
-Five logical invocation shapes, all keyed off a mandatory first word,
+Six logical invocation shapes, all keyed off a mandatory first word,
 `$0`, naming the command:
 
 - **Bare invocation (help):** `/skillpath` / `$skillpath` with no
@@ -103,6 +129,8 @@ Five logical invocation shapes, all keyed off a mandatory first word,
 - **`college-plan`:** `/skillpath college-plan "<major>" "<target_role>"
   ["<target_level>"]`.
 - **`find-courses`:** `/skillpath find-courses <skill>`.
+- **`career-suggestions`:** `/skillpath career-suggestions "<degree>"
+  ["<interests-or-context>"]` -- explores career paths for a degree/major.
 - **`record-evidence`:** `/skillpath record-evidence "<skill>" "<evidence>"`
   -- records evidence that closes a tracked gap.
 
@@ -137,6 +165,11 @@ skillpath -- career roadmap and course-planning commands
   /skillpath find-courses <skill>
       Search for 2-3 current learning resources for one skill.
 
+  /skillpath career-suggestions "<degree>" ["<interests-or-context>"]
+      Explore career paths that a degree/major opens up, with a
+      grounded rationale for each. Read-only -- prints suggestions and
+      a suggested next command, saves nothing.
+
   /skillpath record-evidence "<skill>" "<evidence>"
       Record evidence that closes a tracked skill gap.
 ```
@@ -159,6 +192,17 @@ further `$2`, `$3`, etc. A skill name is very often more than one word
 silently truncates it, so never do that. Use its direct-invocation "Print
 results" behavior (this is not the in-process case). Stop following this
 file once routed.
+
+If `$0` is literally `career-suggestions`:
+
+- **`$1` (degree) is required.** If it's absent or blank, ask the user
+  once conversationally for the degree/major before routing -- never
+  guess one. Once obtained, proceed with routing.
+- Read and follow `${SKILL_DIR}/modes/career-suggestions.md` in full for
+  the rest of this run, with that file's own `$0`/`$1` mapped to this
+  invocation's `$1` (degree) and `$2` (interests-or-context, optional).
+  Stop following this file once routed -- the mode file is self-contained
+  end to end (it prints results and stops; it never writes a file).
 
 If `$0` is literally `record-evidence`:
 

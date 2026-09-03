@@ -1,8 +1,11 @@
 """report_state.py — write/read skillpath roadmap report files.
 
-Reports are Markdown files with a YAML frontmatter block (schema documented
-in task-3-brief.md) followed by a human-readable rendered body. Pure-function
-library first, CLI wrapper second.
+Reports are Word documents (`.docx`), rendered from a Markdown body via
+`markdown_docx.py`. The YAML frontmatter (schema documented in
+task-3-brief.md) that used to sit atop the Markdown file can't live inside
+a `.docx` the same way, so it's written to a `.meta.yaml` sidecar file next
+to the `.docx`, sharing the same base filename. Pure-function library
+first, CLI wrapper second.
 """
 
 from __future__ import annotations
@@ -16,7 +19,9 @@ from pathlib import Path
 
 import yaml
 
-FRONTMATTER_DELIM = "---"
+from markdown_docx import render_markdown_to_docx
+
+META_SUFFIX = ".meta.yaml"
 
 
 def _slugify(value: str) -> str:
@@ -24,66 +29,81 @@ def _slugify(value: str) -> str:
     return slug.strip("-")
 
 
-def _compact_timestamp(generated_at: str) -> str:
-    """Convert a full ISO8601 timestamp (with colons/dashes) into the basic
-    ISO 8601 form used in report filenames: YYYYMMDDTHHMMSS.ffffffZ.
+_FILENAME_RE = re.compile(
+    r"^report-(?P<ts>.+)-(?P<id8>[0-9a-fA-F]{8})-(?P<slug>.+)\.docx$"
+)
+
+
+def _readable_timestamp(generated_at: str) -> str:
+    """Convert a full ISO8601 timestamp into a human-readable, sortable
+    form used in report filenames: YYYY-MM-DD_HH-MM-SS (local seconds
+    resolution -- the report_id[:8] alongside it in the filename already
+    guarantees uniqueness, so sub-second precision isn't needed).
     """
     normalized = generated_at.replace("Z", "+00:00")
     dt = datetime.fromisoformat(normalized)
-    return dt.strftime("%Y%m%dT%H%M%S.%f") + "Z"
+    return dt.strftime("%Y-%m-%d_%H-%M-%S")
+
+
+def _meta_path_for(docx_path: Path) -> Path:
+    """report-<ts>-<id8>-<slug>.docx -> report-<ts>-<id8>-<slug>.meta.yaml"""
+    return docx_path.with_name(docx_path.stem + META_SUFFIX)
 
 
 def write_report(roadmaps_dir, frontmatter: dict, body_markdown: str) -> str:
-    """Write a report file and return the full path written.
+    """Render a Word (.docx) report and write its frontmatter to a sidecar
+    `.meta.yaml` file next to it. Returns the full path to the `.docx`.
 
-    Filename: report-<YYYYMMDDTHHMMSS.ffffff>Z-<report_id[:8]>-<target-slug>.md
+    Filenames: report-<YYYY-MM-DD_HH-MM-SS>-<report_id[:8]>-<target-slug>.docx
+    and the same base name with `.meta.yaml`.
     """
     roadmaps_path = Path(roadmaps_dir)
     roadmaps_path.mkdir(parents=True, exist_ok=True)
 
-    ts_compact = _compact_timestamp(frontmatter["generated_at"])
+    ts_readable = _readable_timestamp(frontmatter["generated_at"])
     report_id = str(frontmatter["report_id"])
     target_slug = _slugify(str(frontmatter["target_state"]))
 
-    filename = f"report-{ts_compact}-{report_id[:8]}-{target_slug}.md"
+    filename = f"report-{ts_readable}-{report_id[:8]}-{target_slug}.docx"
     out_path = roadmaps_path / filename
 
-    frontmatter_yaml = yaml.safe_dump(
-        frontmatter, default_flow_style=False, sort_keys=False
-    )
-    content = f"{FRONTMATTER_DELIM}\n{frontmatter_yaml}{FRONTMATTER_DELIM}\n{body_markdown}"
-    out_path.write_text(content, encoding="utf-8")
+    doc = render_markdown_to_docx(body_markdown)
+    doc.save(str(out_path))
+
+    meta_path = _meta_path_for(out_path)
+    meta_yaml = yaml.safe_dump(frontmatter, default_flow_style=False, sort_keys=False)
+    meta_path.write_text(meta_yaml, encoding="utf-8")
 
     return str(out_path)
 
 
 def read_report(path) -> dict:
-    """Parse a report file and return its frontmatter dict.
+    """Read a report's `.docx` path and return its sidecar frontmatter dict.
 
-    Raises ValueError if the file has no valid frontmatter block.
+    Raises ValueError if the sidecar `.meta.yaml` file is missing or
+    doesn't parse to a mapping.
     """
-    text = Path(path).read_text(encoding="utf-8")
-    if not text.startswith(FRONTMATTER_DELIM):
-        raise ValueError(f"{path}: missing frontmatter block")
+    docx_path = Path(path)
+    meta_path = _meta_path_for(docx_path)
+    if not meta_path.exists():
+        raise ValueError(f"{path}: missing sidecar metadata file {meta_path.name}")
 
-    parts = text.split(FRONTMATTER_DELIM, 2)
-    if len(parts) < 3:
-        raise ValueError(f"{path}: malformed frontmatter block")
-
-    frontmatter = yaml.safe_load(parts[1])
+    frontmatter = yaml.safe_load(meta_path.read_text(encoding="utf-8"))
     if not isinstance(frontmatter, dict):
-        raise ValueError(f"{path}: frontmatter did not parse to a mapping")
+        raise ValueError(f"{path}: sidecar metadata did not parse to a mapping")
 
     return frontmatter
 
 
 def _embedded_timestamp(path: Path) -> str:
-    """Extract the compact timestamp segment embedded in a report filename,
-    e.g. report-20260819T103000.123456Z-ab12cd34-ml-engineer.md ->
-    20260819T103000.123456Z
+    """Extract the timestamp segment embedded in a report filename, e.g.
+    report-2026-08-19_10-30-00-ab12cd34-ml-engineer.docx ->
+    2026-08-19_10-30-00. The timestamp itself contains dashes, so this
+    anchors on the trailing `-<8-hex-char report_id>-<slug>.docx` instead
+    of naively splitting on "-".
     """
-    parts = path.name.split("-", 2)
-    return parts[1] if len(parts) > 1 else ""
+    match = _FILENAME_RE.match(path.name)
+    return match.group("ts") if match else ""
 
 
 def get_last_report(roadmaps_dir) -> dict | None:
@@ -95,7 +115,7 @@ def get_last_report(roadmaps_dir) -> dict | None:
     if not roadmaps_path.exists():
         return None
 
-    report_files = list(roadmaps_path.glob("report-*.md"))
+    report_files = list(roadmaps_path.glob("report-*.docx"))
     if not report_files:
         return None
 

@@ -97,7 +97,17 @@ The rendered body follows this fixed order:
 - Write the body as plain, direct Markdown a person reads end-to-end --
   headers, short paragraphs, tables/lists where they aid scanning. This is
   the one artifact in the whole skill meant for a human reader, not for
-  another script to parse.
+  another script to parse. `report_state.py`'s `write_report()` renders
+  this Markdown into the actual deliverable, a Word (`.docx`) document, via
+  `scripts/markdown_docx.py` -- stay within the subset it supports:
+  `#`-`####` headers, paragraphs with inline `**bold**` / `*italic*` /
+  `` `code` `` spans and `[text](url)` links (rendered as real clickable
+  hyperlinks), `-`/`*` and `1.` list items, and pipe tables (`| a | b |`
+  with a `|---|---|` separator row). No nested lists, code blocks, or
+  images -- none of those are needed by anything this report renders
+  today, and the converter silently drops constructs it doesn't
+  recognize rather than erroring, so an unsupported construct degrades
+  quietly instead of blocking the report.
 - The body is the deliverable a person reads. The YAML frontmatter above it
   (written by `report_state.py`'s `write_report()`) is machine state for
   cross-run tracking -- gap continuity, since-last-report diffs -- not

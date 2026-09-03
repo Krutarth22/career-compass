@@ -9,6 +9,7 @@ description = "A Claude Code and Codex skill for career path planning and skill 
 requires-python = ">=3.11"
 dependencies = [
     "pyyaml",
+    "python-docx",
 ]
 
 [project.optional-dependencies]

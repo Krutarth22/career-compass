@@ -6,6 +6,7 @@ SkillPath helps you answer practical career questions:
 - What projects should I build, and in what order?
 - Which courses are worth taking for a particular skill?
 - If I am in college, which classes will best prepare me for my target career?
+- What career paths does my degree actually open up?
 
 It researches current role expectations, compares them with your experience,
 and creates a step-by-step plan. You do not need to understand the code in
@@ -23,6 +24,7 @@ Claude Code commands begin with `/skillpath`, while Codex commands begin with
 | Plan a move from my current career to a target role | `roadmap` |
 | Plan my college classes around a target career | `college-plan` |
 | Find learning resources for one skill | `find-courses` |
+| Explore career paths for my degree | `career-suggestions` |
 | Add proof that I have learned or applied a skill | `record-evidence` |
 
 If you forget the commands, enter `/skillpath` in Claude Code or `$skillpath`
@@ -46,7 +48,31 @@ PowerShell on Windows and enter `python3 --version`. On Windows, try
 
 You only need to install SkillPath once.
 
-### macOS or Linux
+### Claude Code: install as a plugin (recommended)
+
+If you use Claude Code, this is the fastest way to get started — no clone,
+virtual environment, or `pip install` step. Open Claude Code anywhere and
+run:
+
+```text
+/plugin marketplace add Krutarth22/skillpath
+/plugin install skillpath@skillpath
+```
+
+Once installed, `/skillpath roadmap ...` (and the other commands below) work
+immediately, in any project. Skip straight to
+[Quick start: create a career roadmap](#quick-start-create-a-career-roadmap).
+
+The first time you run a command, SkillPath installs its small Python
+dependencies (`pyyaml`, `python-docx`) automatically if they aren't
+already on your system.
+
+Codex has no plugin mechanism, so Codex users need the from-source install
+below.
+
+### From source (required for Codex; also works for Claude Code)
+
+#### macOS or Linux
 
 Open Terminal, paste the following commands, and press Enter:
 
@@ -59,7 +85,7 @@ python -m pip install --upgrade pip
 python -m pip install -e .
 ```
 
-### Windows
+#### Windows
 
 Open PowerShell, paste these commands, and press Enter:
 
@@ -192,6 +218,28 @@ SkillPath returns two or three current resources, explains why each one is a
 good fit, and includes duration and cost when that information is available.
 Multi-word skills such as `feature engineering` do not need quotation marks.
 
+## Explore career paths for a degree
+
+Use this when you have (or are completing) a degree and want to know what
+career paths it actually opens up, before committing to a target role:
+
+```text
+# Claude Code
+/skillpath career-suggestions "BS in Mathematics"
+
+# Codex
+$skillpath career-suggestions "BS in Mathematics"
+```
+
+SkillPath researches and returns several named career paths with a short,
+grounded reason each one fits the degree. You can add a second argument to
+steer the suggestions toward your interests, e.g.
+`/skillpath career-suggestions "BS in Mathematics" "more interested in
+research than industry"`. This command only prints suggestions and a
+suggested next command — it never saves a file. When you're ready, it
+points you to the exact `roadmap` command to run for a full plan toward
+whichever path you pick.
+
 ## Plan your college courses
 
 Use `college-plan` if you are entering college or already partway through a
@@ -243,8 +291,11 @@ computer. It creates:
 
 - `profile.yaml` for your career goals, experience, and preferences;
 - `tracker/skillpath_tracker.csv` for progress you record;
-- `roadmaps/report-*.md` for career roadmaps; and
-- `roadmaps/college-plans/report-*.md` for college plans.
+- `roadmaps/report-*.docx` for career roadmaps (each with a small
+  `report-*.meta.yaml` sidecar SkillPath uses to track progress across
+  runs — not meant to be opened directly); and
+- `roadmaps/college-plans/report-*.docx` for college plans, with the same
+  sidecar convention.
 
 These files are excluded from Git by default, which helps prevent accidental
 commits. They still contain personal information, so review them before sharing
@@ -284,7 +335,9 @@ state handling and planning logic:
    capstone last.
 7. **Find remaining resources.** The find-courses command searches for current courses
    only for gaps the selected projects do not cover.
-8. **Persist the result.** `report_state.py` writes Markdown with YAML
+8. **Persist the result.** `report_state.py` renders the report as a Word
+   document (`.docx`) via `markdown_docx.py`, plus a small `.meta.yaml`
+   sidecar carrying the cross-run state that used to live in the file's
    frontmatter, while `tracker_io.py` appends the report event to the CSV
    history.
 
@@ -298,8 +351,8 @@ the underlying sources change.
 | --- | --- | --- |
 | `profile.yaml` | Current role, target, skills, evidence, and constraints | No |
 | `tracker/skillpath_tracker.csv` | Append-only progress and report events | No |
-| `roadmaps/report-*.md` | Generated skillpath roadmap history | No |
-| `roadmaps/college-plans/report-*.md` | Generated college-plan report history | No |
+| `roadmaps/report-*.docx` (+ `.meta.yaml`) | Generated skillpath roadmap history | No |
+| `roadmaps/college-plans/report-*.docx` (+ `.meta.yaml`) | Generated college-plan report history | No |
 | `profile.yaml.example` | Example profile schema | Yes |
 | `tracker/skillpath_tracker.csv.example` | Example tracker schema | Yes |
 
@@ -316,23 +369,29 @@ codex/skills/                # thin Codex-compatible entrypoint
     ├── SKILL.md
     ├── agents/openai.yaml
     └── {scripts,reference,templates,modes} -> canonical resources
+.claude-plugin/marketplace.json  # self-hosted plugin marketplace listing
+plugins/skillpath/            # thin Claude Code plugin entrypoint
+    ├── .claude-plugin/plugin.json
+    └── {SKILL.md,scripts,reference,templates,modes} -> canonical resources
 .claude/skills/
 └── skillpath/
     ├── SKILL.md              # router: parses arguments and dispatches to
     │                          # a mode file; record-evidence stays inline
     ├── scripts/               # deterministic state and planning modules,
     │                          # including curriculum_planner.py (college-plan)
+    │                          # and markdown_docx.py (report rendering)
     ├── reference/             # schemas, taxonomy, aliases, and protocols,
     │                          # including curriculum-research-protocol.md
     ├── templates/             # track-specific project definitions
     └── modes/
-        ├── roadmap.md         # career-roadmap orchestration procedure
-        ├── college-plan.md    # college course-sequencing procedure
-        └── find-courses.md    # focused course-research procedure
+        ├── roadmap.md              # career-roadmap orchestration procedure
+        ├── college-plan.md         # college course-sequencing procedure
+        ├── find-courses.md         # focused course-research procedure
+        └── career-suggestions.md   # degree -> career-path exploration procedure
 tests/                        # pytest coverage for the Python modules
 profile.yaml.example          # safe sample profile
 tracker/                      # sample and local event history
-roadmaps/                     # local generated skillpath reports
+roadmaps/                     # local generated skillpath reports (.docx + .meta.yaml)
 roadmaps/college-plans/       # local generated college-plan reports
 ```
 

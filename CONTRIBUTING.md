@@ -3,8 +3,14 @@
 The canonical workflow and all implementation resources live under
 `.claude/skills/`. The checked-in `.agents/skills/` entries point to thin
 Codex-compatible wrappers under `codex/skills/`; those wrappers load the
-canonical workflow and symlink its resources. Do not create a copied second
-implementation. Changes to the canonical tree remain visible to both hosts.
+canonical workflow and symlink its resources. `plugins/skillpath/` is a
+second thin wrapper, following the same pattern, that packages the
+canonical tree as an installable Claude Code plugin (see
+`.claude-plugin/marketplace.json` at the repo root) — its `SKILL.md`,
+`modes/`, `scripts/`, `reference/`, and `templates/` entries are symlinks
+into `.claude/skills/skillpath/`, not copies. Do not create a copied second
+implementation anywhere. Changes to the canonical tree remain visible to
+all three hosts.
 
 ## Adding a project template
 
