@@ -1,0 +1,7 @@
+interface:
+  display_name: "CareerCompass"
+  short_description: "Navigate from college planning to career evidence"
+  default_prompt: "Use $career-compass to guide me from college course planning through career selection, a personalized roadmap, focused learning, and recorded evidence."
+
+policy:
+  allow_implicit_invocation: false

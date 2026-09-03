@@ -4,7 +4,7 @@ roadmaps/report-*.docx
 roadmaps/report-*.meta.yaml
 roadmaps/report-*.md
 roadmaps/college-plans/
-tracker/skillpath_tracker.csv
+tracker/career_compass_tracker.csv
 
 # Python
 __pycache__/

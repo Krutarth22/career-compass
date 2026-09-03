@@ -2,7 +2,7 @@
 
 ## Context
 
-`skillpath` already answers "what am I missing to become an X" for someone
+`career-compass` already answers "what am I missing to become an X" for someone
 who already has work experience and closes gaps via projects and online
 courses. It does not answer a different, earlier question: "I'm entering
 (or already in) college, majoring in Y — what courses should I actually
@@ -26,13 +26,13 @@ same one:
   numbers.
 
 `college-plan` is a new, small, explicit-invocation skill that reuses
-several pieces of `skillpath` exactly as they exist today — the
+several pieces of `career-compass` exactly as they exist today — the
 target-role research procedure (`reference/research-protocol.md`), the
 skill-resolution module (`scripts/resolution.py`), and the report-file
 writer (`scripts/report_state.py`) — and adds two new things: a
 curriculum-research pass with its own deterministic matching/sequencing/
 diff script, and a course-sequencing report. It does not require a prior
-`/skillpath` run or an existing `profile.yaml`; both are used
+`/career-compass` run or an existing `profile.yaml`; both are used
 opportunistically when present, never required.
 
 *Revision note: this is the sixth pass.* Round 1 found four blockers
@@ -64,7 +64,7 @@ actually fired, reserving that field exclusively for the real clamp case.
 
 ```
 .claude/skills/
-├── skillpath/                          # unchanged
+├── career-compass/                          # unchanged
 ├── find-courses/                       # unchanged
 └── college-plan/
     ├── SKILL.md                        # explicit-invocation only (writes a file)
@@ -74,14 +74,14 @@ actually fired, reserving that field exclusively for the real clamp case.
         └── curriculum_planner.py       # new — see Deterministic Module below
 codex/skills/college-plan/
 ├── SKILL.md                            # thin pointer, same pattern as
-│                                        # codex/skills/skillpath/SKILL.md
+│                                        # codex/skills/career-compass/SKILL.md
 ├── agents/
 │   └── openai.yaml                     # allow_implicit_invocation: false
 ├── reference -> ../../../.claude/skills/college-plan/reference
 └── scripts -> ../../../.claude/skills/college-plan/scripts
 .agents/skills/college-plan -> ../../codex/skills/college-plan
 roadmaps/
-└── college-plans/                      # new, gitignored — separate from skillpath's roadmaps/report-*.md
+└── college-plans/                      # new, gitignored — separate from CareerCompass's roadmaps/report-*.md
 tests/
 └── test_curriculum_planner.py          # new
 ```
@@ -90,13 +90,13 @@ tests/
 against the synthesized archetype, placing courses in a prerequisite-safe
 year, and computing which requirements remain uncovered are all
 deterministic — pure functions over data, not judgment calls — so they
-belong in a small, tested Python module, the same way `skillpath` puts
+belong in a small, tested Python module, the same way `career-compass` puts
 gap-lifecycle and project-sequencing logic in `gap_state.py` /
 `project_planner.py` rather than leaving it to prose. `curriculum_planner.py`
 holds all three. Everything else genuinely stays live-research synthesis —
 no algorithm to extract there, just a reference doc governing that
 judgment (`curriculum-research-protocol.md`), the same relationship
-`skillpath` has with its own `research-protocol.md`.
+`career-compass` has with its own `research-protocol.md`.
 
 ## Invocation
 
@@ -111,9 +111,9 @@ judgment (`curriculum-research-protocol.md`), the same relationship
   true` in this `SKILL.md`'s frontmatter. Codex:
   `codex/skills/college-plan/agents/openai.yaml` sets
   `policy.allow_implicit_invocation: false` — the same two-file
-  enforcement `skillpath` already uses, since this skill also writes a
+  enforcement `career-compass` already uses, since this skill also writes a
   file to disk.
-- **Path resolution — identical convention to `skillpath`:**
+- **Path resolution — identical convention to `career-compass`:**
   ```bash
   PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
   SKILL_DIR="${CLAUDE_SKILL_DIR:-${PROJECT_ROOT}/.agents/skills/college-plan}"
@@ -122,10 +122,10 @@ judgment (`curriculum-research-protocol.md`), the same relationship
   repo-scoped symlink at `.agents/skills/college-plan`, resolving through
   to `codex/skills/college-plan/`, whose `reference/` and `scripts/`
   entries are themselves symlinks into `.claude/skills/college-plan/` —
-  exactly one real copy of every file, matching `skillpath`'s and
+  exactly one real copy of every file, matching `career-compass`'s and
   `find-courses`'s existing packaging.
 - **No required prerequisite state.** Neither `profile.yaml` nor a prior
-  `/skillpath` report needs to exist. If `${PROJECT_ROOT}/profile.yaml` is
+  `/career-compass` report needs to exist. If `${PROJECT_ROOT}/profile.yaml` is
   present, load it the same way `find-courses` already does and use
   `location` to localize research queries — otherwise proceed identically
   without that refinement.
@@ -142,7 +142,7 @@ being referenced throughout the rest of the document)
    `completed_courses`/`in_progress_courses` (free text lists). Load
    `profile.yaml` opportunistically for `location`.
 3. **Research target-role requirements.** Follow
-   `skillpath/reference/research-protocol.md` exactly to produce
+   `career-compass/reference/research-protocol.md` exactly to produce
    `target_requirements[]`, each with `tier` and per-requirement
    `confidence` (this skill assigns both directly — see "Tiering" below,
    since `research-protocol.md` itself defines neither).
@@ -186,7 +186,7 @@ being referenced throughout the rest of the document)
     `target_role`); no new naming logic.
 11. **Print the saved path** as the final response.
 
-**Carried-over rules from `skillpath`:** never fabricate a course, source,
+**Carried-over rules from `career-compass`:** never fabricate a course, source,
 or resource; every research-pass claim traces to a real fetched source
 (with the one documented `find-courses` exception); be explicit about
 confidence; always save the report.
@@ -294,7 +294,7 @@ entries are. **Fixed: `self_reported_courses[]` entries always get
 `covers_skill_ids: []` in v1** — they're listed for the learner's own
 record (so their completed coursework isn't silently omitted from the
 report) but contribute **no** coverage credit, and the report body says so
-explicitly, pointing at `/skillpath confirm` as the existing, correctly-
+explicitly, pointing at `/career-compass confirm` as the existing, correctly-
 evidenced mechanism for claiming a specific skill is actually covered by
 something outside the generic archetype.
 
@@ -387,7 +387,7 @@ of a `term` field implying more precision than the research supports.
 ## Deterministic Module: `scripts/curriculum_planner.py`
 
 Pure-function library first, CLI wrapper second, matching every other
-script's shape in `skillpath/scripts/`. Three functions, per the sections
+script's shape in `career-compass/scripts/`. Three functions, per the sections
 above:
 
 1. **`match_completed_courses(learner_courses, course_sequence) -> dict`**
@@ -499,10 +499,10 @@ Applied in Step 9, as a **post-sequencing advisory check** only —
 ## Tiering and per-requirement confidence
 
 `college-plan` assigns `tier` directly on each `target_requirements[]`
-entry in Step 3, using the identical judgment rule `skillpath`'s Step 4
+entry in Step 3, using the identical judgment rule `career-compass`'s Step 4
 documents (frequency signal + centrality; capped at Medium when evidence
-is thin) — `skillpath`'s own `research-protocol.md` defines neither `tier`
-nor per-requirement confidence, since in `skillpath` those live on
+is thin) — `career-compass`'s own `research-protocol.md` defines neither `tier`
+nor per-requirement confidence, since in `career-compass` those live on
 `gap_assessments[]`, which `college-plan` has no equivalent of. Each
 `target_requirements[]` entry also carries its own `confidence: high |
 medium | low`; the report-level `research_confidence` remains a roll-up
@@ -522,7 +522,7 @@ summary, not the only granularity available.
 
 When `profile.yaml` is present, Study Notes compares the learner's
 `current_skills` against `covers_skill_ids` **canonically**: reuse
-`resolution.py resolve-profile-skills` (exactly as `skillpath` itself
+`resolution.py resolve-profile-skills` (exactly as `career-compass` itself
 does) to resolve `current_skills[].skill` free text to `skill_id` before
 comparing — never compare raw `skill` text directly.
 
@@ -553,7 +553,7 @@ target_requirements:
     tier: Critical | High | Medium | Low
     confidence: high | medium | low
     frequency_signal: number
-    sources: [ ... ]                    # identical shape to skillpath's own field
+    sources: [ ... ]                    # identical shape to CareerCompass's own field
 course_sequence:
   - year: integer | "unscheduled"
     courses:
@@ -597,7 +597,7 @@ supplemental_resources:
 
 ## Report Body
 
-Fixed section order, mirroring `skillpath`'s own `report-format.md` style:
+Fixed section order, mirroring `career-compass`'s own `report-format.md` style:
 
 1. **Header** — major, target role/level (noting if defaulted), learner
    context summary, date generated, and the generic-archetype disclaimer
@@ -617,7 +617,7 @@ Fixed section order, mirroring `skillpath`'s own `report-format.md` style:
    `find-courses`), labeled web-search-sourced.
 6. **Study Notes** — canonically-resolved `current_skills` overlap (if
    `profile.yaml` present) and `self_reported_courses[]` listed plainly as
-   "reported, but not counted toward requirement coverage — use `/skillpath
+   "reported, but not counted toward requirement coverage — use `/career-compass
    confirm` if you can back a specific skill claim with evidence."
 7. **Next Steps** — confirm exact course numbers/prerequisites with an
    actual advisor/degree audit (especially "unscheduled" and
@@ -641,7 +641,7 @@ Fixed section order, mirroring `skillpath`'s own `report-format.md` style:
 - Automatic coverage credit for `self_reported_courses[]` — always
   `covers_skill_ids: []` in v1 (title-only inference is explicitly
   disallowed by this spec's own grounding rule, and there's no fetchable
-  source for a self-reported course); the report points at `/skillpath
+  source for a self-reported course); the report points at `/career-compass
   confirm` as the existing, correctly-evidenced path for claiming a
   specific skill some other way.
 
@@ -655,9 +655,9 @@ Fixed section order, mirroring `skillpath`'s own `report-format.md` style:
    `roadmaps/college-plans/` directory, read back, content round-trips
    exactly.
 3. Directory-isolation test: with both a `roadmaps/report-*.md`
-   (skillpath) and a `roadmaps/college-plans/report-*.md` (college-plan)
+   (career-compass) and a `roadmaps/college-plans/report-*.md` (college-plan)
    file present, confirm `report_state.get_last_report(roadmaps_dir=
-   "roadmaps")` returns only the skillpath one.
+   "roadmaps")` returns only the CareerCompass one.
 4. `resolve-profile-skills` reuse: confirm Study Notes' documented
    invocation matches `resolution.py`'s actual current CLI.
 5. Codex packaging integrity: confirm `codex/skills/college-plan/reference`
@@ -695,7 +695,7 @@ Fixed section order, mirroring `skillpath`'s own `report-format.md` style:
 11. State `course_load_constraints: "max 3 courses/term"` against a year
     with 6+ courses — confirm the advisory note renders and no
     `final_year` changes.
-12. Run `/skillpath` afterward (same repo, same session) — confirm its
+12. Run `/career-compass` afterward (same repo, same session) — confirm its
     diff step is unaffected (covered by test 3, re-confirmed live here).
 13. Run with and without `profile.yaml` present — confirm Study Notes
     behaves correctly in both cases via canonical `skill_id` resolution.

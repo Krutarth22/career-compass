@@ -148,7 +148,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PROFILE_IO_SCRIPT = (
-    REPO_ROOT / ".claude" / "skills" / "skillpath" / "scripts" / "profile_io.py"
+    REPO_ROOT / ".claude" / "skills" / "career-compass" / "scripts" / "profile_io.py"
 )
 PROFILE_EXAMPLE = REPO_ROOT / "profile.yaml.example"
 

@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧭 SkillPath
+# 🧭 CareerCompass
 
 ### From college choices to career evidence—one connected journey
 
@@ -8,21 +8,21 @@ Choose the right college courses, explore where your degree can take you, build
 a practical career roadmap, close focused skill gaps, and keep proof of every
 step—directly inside Claude Code or Codex.
 
-[![CI](https://github.com/Krutarth22/skillpath/actions/workflows/ci.yml/badge.svg)](https://github.com/Krutarth22/skillpath/actions/workflows/ci.yml)
+[![CI](https://github.com/Krutarth22/career-compass/actions/workflows/ci.yml/badge.svg)](https://github.com/Krutarth22/career-compass/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[Follow the journey](#-your-skillpath-journey) · [Get started](#-quick-start) · [Contribute](CONTRIBUTING.md)
+[Follow the journey](#-your-careercompass-journey) · [Get started](#-quick-start) · [Contribute](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## 🌱 Your SkillPath journey
+## 🌱 Your CareerCompass journey
 
-SkillPath is designed as a progression, not a collection of disconnected tools.
-Start with your education, turn it into a career direction, and build evidence
-that makes each new plan smarter.
+CareerCompass is designed as a progression, not a collection of disconnected
+tools. Start with your education, turn it into a career direction, and build
+evidence that makes each new plan smarter.
 
 ```text
 🎓 Plan college courses
@@ -51,8 +51,8 @@ interests, and preferences. Pick the direction that feels worth pursuing.
 ### 3. Turn that direction into a roadmap
 
 Use `roadmap` to compare your current experience with real role expectations.
-SkillPath prioritizes the gaps and sequences hands-on portfolio projects so you
-know what to build next—and why.
+CareerCompass prioritizes the gaps and sequences hands-on portfolio projects so
+you know what to build next—and why.
 
 ### 4. Learn exactly what the roadmap requires
 
@@ -63,8 +63,8 @@ when available.
 ### 5. Convert progress into proof
 
 Use `record-evidence` after a project, class, course, or meaningful work task.
-That evidence is carried into future roadmaps, turning SkillPath into a living
-cycle rather than a one-time report.
+That evidence is carried into future roadmaps, turning CareerCompass into a
+living cycle rather than a one-time report.
 
 You get a dated Word report you can review, edit, and keep—not a disposable chat
 answer.
@@ -79,19 +79,19 @@ answer.
 | 4. Learn one specific skill | `find-courses` | A short list of current, relevant resources |
 | 5. Record proof of progress | `record-evidence` | Evidence saved for future roadmap updates |
 
-If you forget the commands, enter `/skillpath` in Claude Code or `$skillpath`
-in Codex to see the built-in help.
+If you forget the commands, enter `/career-compass` in Claude Code or
+`$career-compass` in Codex to see the built-in help.
 
 ## 📦 How it is packaged
 
 | Host | Package in this repository | Invocation |
 | --- | --- | --- |
-| Claude Code | Installable plugin in `plugins/skillpath/` | `/skillpath …` |
-| Codex | Project-local skill in `codex/skills/skillpath/` | `$skillpath …` |
+| Claude Code | Installable plugin in `plugins/career-compass/` | `/career-compass …` |
+| Codex | Project-local skill in `codex/skills/career-compass/` | `$career-compass …` |
 
 Codex supports plugins, but this repository does not yet contain a
 `.codex-plugin/plugin.json` package. Its current Codex distribution is the
-project-local skill discovered through `.agents/skills/skillpath`. See the
+project-local skill discovered through `.agents/skills/career-compass`. See the
 [official Codex plugin guide](https://learn.chatgpt.com/docs/build-plugins) for
 the distinction.
 
@@ -99,17 +99,17 @@ the distinction.
 
 ### Claude Code plugin
 
-Install SkillPath once from its marketplace:
+Install CareerCompass once from its marketplace:
 
 ```text
-/plugin marketplace add Krutarth22/skillpath
-/plugin install skillpath@skillpath
+/plugin marketplace add Krutarth22/career-compass
+/plugin install CareerCompass@career-compass
 ```
 
 Then begin with your college plan from any project:
 
 ```text
-/skillpath college-plan "Computer Science" "Data Scientist"
+/career-compass college-plan "Computer Science" "Data Scientist"
 ```
 
 The plugin installs its small Python dependencies (`pyyaml` and `python-docx`)
@@ -123,8 +123,8 @@ Clone the repository and install the Python dependencies:
 <summary><strong>macOS or Linux</strong></summary>
 
 ```bash
-git clone https://github.com/Krutarth22/skillpath.git
-cd skillpath
+git clone https://github.com/Krutarth22/career-compass.git
+cd career-compass
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
@@ -138,8 +138,8 @@ codex
 <summary><strong>Windows PowerShell</strong></summary>
 
 ```powershell
-git clone https://github.com/Krutarth22/skillpath.git
-cd skillpath
+git clone https://github.com/Krutarth22/career-compass.git
+cd career-compass
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -152,11 +152,11 @@ codex
 From Codex, begin the same journey with:
 
 ```text
-$skillpath college-plan "Computer Science" "Data Scientist"
+$career-compass college-plan "Computer Science" "Data Scientist"
 ```
 
 Keep Codex open in the repository so it can discover the project-local skill.
-If SkillPath does not appear after installation, restart Codex once.
+If CareerCompass does not appear after installation, restart Codex once.
 
 ### Requirements
 
@@ -175,19 +175,19 @@ The examples below show Claude Code first and Codex second.
 ### 1. Plan college courses
 
 ```text
-/skillpath college-plan "Computer Science" "Data Scientist"
-$skillpath college-plan "Computer Science" "Data Scientist"
+/career-compass college-plan "Computer Science" "Data Scientist"
+$career-compass college-plan "Computer Science" "Data Scientist"
 ```
 
 Add a target level as a third argument when needed:
 
 ```text
-/skillpath college-plan "Computer Science" "Data Scientist" "Senior"
-$skillpath college-plan "Computer Science" "Data Scientist" "Senior"
+/career-compass college-plan "Computer Science" "Data Scientist" "Senior"
+$career-compass college-plan "Computer Science" "Data Scientist" "Senior"
 ```
 
-SkillPath asks about your education system, current year, completed classes, and
-course-load constraints. The result includes:
+CareerCompass asks about your education system, current year, completed classes,
+and course-load constraints. The result includes:
 
 - a course sequence organized by year;
 - useful single-school electives;
@@ -203,8 +203,8 @@ course-load constraints. The result includes:
 ### 2. Explore careers for your degree
 
 ```text
-/skillpath career-suggestions "BS in Mathematics" "more interested in research than industry"
-$skillpath career-suggestions "BS in Mathematics" "more interested in research than industry"
+/career-compass career-suggestions "BS in Mathematics" "more interested in research than industry"
+$career-compass career-suggestions "BS in Mathematics" "more interested in research than industry"
 ```
 
 This command presents several grounded career paths and an exact `roadmap`
@@ -213,12 +213,12 @@ command for the option you choose. It does not save a file.
 ### 3. Create or refresh your career roadmap
 
 ```text
-/skillpath roadmap "Data analyst with strong SQL" "Data Scientist"
-$skillpath roadmap "Data analyst with strong SQL" "Data Scientist"
+/career-compass roadmap "Data analyst with strong SQL" "Data Scientist"
+$career-compass roadmap "Data analyst with strong SQL" "Data Scientist"
 ```
 
-SkillPath asks about your experience, location, available study time, and other
-constraints. You may also provide a PDF or DOCX resume; SkillPath extracts the
+CareerCompass asks about your experience, location, available study time, and other
+constraints. You may also provide a PDF or DOCX resume; CareerCompass extracts the
 relevant details and asks you to confirm them before saving anything.
 
 A roadmap includes:
@@ -232,25 +232,25 @@ A roadmap includes:
 Run the command without arguments later to refresh it from your saved profile:
 
 ```text
-/skillpath roadmap
-$skillpath roadmap
+/career-compass roadmap
+$career-compass roadmap
 ```
 
 ### 4. Find courses for a specific gap
 
 ```text
-/skillpath find-courses feature engineering
-$skillpath find-courses feature engineering
+/career-compass find-courses feature engineering
+$career-compass find-courses feature engineering
 ```
 
-SkillPath returns two or three focused resources, explains the fit, and includes
+CareerCompass returns two or three focused resources, explains the fit, and includes
 duration and cost when available.
 
 ### 5. Record what you accomplished
 
 ```text
-/skillpath record-evidence "model deployment" "Deployed a prediction API to AWS and added monitoring"
-$skillpath record-evidence "model deployment" "Deployed a prediction API to AWS and added monitoring"
+/career-compass record-evidence "model deployment" "Deployed a prediction API to AWS and added monitoring"
+$career-compass record-evidence "model deployment" "Deployed a prediction API to AWS and added monitoring"
 ```
 
 Evidence can be a project, work task, course result, portfolio link, or another
@@ -259,15 +259,15 @@ the next best step—closing the loop back to stage three.
 
 ## 🗂️ Outputs and privacy
 
-SkillPath keeps personal working data inside your local repository:
+CareerCompass keeps personal working data inside your local repository:
 
 | Path | Contents | Tracked by Git? |
 | --- | --- | --- |
 | `profile.yaml` | Goals, experience, skills, and preferences | No |
-| `tracker/skillpath_tracker.csv` | Progress and report events | No |
+| `tracker/career_compass_tracker.csv` | Progress and report events | No |
 | `roadmaps/report-*.docx` | Career-roadmap history | No |
 | `roadmaps/college-plans/report-*.docx` | College-plan history | No |
-| `*.meta.yaml` beside each report | Cross-run state used by SkillPath | No |
+| `*.meta.yaml` beside each report | Cross-run state used by CareerCompass | No |
 
 These paths are ignored by Git to reduce accidental commits. They may still
 contain personal information, so review them before sharing or uploading the
@@ -275,7 +275,7 @@ repository.
 
 ## 🎯 Included project tracks
 
-SkillPath currently includes deterministic project templates for:
+CareerCompass currently includes deterministic project templates for:
 
 - AI Engineer
 - ML Engineer
@@ -308,11 +308,11 @@ change.
 <summary><strong>Repository layout</strong></summary>
 
 ```text
-.agents/skills/skillpath        # Codex discovery symlink
-codex/skills/skillpath/         # Codex-compatible skill entry point
+.agents/skills/career-compass        # Codex discovery symlink
+codex/skills/career-compass/         # Codex-compatible skill entry point
 .claude-plugin/marketplace.json # Claude marketplace listing
-plugins/skillpath/              # Claude plugin package
-.claude/skills/skillpath/       # Canonical workflow and resources
+plugins/career-compass/              # Claude plugin package
+.claude/skills/career-compass/       # Canonical workflow and resources
 ├── SKILL.md                    # command router
 ├── modes/                      # command procedures
 ├── scripts/                    # deterministic Python modules
@@ -324,7 +324,7 @@ roadmaps/                       # generated reports and metadata
 ```
 
 The Claude plugin and Codex entry point link back to the canonical tree under
-`.claude/skills/skillpath/`, so the implementation stays in one place.
+`.claude/skills/career-compass/`, so the implementation stays in one place.
 
 </details>
 
@@ -335,9 +335,9 @@ Install development dependencies and run the checks:
 ```bash
 python -m pip install -e ".[dev]"
 python -m pytest tests/ -v
-python .claude/skills/skillpath/scripts/lint_templates.py \
-  .claude/skills/skillpath/templates \
-  .claude/skills/skillpath/reference/skill-taxonomy.yaml
+python .claude/skills/career-compass/scripts/lint_templates.py \
+  .claude/skills/career-compass/templates \
+  .claude/skills/career-compass/reference/skill-taxonomy.yaml
 ```
 
 CI runs the suite on Python 3.11 and 3.12. See [CONTRIBUTING.md](CONTRIBUTING.md)
@@ -345,4 +345,4 @@ for the template schema, taxonomy rules, and instructions for adding tracks.
 
 ## 📄 License
 
-SkillPath is available under the [MIT License](LICENSE).
+CareerCompass is available under the [MIT License](LICENSE).

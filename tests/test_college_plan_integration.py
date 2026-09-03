@@ -1,5 +1,5 @@
 """Integration checks for the college-plan skill: report round-trip,
-directory isolation from skillpath's own roadmaps/, resolve-profile-skills
+directory isolation from CareerCompass's own roadmaps/, resolve-profile-skills
 reuse, Codex packaging symlink integrity, and privacy (.gitignore).
 """
 
@@ -125,10 +125,10 @@ def test_report_round_trips_exactly(tmp_path):
     assert read_back == frontmatter
 
 
-def test_directory_isolation_between_skillpath_and_college_plan(tmp_path):
+def test_directory_isolation_between_career_compass_and_college_plan(tmp_path):
     roadmaps_root = tmp_path / "roadmaps"
 
-    skillpath_frontmatter = {
+    career_compass_frontmatter = {
         "report_id": "11111111-1111-1111-1111-111111111111",
         "generated_at": "2026-08-19T09:00:00+00:00",
         "target_state": "ML Engineer",
@@ -139,20 +139,20 @@ def test_directory_isolation_between_skillpath_and_college_plan(tmp_path):
         "target_state": "Data Scientist",
     }
 
-    report_state.write_report(str(roadmaps_root), skillpath_frontmatter, "# skillpath\n")
+    report_state.write_report(str(roadmaps_root), career_compass_frontmatter, "# career-compass\n")
     report_state.write_report(
         str(roadmaps_root / "college-plans"), college_plan_frontmatter, "# college-plan\n"
     )
 
     last = report_state.get_last_report(str(roadmaps_root))
-    assert last["report_id"] == skillpath_frontmatter["report_id"]
+    assert last["report_id"] == career_compass_frontmatter["report_id"]
 
 
 def test_resolve_profile_skills_cli_matches_documented_invocation():
     result = subprocess.run(
         [
             "python3",
-            str(REPO_ROOT / ".claude" / "skills" / "skillpath" / "scripts" / "resolution.py"),
+            str(REPO_ROOT / ".claude" / "skills" / "career-compass" / "scripts" / "resolution.py"),
             "resolve-profile-skills",
             "--help",
         ],
@@ -165,13 +165,13 @@ def test_resolve_profile_skills_cli_matches_documented_invocation():
 
 
 def test_codex_packaging_symlinks_resolve_to_canonical_files():
-    canonical_reference = REPO_ROOT / ".claude" / "skills" / "skillpath" / "reference"
-    canonical_scripts = REPO_ROOT / ".claude" / "skills" / "skillpath" / "scripts"
-    canonical_modes = REPO_ROOT / ".claude" / "skills" / "skillpath" / "modes"
+    canonical_reference = REPO_ROOT / ".claude" / "skills" / "career-compass" / "reference"
+    canonical_scripts = REPO_ROOT / ".claude" / "skills" / "career-compass" / "scripts"
+    canonical_modes = REPO_ROOT / ".claude" / "skills" / "career-compass" / "modes"
 
-    codex_reference = REPO_ROOT / "codex" / "skills" / "skillpath" / "reference"
-    codex_scripts = REPO_ROOT / "codex" / "skills" / "skillpath" / "scripts"
-    codex_modes = REPO_ROOT / "codex" / "skills" / "skillpath" / "modes"
+    codex_reference = REPO_ROOT / "codex" / "skills" / "career-compass" / "reference"
+    codex_scripts = REPO_ROOT / "codex" / "skills" / "career-compass" / "scripts"
+    codex_modes = REPO_ROOT / "codex" / "skills" / "career-compass" / "modes"
 
     assert codex_reference.resolve() == canonical_reference.resolve()
     assert codex_scripts.resolve() == canonical_scripts.resolve()
@@ -181,8 +181,8 @@ def test_codex_packaging_symlinks_resolve_to_canonical_files():
     assert (canonical_modes / "college-plan.md").is_file()
     assert (canonical_modes / "find-courses.md").is_file()
 
-    agents_symlink = REPO_ROOT / ".agents" / "skills" / "skillpath"
-    codex_skill_dir = REPO_ROOT / "codex" / "skills" / "skillpath"
+    agents_symlink = REPO_ROOT / ".agents" / "skills" / "career-compass"
+    codex_skill_dir = REPO_ROOT / "codex" / "skills" / "career-compass"
     assert agents_symlink.resolve() == codex_skill_dir.resolve()
 
 

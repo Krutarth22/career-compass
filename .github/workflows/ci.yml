@@ -32,6 +32,6 @@ jobs:
 
       - name: Lint project templates
         run: |
-          python3 .claude/skills/skillpath/scripts/lint_templates.py \
-            .claude/skills/skillpath/templates \
-            .claude/skills/skillpath/reference/skill-taxonomy.yaml
+          python3 .claude/skills/career-compass/scripts/lint_templates.py \
+            .claude/skills/career-compass/templates \
+            .claude/skills/career-compass/reference/skill-taxonomy.yaml

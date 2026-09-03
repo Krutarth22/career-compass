@@ -30,7 +30,7 @@ import project_planner
 import resolution
 from template_loader import load_track
 
-SKILL_DIR = Path(__file__).resolve().parents[1] / ".claude" / "skills" / "skillpath"
+SKILL_DIR = Path(__file__).resolve().parents[1] / ".claude" / "skills" / "career-compass"
 TAXONOMY_PATH = SKILL_DIR / "reference" / "skill-taxonomy.yaml"
 TRACK_DIR = SKILL_DIR / "templates" / "ml-engineer"
 

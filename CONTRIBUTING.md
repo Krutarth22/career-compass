@@ -1,25 +1,25 @@
-# Contributing to skillpath
+# Contributing to career-compass
 
 The canonical workflow and all implementation resources live under
 `.claude/skills/`. The checked-in `.agents/skills/` entries point to thin
 Codex-compatible wrappers under `codex/skills/`; those wrappers load the
-canonical workflow and symlink its resources. `plugins/skillpath/` is a
+canonical workflow and symlink its resources. `plugins/career-compass/` is a
 second thin wrapper, following the same pattern, that packages the
 canonical tree as an installable Claude Code plugin (see
 `.claude-plugin/marketplace.json` at the repo root) — its `SKILL.md`,
 `modes/`, `scripts/`, `reference/`, and `templates/` entries are symlinks
-into `.claude/skills/skillpath/`, not copies. Do not create a copied second
+into `.claude/skills/career-compass/`, not copies. Do not create a copied second
 implementation anywhere. Changes to the canonical tree remain visible to
 all three hosts.
 
 ## Adding a project template
 
 Project templates live under
-`.claude/skills/skillpath/templates/<track>/*.md` and are what
+`.claude/skills/career-compass/templates/<track>/*.md` and are what
 `project_planner.py` selects from when sequencing a roadmap.
 
 1. Read the schema first:
-   [`.claude/skills/skillpath/templates/TEMPLATE.md`](.claude/skills/skillpath/templates/TEMPLATE.md).
+   [`.claude/skills/career-compass/templates/TEMPLATE.md`](.claude/skills/career-compass/templates/TEMPLATE.md).
    It documents every required frontmatter field (`title`, `track`,
    `difficulty_tier`, `estimated_hours`, `role`, `skill_tags`,
    `skill_prerequisites`, `project_prerequisites`,
@@ -32,7 +32,7 @@ Project templates live under
    `ml-engineer/ml-model-serving-api.md`.
 3. Every `skill_tags` and `skill_prerequisites` entry must resolve to an
    `id` that already exists in
-   [`skill-taxonomy.yaml`](.claude/skills/skillpath/reference/skill-taxonomy.yaml).
+   [`skill-taxonomy.yaml`](.claude/skills/career-compass/reference/skill-taxonomy.yaml).
    If the skill you need isn't there yet, add it first (see the taxonomy
    section below) rather than inventing a tag with nowhere to resolve.
 4. `project_prerequisites` entries must be exact sibling filenames within
@@ -43,9 +43,9 @@ Project templates live under
 5. Run the linter before opening a PR:
 
    ```bash
-   python3 .claude/skills/skillpath/scripts/lint_templates.py \
-     .claude/skills/skillpath/templates \
-     .claude/skills/skillpath/reference/skill-taxonomy.yaml
+   python3 .claude/skills/career-compass/scripts/lint_templates.py \
+     .claude/skills/career-compass/templates \
+     .claude/skills/career-compass/reference/skill-taxonomy.yaml
    ```
 
    `lint_templates.py` is the source of truth for what's actually
@@ -63,10 +63,10 @@ clearly recurs and deserves a stable canonical id, not a reaction to
 every new phrase research happens to surface.
 
 **Process:** open a PR against
-[`skill-taxonomy.yaml`](.claude/skills/skillpath/reference/skill-taxonomy.yaml)
+[`skill-taxonomy.yaml`](.claude/skills/career-compass/reference/skill-taxonomy.yaml)
 directly — taxonomy entries are never auto-written back from live research
 output, only added by a human. Follow the existing conventions (see
-[`skill-taxonomy.md`](.claude/skills/skillpath/reference/skill-taxonomy.md)
+[`skill-taxonomy.md`](.claude/skills/career-compass/reference/skill-taxonomy.md)
 for the full rationale):
 
 - `id`: lowercase, kebab-case, and specific enough not to collide with a
@@ -93,17 +93,17 @@ Currently seeded: `ai-engineer`, `ml-engineer`, `data-engineer`,
 `data-analyst`, `data-scientist`. To add another track, mirror their
 structure:
 
-1. Create `.claude/skills/skillpath/templates/<new-track-id>/` and add
+1. Create `.claude/skills/career-compass/templates/<new-track-id>/` and add
    project templates to it following the same rules as above — a `title`,
    `track: "<new-track-id>"` matching the directory name, exactly one
    `role: "capstone"` template, and the rest `role: "core"`.
 2. Add a matching entry to
-   [`track-aliases.yaml`](.claude/skills/skillpath/reference/track-aliases.yaml):
+   [`track-aliases.yaml`](.claude/skills/career-compass/reference/track-aliases.yaml):
    a new top-level key `<new-track-id>:` with an `aliases:` list covering
    common real-world phrasings and abbreviations, written lowercase and
    *without* seniority/level words (those are stripped before matching —
    e.g. don't add `"senior data engineer"`, just `"data engineer"`).
-   See [`track-aliases.md`](.claude/skills/skillpath/reference/track-aliases.md)
+   See [`track-aliases.md`](.claude/skills/career-compass/reference/track-aliases.md)
    for the exact resolution rule `resolution.py` uses (normalize, then
    exact/substring match against these aliases — no fuzzy or semantic
    matching).
@@ -117,9 +117,9 @@ structure:
 ```bash
 pip install -e ".[dev]"
 pytest tests/ -v
-python3 .claude/skills/skillpath/scripts/lint_templates.py \
-  .claude/skills/skillpath/templates \
-  .claude/skills/skillpath/reference/skill-taxonomy.yaml
+python3 .claude/skills/career-compass/scripts/lint_templates.py \
+  .claude/skills/career-compass/templates \
+  .claude/skills/career-compass/reference/skill-taxonomy.yaml
 ```
 
 Both should be clean before opening a PR.

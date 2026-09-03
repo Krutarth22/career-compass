@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "skillpath"
+name = "career-compass"
 version = "0.1.0"
 description = "A Claude Code and Codex skill for career path planning and skill development"
 requires-python = ">=3.11"

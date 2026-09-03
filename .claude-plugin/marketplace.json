@@ -1,11 +1,11 @@
 {
-  "name": "skillpath",
+  "name": "career-compass",
   "owner": { "name": "Krutarth Majithia", "url": "https://github.com/Krutarth22" },
   "plugins": [
     {
-      "name": "skillpath",
-      "source": "./plugins/skillpath",
-      "displayName": "SkillPath",
+      "name": "career-compass",
+      "source": "./plugins/career-compass",
+      "displayName": "CareerCompass",
       "description": "Career roadmap and course-planning assistant: research target-role requirements, reconcile tracked skill gaps, plan hands-on projects, sequence college coursework, and surface course resources.",
       "version": "0.1.0"
     }

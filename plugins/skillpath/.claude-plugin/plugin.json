@@ -1,9 +1,0 @@
-{
-  "name": "skillpath",
-  "description": "Generate or update your personal career roadmap: research target-role requirements, reconcile tracked skill gaps, plan hands-on projects, sequence college coursework, and surface course resources.",
-  "version": "0.1.0",
-  "author": { "name": "Krutarth Majithia" },
-  "homepage": "https://github.com/Krutarth22/skillpath",
-  "repository": "https://github.com/Krutarth22/skillpath",
-  "license": "MIT"
-}
