@@ -277,14 +277,30 @@ repository.
 
 CareerCompass currently includes deterministic project templates for:
 
-- AI Engineer
-- ML Engineer
-- Data Engineer
-- Data Analyst
-- Data Scientist
+| Family | Tracks |
+| --- | --- |
+| Data & AI | AI Engineer, ML Engineer, Data Engineer, Data Analyst, Data Scientist |
+| Software engineering | Backend Engineer, Frontend Engineer, Full-Stack Engineer, Mobile Engineer, DevOps / SRE / Platform Engineer, Security Engineer, QA Automation Engineer (SDET), Embedded Software / Firmware Engineer, Game Developer |
+| Customer-facing & go-to-market | Forward-Deployed Engineer, Solutions / Sales Engineer, GTM Engineer, Developer Advocate (DevRel), Technical Product Manager |
+| Engineering disciplines | Mechanical, Electrical, Civil / Structural, Chemical / Process, Robotics, Controls / Automation (PLC), Manufacturing, Industrial, Aerospace |
+| Life sciences | Bioinformatics Scientist, Biostatistician, Clinical Data Manager, Clinical Research Coordinator / CRA, Health Informatics Specialist, Epidemiologist, Regulatory Affairs Specialist, Biomedical Engineer, Research Scientist (wet lab) |
+| Medicine | Physician (pre-med through residency), Registered Nurse, Physician Assistant, Pharmacist |
 
-Other target roles still receive researched gaps and course recommendations.
-Project sequencing requires a matching template track.
+Medicine tracks are credential-gated, so each project also lists the
+licensure and examination milestones relevant at that stage, and the report
+collects them into a credential timeline next to the project plan.
+
+Some titles deliberately prompt you to choose because the template sets
+differ: "Software Engineer" (backend, frontend, or full-stack), "AI/ML
+Engineer", "Automation Engineer" (software test or PLC), "Process
+Engineer" (chemical or manufacturing), "Production Engineer", and
+"Quality Engineer".
+
+Any other target role still receives researched gaps, course
+recommendations, and an ad-hoc project plan drafted from that run's
+research. The ad-hoc plan is labeled as such in the report; curated tracks
+are more reliable, and [CONTRIBUTING.md](CONTRIBUTING.md) explains how to
+add one.
 
 ## 🧩 How it works
 

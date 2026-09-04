@@ -67,5 +67,22 @@ below):
   skill_tags — don't invent a fictional company or client, and don't pad with
   generic "this is valuable everywhere" filler; name specific sectors.
 
-See `ai-ml-engineer/rag-pipeline-with-eval.md` and
-`ai-ml-engineer/ml-model-serving-api.md` for fully worked examples.
+## Optional body section: `## Credential Milestones`
+
+Credential-gated tracks (`physician`, `registered-nurse`,
+`physician-assistant`, `pharmacist`, and any future licensed profession)
+add one extra section, **`## Credential Milestones`**, after `## Skills
+Demonstrated` and before `## Industry Relevance`. It lists the licensure,
+examination, certification, and application steps that are relevant at
+the stage this project represents (for example "MCAT scheduled", "NCLEX-RN
+after authorization to test", "PANCE after graduation"), as a bullet
+list, ending with a reminder that requirements vary by jurisdiction. The
+linter does not require it, but every template in a credential-gated
+track must carry it so the report can render a milestone timeline
+alongside the project plan (see `reference/report-format.md`). Do not add
+it to non-licensed tracks.
+
+See `ai-engineer/rag-pipeline-with-eval.md` and
+`ml-engineer/ml-model-serving-api.md` for fully worked examples, and
+`physician/clinical-exposure-and-shadowing-portfolio.md` for a
+credential-gated example.

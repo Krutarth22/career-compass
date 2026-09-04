@@ -344,3 +344,2287 @@
     - experiment management
     - mlflow
     - weights and biases
+
+# ---------------------------------------------------------------------------
+# Software engineering tracks (backend, frontend, full-stack, mobile, devops,
+# security, qa-automation, embedded-software, game-developer). Generic
+# software skills first, then per-track clusters.
+# ---------------------------------------------------------------------------
+
+- id: git-version-control
+  display_name: Git & Version Control
+  synonyms:
+    - git
+    - github
+    - gitlab
+    - version control
+    - source control
+    - branching and merging
+
+- id: data-structures-algorithms
+  display_name: Data Structures & Algorithms
+  synonyms:
+    - dsa
+    - algorithms
+    - data structures
+    - algorithmic problem solving
+
+- id: automated-testing
+  display_name: Automated Testing
+  synonyms:
+    - unit testing
+    - integration testing
+    - test automation
+    - pytest
+    - jest
+    - tdd
+    - test driven development
+
+- id: debugging
+  display_name: Debugging & Troubleshooting
+  synonyms:
+    - troubleshooting
+    - root cause analysis
+    - bug fixing
+
+- id: code-review
+  display_name: Code Review
+  synonyms:
+    - pull request review
+    - reviewing code
+    - pr review
+
+- id: system-design
+  display_name: System Design
+  synonyms:
+    - software architecture
+    - distributed systems design
+    - scalability design
+    - architecture design
+
+- id: concurrency
+  display_name: Concurrency & Async Programming
+  synonyms:
+    - async programming
+    - asynchronous programming
+    - multithreading
+    - asyncio
+    - parallelism
+
+- id: http-fundamentals
+  display_name: HTTP & Web Fundamentals
+  synonyms:
+    - http
+    - web protocols
+    - rest fundamentals
+    - request response cycle
+
+- id: linux-cli
+  display_name: Linux & Command Line
+  synonyms:
+    - linux
+    - bash
+    - command line
+    - unix
+    - terminal skills
+
+- id: shell-scripting
+  display_name: Shell Scripting
+  synonyms:
+    - bash scripting
+    - shell scripts
+
+- id: observability
+  display_name: Observability (Logging, Metrics, Tracing)
+  synonyms:
+    - logging
+    - metrics
+    - tracing
+    - distributed tracing
+    - prometheus
+    - grafana
+    - opentelemetry
+    - application monitoring
+
+- id: performance-profiling
+  display_name: Performance Profiling & Optimization
+  synonyms:
+    - profiling
+    - performance optimization
+    - performance tuning
+    - latency optimization
+
+- id: technical-documentation
+  display_name: Technical Documentation
+  synonyms:
+    - technical writing
+    - documentation
+    - readme writing
+    - design docs
+
+# --- backend ---------------------------------------------------------------
+
+- id: backend-frameworks
+  display_name: Backend Web Frameworks
+  synonyms:
+    - fastapi
+    - django
+    - flask
+    - express
+    - express.js
+    - spring boot
+    - rails
+    - ruby on rails
+    - nestjs
+    - asp.net
+
+- id: authentication-authorization
+  display_name: Authentication & Authorization
+  synonyms:
+    - auth
+    - authentication
+    - authorization
+    - oauth
+    - oauth2
+    - jwt
+    - session management
+    - identity and access management
+    - iam
+    - rbac
+    - role based access control
+
+- id: relational-databases
+  display_name: Relational Databases
+  synonyms:
+    - postgres
+    - postgresql
+    - mysql
+    - rdbms
+    - relational database
+    - sqlite
+
+- id: orm-and-migrations
+  display_name: ORMs & Schema Migrations
+  synonyms:
+    - orm
+    - schema migrations
+    - database migrations
+    - sqlalchemy
+    - prisma
+    - django orm
+    - alembic
+
+- id: caching
+  display_name: Caching
+  synonyms:
+    - redis
+    - memcached
+    - cache invalidation
+    - http caching
+
+- id: message-queues
+  display_name: Message Queues & Event-Driven Systems
+  synonyms:
+    - kafka
+    - rabbitmq
+    - pub/sub
+    - pubsub
+    - event driven architecture
+    - event-driven architecture
+    - message brokers
+
+- id: background-jobs
+  display_name: Background Jobs & Scheduling
+  synonyms:
+    - job queues
+    - task queues
+    - celery
+    - cron jobs
+    - scheduled jobs
+    - worker processes
+
+# --- frontend --------------------------------------------------------------
+
+- id: javascript
+  display_name: JavaScript
+  synonyms:
+    - js
+    - ecmascript
+    - es6
+    - modern javascript
+
+- id: typescript
+  display_name: TypeScript
+  synonyms:
+    - ts
+    - typed javascript
+
+- id: html-css
+  display_name: HTML & CSS
+  synonyms:
+    - html
+    - css
+    - semantic html
+    - flexbox
+    - css grid
+    - tailwind
+    - sass
+
+- id: frontend-frameworks
+  display_name: Frontend Frameworks
+  synonyms:
+    - react
+    - react.js
+    - vue
+    - vue.js
+    - angular
+    - svelte
+    - next.js
+    - nextjs
+    - nuxt
+
+- id: state-management
+  display_name: Client State Management
+  synonyms:
+    - redux
+    - zustand
+    - client state
+    - global state
+    - react query
+    - tanstack query
+
+- id: web-accessibility
+  display_name: Web Accessibility
+  synonyms:
+    - a11y
+    - accessibility
+    - wcag
+    - aria
+    - screen reader support
+
+- id: web-performance
+  display_name: Web Performance
+  synonyms:
+    - core web vitals
+    - lighthouse
+    - bundle size optimization
+    - page load performance
+    - lazy loading
+
+- id: responsive-design
+  display_name: Responsive Design
+  synonyms:
+    - mobile first design
+    - responsive layout
+    - responsive web design
+    - media queries
+
+- id: frontend-testing
+  display_name: Frontend Testing
+  synonyms:
+    - react testing library
+    - component testing
+    - ui testing
+    - vitest
+    - snapshot testing
+
+- id: build-tooling
+  display_name: Build Tooling & Bundlers
+  synonyms:
+    - webpack
+    - vite
+    - bundlers
+    - npm scripts
+    - esbuild
+    - rollup
+
+- id: design-systems
+  display_name: Design Systems & Component Libraries
+  synonyms:
+    - component library
+    - ui component library
+    - storybook
+    - design tokens
+
+- id: browser-apis
+  display_name: Browser & DOM APIs
+  synonyms:
+    - dom
+    - dom manipulation
+    - web apis
+    - fetch api
+    - browser apis
+    - service workers
+
+# --- full-stack ------------------------------------------------------------
+
+- id: realtime-communication
+  display_name: Real-Time Communication
+  synonyms:
+    - websockets
+    - websocket
+    - server-sent events
+    - sse
+    - realtime updates
+    - real-time updates
+    - live updates
+
+- id: cloud-deployment
+  display_name: Cloud Deployment
+  synonyms:
+    - deploying to cloud
+    - app deployment
+    - vercel
+    - render
+    - fly.io
+    - heroku
+    - railway
+    - deployment pipeline
+
+- id: end-to-end-testing
+  display_name: End-to-End Testing
+  synonyms:
+    - e2e testing
+    - e2e tests
+    - playwright
+    - cypress
+    - selenium
+    - browser automation testing
+
+# --- mobile ----------------------------------------------------------------
+
+- id: mobile-development
+  display_name: Mobile App Development
+  synonyms:
+    - mobile app development
+    - native mobile development
+    - mobile apps
+    - mobile engineering
+
+- id: ios-development
+  display_name: iOS Development
+  synonyms:
+    - ios
+    - swift
+    - swiftui
+    - uikit
+    - xcode
+
+- id: android-development
+  display_name: Android Development
+  synonyms:
+    - android
+    - kotlin
+    - jetpack compose
+    - android studio
+
+- id: cross-platform-mobile
+  display_name: Cross-Platform Mobile Frameworks
+  synonyms:
+    - react native
+    - flutter
+    - expo
+    - dart
+    - cross platform mobile
+
+- id: offline-first-data-sync
+  display_name: Offline-First Data & Sync
+  synonyms:
+    - offline first
+    - offline-first
+    - local database sync
+    - data synchronization
+    - conflict resolution sync
+
+- id: push-notifications
+  display_name: Push Notifications
+  synonyms:
+    - apns
+    - fcm
+    - firebase cloud messaging
+    - mobile notifications
+
+- id: mobile-ui-patterns
+  display_name: Mobile UI & Navigation Patterns
+  synonyms:
+    - mobile ux
+    - navigation patterns
+    - platform ui guidelines
+    - human interface guidelines
+    - material design
+
+- id: app-store-release
+  display_name: App Store Release & Distribution
+  synonyms:
+    - app store submission
+    - play store
+    - app signing
+    - testflight
+    - mobile release management
+    - app distribution
+
+# --- devops / sre ----------------------------------------------------------
+
+- id: kubernetes
+  display_name: Kubernetes
+  synonyms:
+    - k8s
+    - container orchestration
+    - helm
+
+- id: infrastructure-as-code
+  display_name: Infrastructure as Code
+  synonyms:
+    - iac
+    - terraform
+    - pulumi
+    - cloudformation
+    - opentofu
+    - ansible
+    - configuration management
+
+- id: cloud-platforms
+  display_name: Cloud Platforms (AWS/GCP/Azure)
+  synonyms:
+    - aws
+    - amazon web services
+    - gcp
+    - google cloud
+    - azure
+    - cloud computing
+    - cloud infrastructure
+
+- id: networking-fundamentals
+  display_name: Networking Fundamentals
+  synonyms:
+    - tcp/ip
+    - dns
+    - load balancing
+    - networking
+    - reverse proxy
+    - nginx
+
+- id: secrets-management
+  display_name: Secrets Management
+  synonyms:
+    - vault
+    - hashicorp vault
+    - secrets handling
+    - credential management
+    - environment secrets
+
+- id: site-reliability-practices
+  display_name: Site Reliability Practices (SLOs, On-Call, Incidents)
+  synonyms:
+    - sre
+    - site reliability engineering
+    - slo
+    - sli
+    - error budgets
+    - on-call
+    - incident management
+    - incident response
+    - postmortems
+    - blameless postmortems
+
+# --- security --------------------------------------------------------------
+
+- id: web-application-security
+  display_name: Web Application Security
+  synonyms:
+    - owasp
+    - owasp top 10
+    - appsec
+    - application security
+    - xss
+    - sql injection
+    - csrf
+    - input validation security
+
+- id: threat-modeling
+  display_name: Threat Modeling
+  synonyms:
+    - stride
+    - attack surface analysis
+    - threat analysis
+    - security design review
+
+- id: vulnerability-assessment
+  display_name: Vulnerability Assessment & Scanning
+  synonyms:
+    - vulnerability scanning
+    - dependency scanning
+    - sast
+    - dast
+    - software composition analysis
+    - penetration testing basics
+
+- id: secure-code-review
+  display_name: Secure Code Review
+  synonyms:
+    - security code review
+    - secure coding
+    - secure coding practices
+
+- id: security-monitoring
+  display_name: Security Monitoring & Detection
+  synonyms:
+    - siem
+    - detection engineering
+    - security logging
+    - intrusion detection
+    - alerting on security events
+
+- id: cryptography-basics
+  display_name: Applied Cryptography Basics
+  synonyms:
+    - encryption
+    - hashing
+    - tls
+    - pki
+    - key management
+    - password hashing
+
+- id: network-security
+  display_name: Network Security
+  synonyms:
+    - firewalls
+    - network segmentation
+    - vpn
+    - zero trust networking
+
+# --- qa / test automation --------------------------------------------------
+
+- id: test-strategy
+  display_name: Test Strategy & Test Design
+  synonyms:
+    - test planning
+    - test design
+    - test cases
+    - risk-based testing
+    - test pyramid
+    - test data management
+
+- id: api-testing
+  display_name: API Testing
+  synonyms:
+    - postman
+    - rest api testing
+    - contract testing
+    - schema validation testing
+
+- id: performance-testing
+  display_name: Performance & Load Testing
+  synonyms:
+    - load testing
+    - stress testing
+    - k6
+    - locust
+    - jmeter
+    - gatling
+
+- id: bug-reporting-and-triage
+  display_name: Bug Reporting & Triage
+  synonyms:
+    - defect tracking
+    - bug triage
+    - bug reports
+    - defect management
+
+# --- embedded --------------------------------------------------------------
+
+- id: c-cpp
+  display_name: C/C++
+  synonyms:
+    - c
+    - c++
+    - cpp
+    - embedded c
+    - c programming
+    - c++ programming
+
+- id: microcontrollers
+  display_name: Microcontrollers
+  synonyms:
+    - mcu
+    - arduino
+    - stm32
+    - esp32
+    - arm cortex-m
+    - raspberry pi pico
+
+- id: rtos
+  display_name: Real-Time Operating Systems
+  synonyms:
+    - freertos
+    - zephyr
+    - real time os
+    - real-time os
+    - real time operating system
+
+- id: hardware-communication-protocols
+  display_name: Hardware Communication Protocols (I2C/SPI/UART/CAN)
+  synonyms:
+    - i2c
+    - spi
+    - uart
+    - can bus
+    - serial protocols
+    - serial communication
+
+- id: embedded-debugging
+  display_name: Embedded Debugging
+  synonyms:
+    - jtag
+    - swd
+    - logic analyzer
+    - oscilloscope debugging
+    - gdb embedded
+    - hardware debugging
+
+- id: firmware-updates
+  display_name: Firmware Updates & Bootloaders
+  synonyms:
+    - ota updates
+    - over-the-air updates
+    - bootloader
+    - firmware update
+
+- id: low-power-design
+  display_name: Low-Power Embedded Design
+  synonyms:
+    - power management
+    - sleep modes
+    - battery optimization
+    - low power
+
+- id: device-drivers
+  display_name: Device Drivers & Peripherals
+  synonyms:
+    - driver development
+    - peripheral drivers
+    - hal
+    - hardware abstraction layer
+
+- id: electronics-fundamentals
+  display_name: Electronics Fundamentals
+  synonyms:
+    - reading datasheets
+    - schematics
+    - gpio
+    - adc
+    - pwm
+    - basic circuits
+
+- id: embedded-testing
+  display_name: Embedded & Hardware-in-the-Loop Testing
+  synonyms:
+    - hardware in the loop
+    - hil testing
+    - firmware unit testing
+    - firmware testing
+
+# --- game development ------------------------------------------------------
+
+- id: game-engines
+  display_name: Game Engines
+  synonyms:
+    - unity
+    - unreal
+    - unreal engine
+    - godot
+    - game engine
+
+- id: gameplay-programming
+  display_name: Gameplay Programming
+  synonyms:
+    - game mechanics
+    - gameplay systems
+    - gameplay code
+
+- id: game-math-physics
+  display_name: Game Math & Physics
+  synonyms:
+    - 3d math
+    - linear algebra for games
+    - vectors and matrices
+    - collision detection
+    - physics simulation
+
+- id: graphics-programming
+  display_name: Graphics & Shader Programming
+  synonyms:
+    - shaders
+    - hlsl
+    - glsl
+    - rendering
+    - opengl
+    - vulkan
+    - render pipeline
+
+- id: multiplayer-networking
+  display_name: Multiplayer Networking
+  synonyms:
+    - netcode
+    - client server games
+    - lag compensation
+    - multiplayer
+
+- id: game-ai
+  display_name: Game AI (Behavior Trees, State Machines, Pathfinding)
+  synonyms:
+    - behavior trees
+    - behaviour trees
+    - state machines
+    - pathfinding
+    - npc ai
+    - a* pathfinding
+
+- id: game-design-fundamentals
+  display_name: Game Design Fundamentals
+  synonyms:
+    - level design
+    - game feel
+    - game prototyping
+    - game loop design
+
+- id: csharp
+  display_name: C#
+  synonyms:
+    - c sharp
+    - dotnet
+    - .net
+
+# ---------------------------------------------------------------------------
+# Customer-facing and go-to-market engineering tracks (forward-deployed
+# engineer, solutions engineer, gtm engineer, developer advocate, technical
+# product manager).
+# ---------------------------------------------------------------------------
+
+- id: requirements-gathering
+  display_name: Requirements Gathering & Discovery
+  synonyms:
+    - requirements analysis
+    - requirements elicitation
+    - discovery calls
+    - technical discovery
+    - needs assessment
+
+- id: customer-enablement
+  display_name: Customer Enablement & Handoff
+  synonyms:
+    - customer training
+    - customer onboarding
+    - enablement
+    - knowledge transfer
+    - handoff documentation
+
+- id: demo-building
+  display_name: Demo Environments & Storytelling
+  synonyms:
+    - product demos
+    - demo environment
+    - technical demos
+    - demoing
+
+- id: proof-of-concept-delivery
+  display_name: Proof-of-Concept Delivery
+  synonyms:
+    - poc
+    - proof of concept
+    - pilot delivery
+    - technical evaluation
+
+- id: solution-architecture
+  display_name: Solution Architecture
+  synonyms:
+    - solutions architecture
+    - architecture diagrams
+    - reference architecture
+    - integration architecture
+
+- id: project-management
+  display_name: Project & Engagement Management
+  synonyms:
+    - engagement management
+    - delivery management
+    - timeline management
+    - risk management
+    - scoping
+
+- id: developer-experience
+  display_name: Developer Experience (DX)
+  synonyms:
+    - dx
+    - sdk design
+    - api usability
+    - onboarding friction
+    - developer onboarding
+
+- id: crm-platforms
+  display_name: CRM Platforms
+  synonyms:
+    - salesforce
+    - hubspot
+    - crm
+    - crm administration
+    - crm data model
+
+- id: workflow-automation
+  display_name: Workflow Automation Tools
+  synonyms:
+    - zapier
+    - n8n
+    - make.com
+    - low-code automation
+    - no-code automation
+    - sales automation
+
+- id: marketing-attribution
+  display_name: Marketing Attribution & Funnel Analytics
+  synonyms:
+    - attribution modeling
+    - funnel analytics
+    - pipeline analytics
+    - revenue analytics
+    - multi-touch attribution
+
+- id: product-analytics
+  display_name: Product Analytics & Event Tracking
+  synonyms:
+    - event tracking
+    - amplitude
+    - mixpanel
+    - segment
+    - posthog
+    - usage analytics
+    - instrumentation
+
+- id: public-speaking
+  display_name: Public Speaking & Technical Talks
+  synonyms:
+    - conference talks
+    - technical presentations
+    - presenting
+    - speaking
+
+- id: content-production
+  display_name: Technical Content Production
+  synonyms:
+    - video production
+    - screencasts
+    - livestreaming
+    - technical blogging
+    - content creation
+
+- id: community-management
+  display_name: Developer Community Management
+  synonyms:
+    - community building
+    - community engagement
+    - forum moderation
+    - open source community
+
+- id: user-research
+  display_name: User Research
+  synonyms:
+    - customer interviews
+    - user interviews
+    - usability testing
+    - customer research
+    - jobs to be done
+
+- id: product-requirements
+  display_name: Product Requirements & Specs
+  synonyms:
+    - prd
+    - product requirements document
+    - product specs
+    - writing specs
+    - user stories
+
+- id: prioritization-frameworks
+  display_name: Prioritization & Roadmapping
+  synonyms:
+    - roadmapping
+    - product roadmap
+    - rice
+    - prioritization
+    - backlog management
+
+- id: launch-management
+  display_name: Launch & Go-to-Market Planning
+  synonyms:
+    - product launch
+    - gtm planning
+    - go-to-market
+    - release planning
+    - launch planning
+
+# ---------------------------------------------------------------------------
+# Engineering discipline tracks (mechanical, electrical, civil, chemical,
+# robotics, controls, manufacturing, industrial, aerospace).
+# ---------------------------------------------------------------------------
+
+# --- shared engineering -----------------------------------------------------
+
+- id: cad-modeling
+  display_name: CAD Modeling
+  synonyms:
+    - cad
+    - solidworks
+    - fusion 360
+    - onshape
+    - catia
+    - creo
+    - inventor
+    - 3d modeling
+    - parametric modeling
+
+- id: engineering-drawings
+  display_name: Engineering Drawings & GD&T
+  synonyms:
+    - gd&t
+    - gdt
+    - geometric dimensioning and tolerancing
+    - technical drawings
+    - drafting
+    - tolerance analysis
+    - tolerance stack-up
+
+- id: fea-simulation
+  display_name: Finite Element Analysis
+  synonyms:
+    - fea
+    - finite element analysis
+    - ansys
+    - abaqus
+    - structural simulation
+    - stress analysis
+
+- id: cfd-simulation
+  display_name: Computational Fluid Dynamics
+  synonyms:
+    - cfd
+    - fluid simulation
+    - openfoam
+    - ansys fluent
+    - flow simulation
+
+- id: thermal-analysis
+  display_name: Thermal Analysis & Heat Transfer
+  synonyms:
+    - heat transfer
+    - thermal design
+    - thermal management
+    - heat exchanger design
+    - cooling design
+
+- id: matlab-simulink
+  display_name: MATLAB & Simulink
+  synonyms:
+    - matlab
+    - simulink
+    - octave
+
+- id: design-verification-testing
+  display_name: Design Verification & Test Planning
+  synonyms:
+    - dvt
+    - design verification
+    - test plans
+    - validation testing
+    - qualification testing
+    - dvp&r
+
+- id: systems-engineering
+  display_name: Systems Engineering & Requirements
+  synonyms:
+    - requirements management
+    - v-model
+    - sysml
+    - verification and validation
+    - v&v
+    - interface control
+    - mbse
+
+- id: root-cause-problem-solving
+  display_name: Root Cause Problem Solving (8D, 5 Whys)
+  synonyms:
+    - 8d
+    - 5 whys
+    - fishbone
+    - ishikawa
+    - corrective action
+    - capa
+
+# --- mechanical -------------------------------------------------------------
+
+- id: mechanical-design
+  display_name: Mechanical Design
+  synonyms:
+    - machine design
+    - mechanism design
+    - component design
+    - product design engineering
+    - linkages and gears
+
+- id: dfm-dfa
+  display_name: Design for Manufacturing & Assembly
+  synonyms:
+    - dfm
+    - dfa
+    - dfma
+    - design for manufacturability
+    - design for assembly
+    - manufacturing constraints
+
+- id: rapid-prototyping
+  display_name: Rapid Prototyping & Additive Manufacturing
+  synonyms:
+    - 3d printing
+    - additive manufacturing
+    - prototyping
+    - fdm
+    - sla printing
+
+- id: material-selection
+  display_name: Material Selection & Materials Science
+  synonyms:
+    - materials science
+    - materials engineering
+    - material properties
+    - metals and polymers
+    - composites basics
+
+- id: bom-and-plm
+  display_name: BOM & Product Lifecycle Management
+  synonyms:
+    - bill of materials
+    - bom
+    - plm
+    - product lifecycle management
+    - engineering change orders
+    - eco
+
+# --- electrical -------------------------------------------------------------
+
+- id: circuit-design
+  display_name: Analog & Digital Circuit Design
+  synonyms:
+    - schematic design
+    - schematic capture
+    - analog design
+    - digital design
+    - circuit analysis
+    - electronics design
+
+- id: pcb-layout
+  display_name: PCB Layout
+  synonyms:
+    - pcb design
+    - altium
+    - kicad
+    - eagle
+    - board layout
+    - printed circuit board
+
+- id: spice-simulation
+  display_name: SPICE Circuit Simulation
+  synonyms:
+    - spice
+    - ltspice
+    - circuit simulation
+    - pspice
+
+- id: power-electronics
+  display_name: Power Electronics & Power Supply Design
+  synonyms:
+    - dc-dc converters
+    - power supply design
+    - switching regulators
+    - inverters
+    - battery charging circuits
+
+- id: signal-integrity
+  display_name: Signal Integrity & High-Speed Design
+  synonyms:
+    - high speed design
+    - impedance control
+    - transmission lines
+    - crosstalk
+
+- id: emc-compliance
+  display_name: EMC/EMI & Regulatory Compliance
+  synonyms:
+    - emc
+    - emi
+    - electromagnetic compatibility
+    - fcc testing
+    - ce marking
+    - regulatory testing
+
+- id: fpga-hdl
+  display_name: FPGA & HDL Design
+  synonyms:
+    - fpga
+    - verilog
+    - vhdl
+    - systemverilog
+    - hdl
+    - digital logic design
+
+- id: bench-testing
+  display_name: Bench Testing & Lab Instruments
+  synonyms:
+    - oscilloscope
+    - multimeter
+    - lab equipment
+    - test bench
+    - electrical testing
+    - function generator
+
+- id: motor-control
+  display_name: Motor Control & Drives
+  synonyms:
+    - bldc control
+    - motor drives
+    - servo control
+    - stepper control
+    - field oriented control
+    - foc
+
+- id: battery-management
+  display_name: Battery Systems & BMS
+  synonyms:
+    - bms
+    - battery management system
+    - lithium ion
+    - battery pack design
+    - cell balancing
+
+- id: power-systems
+  display_name: Power Systems & Grid
+  synonyms:
+    - three-phase power
+    - power distribution
+    - grid
+    - protection relays
+    - load flow
+    - power system analysis
+
+# --- civil / structural -----------------------------------------------------
+
+- id: structural-analysis
+  display_name: Structural Analysis
+  synonyms:
+    - statics
+    - mechanics of materials
+    - load calculations
+    - load path
+    - etabs
+    - sap2000
+    - structural modeling
+
+- id: structural-design-codes
+  display_name: Structural Design Codes (AISC/ACI/Eurocode)
+  synonyms:
+    - aisc
+    - aci
+    - eurocode
+    - asce 7
+    - building codes
+    - steel design
+    - concrete design
+    - timber design
+
+- id: civil-cad-bim
+  display_name: Civil CAD & BIM
+  synonyms:
+    - autocad
+    - civil 3d
+    - revit
+    - bim
+    - building information modeling
+    - tekla
+
+- id: geotechnical-basics
+  display_name: Geotechnical Engineering Basics
+  synonyms:
+    - soil mechanics
+    - foundation design
+    - bearing capacity
+    - slope stability
+    - geotechnical
+
+- id: stormwater-hydrology
+  display_name: Stormwater, Hydrology & Site Design
+  synonyms:
+    - hydrology
+    - hydraulics
+    - stormwater management
+    - drainage design
+    - site grading
+    - water resources
+
+- id: construction-documents
+  display_name: Construction Documents & Specifications
+  synonyms:
+    - construction drawings
+    - specifications
+    - submittals
+    - rfis
+    - plan sets
+    - detailing
+
+- id: construction-management
+  display_name: Construction Management & Estimating
+  synonyms:
+    - cost estimating
+    - construction scheduling
+    - primavera
+    - quantity takeoff
+    - construction planning
+
+- id: gis
+  display_name: GIS & Surveying Data
+  synonyms:
+    - arcgis
+    - qgis
+    - geographic information systems
+    - surveying
+    - spatial data
+
+# --- chemical / process -----------------------------------------------------
+
+- id: process-simulation
+  display_name: Process Simulation (Aspen/HYSYS)
+  synonyms:
+    - aspen plus
+    - aspen hysys
+    - hysys
+    - chemcad
+    - dwsim
+    - flowsheet simulation
+
+- id: mass-energy-balances
+  display_name: Mass & Energy Balances
+  synonyms:
+    - material balances
+    - energy balances
+    - stoichiometry
+    - process calculations
+
+- id: process-flow-diagrams
+  display_name: PFDs & P&IDs
+  synonyms:
+    - pfd
+    - p&id
+    - piping and instrumentation diagram
+    - process flow diagram
+    - process drawings
+
+- id: reaction-engineering
+  display_name: Reaction Engineering & Reactor Design
+  synonyms:
+    - reactor design
+    - chemical kinetics
+    - reaction kinetics
+    - cstr
+    - pfr
+
+- id: separation-processes
+  display_name: Separation Processes
+  synonyms:
+    - distillation
+    - absorption
+    - extraction
+    - membrane separation
+    - unit operations
+
+- id: process-safety
+  display_name: Process Safety (HAZOP, LOPA)
+  synonyms:
+    - hazop
+    - lopa
+    - process safety management
+    - psm
+    - relief system design
+    - safety instrumented systems
+
+- id: process-control
+  display_name: Process Control & Instrumentation
+  synonyms:
+    - pid tuning
+    - control loops
+    - loop tuning
+    - instrumentation
+    - dcs
+
+- id: process-economics
+  display_name: Process Economics & Techno-Economic Analysis
+  synonyms:
+    - techno-economic analysis
+    - tea
+    - capex opex estimation
+    - plant economics
+    - cost estimation chemical
+
+# --- robotics ---------------------------------------------------------------
+
+- id: ros
+  display_name: ROS / ROS 2
+  synonyms:
+    - ros2
+    - robot operating system
+    - ros nodes
+    - ros topics
+
+- id: robot-kinematics
+  display_name: Robot Kinematics & Dynamics
+  synonyms:
+    - forward kinematics
+    - inverse kinematics
+    - jacobians
+    - manipulator dynamics
+    - dh parameters
+
+- id: motion-planning
+  display_name: Motion & Path Planning
+  synonyms:
+    - path planning
+    - moveit
+    - trajectory planning
+    - rrt
+    - navigation stack
+
+- id: computer-vision
+  display_name: Computer Vision
+  synonyms:
+    - opencv
+    - image processing
+    - object detection
+    - camera calibration
+    - visual perception
+
+- id: slam-localization
+  display_name: SLAM & Localization
+  synonyms:
+    - slam
+    - localization
+    - mapping
+    - visual slam
+    - lidar slam
+
+- id: sensor-fusion
+  display_name: Sensor Fusion & State Estimation
+  synonyms:
+    - kalman filter
+    - extended kalman filter
+    - ekf
+    - state estimation
+    - imu fusion
+
+- id: robot-simulation
+  display_name: Robot Simulation (Gazebo/Isaac/MuJoCo)
+  synonyms:
+    - gazebo
+    - isaac sim
+    - mujoco
+    - webots
+    - simulation environments
+
+# --- controls / automation --------------------------------------------------
+
+- id: control-theory
+  display_name: Control Theory (PID, State Space)
+  synonyms:
+    - pid control
+    - state space
+    - transfer functions
+    - feedback control
+    - control systems
+    - system identification
+
+- id: plc-programming
+  display_name: PLC Programming
+  synonyms:
+    - plc
+    - ladder logic
+    - iec 61131
+    - structured text
+    - allen bradley
+    - siemens tia portal
+    - codesys
+
+- id: hmi-scada
+  display_name: HMI & SCADA
+  synonyms:
+    - hmi
+    - scada
+    - ignition
+    - factorytalk view
+    - wincc
+    - operator interface
+
+- id: industrial-protocols
+  display_name: Industrial Networking Protocols
+  synonyms:
+    - modbus
+    - profinet
+    - ethernet/ip
+    - opc ua
+    - fieldbus
+    - industrial ethernet
+
+- id: functional-safety
+  display_name: Functional Safety (SIL, ISO 13849)
+  synonyms:
+    - sil
+    - iso 13849
+    - iec 61508
+    - iec 62061
+    - safety plc
+    - safety rated
+    - machine safety
+
+# --- manufacturing ----------------------------------------------------------
+
+- id: lean-manufacturing
+  display_name: Lean Manufacturing
+  synonyms:
+    - lean
+    - 5s
+    - kaizen
+    - value stream mapping
+    - vsm
+    - waste reduction
+    - continuous improvement
+
+- id: cnc-cam
+  display_name: CNC Programming & CAM
+  synonyms:
+    - cnc
+    - g-code
+    - cam
+    - mastercam
+    - fusion cam
+    - machining
+
+- id: statistical-process-control
+  display_name: Statistical Process Control & Capability
+  synonyms:
+    - spc
+    - cpk
+    - process capability
+    - control charts
+    - six sigma
+    - dmaic
+    - measurement system analysis
+    - gage r&r
+
+- id: process-fmea
+  display_name: PFMEA, Control Plans & Work Instructions
+  synonyms:
+    - pfmea
+    - fmea
+    - control plan
+    - work instructions
+    - standard work
+
+- id: tooling-fixture-design
+  display_name: Tooling & Fixture Design
+  synonyms:
+    - jigs and fixtures
+    - fixture design
+    - tooling design
+    - workholding
+
+- id: quality-management-systems
+  display_name: Quality Management Systems (ISO 9001, PPAP)
+  synonyms:
+    - iso 9001
+    - qms audits
+    - capa system
+    - ppap
+    - apqp
+    - qms
+    - as9100
+    - iatf 16949
+    - quality systems
+
+# --- industrial -------------------------------------------------------------
+
+- id: operations-research
+  display_name: Operations Research & Optimization
+  synonyms:
+    - linear programming
+    - optimization modeling
+    - integer programming
+    - or
+    - queueing theory
+    - scheduling optimization
+
+- id: discrete-event-simulation
+  display_name: Discrete-Event Simulation
+  synonyms:
+    - arena
+    - simio
+    - simpy
+    - flexsim
+    - anylogic
+    - simulation modeling
+
+- id: work-measurement
+  display_name: Work Measurement & Time Studies
+  synonyms:
+    - time study
+    - time and motion study
+    - standard time
+    - line balancing
+    - work sampling
+
+- id: facility-layout
+  display_name: Facility Layout & Material Flow
+  synonyms:
+    - plant layout
+    - material flow
+    - layout design
+    - spaghetti diagram
+
+- id: supply-chain-inventory
+  display_name: Supply Chain & Inventory Management
+  synonyms:
+    - inventory management
+    - eoq
+    - demand forecasting
+    - supply chain
+    - logistics planning
+    - mrp
+
+- id: ergonomics-safety
+  display_name: Ergonomics & Occupational Safety
+  synonyms:
+    - ergonomics
+    - human factors
+    - osha
+    - workplace safety
+    - risk assessment safety
+
+# --- aerospace --------------------------------------------------------------
+
+- id: aerodynamics
+  display_name: Aerodynamics
+  synonyms:
+    - lift and drag
+    - airfoils
+    - xfoil
+    - compressible flow
+    - wing design
+
+- id: flight-dynamics-control
+  display_name: Flight Dynamics & Control
+  synonyms:
+    - flight dynamics
+    - stability and control
+    - 6dof simulation
+    - gnc
+    - guidance navigation and control
+    - flight control laws
+
+- id: propulsion
+  display_name: Propulsion Systems
+  synonyms:
+    - jet engines
+    - gas turbines
+    - rocket propulsion
+    - electric propulsion
+    - propeller design
+
+- id: aerospace-structures
+  display_name: Aerospace Structures & Composites
+  synonyms:
+    - airframe structures
+    - composites
+    - fatigue analysis
+    - structural loads
+    - lightweight structures
+
+- id: orbital-mechanics
+  display_name: Orbital Mechanics & Mission Design
+  synonyms:
+    - astrodynamics
+    - orbit design
+    - gmat
+    - stk
+    - mission analysis
+    - spacecraft trajectory
+
+- id: aero-testing
+  display_name: Wind Tunnel & Flight Testing
+  synonyms:
+    - wind tunnel testing
+    - flight testing
+    - test flight data
+    - aerodynamic testing
+
+# ---------------------------------------------------------------------------
+# Life sciences tracks (bioinformatics, biostatistics, clinical data
+# management, clinical research coordination, health informatics,
+# epidemiology, regulatory affairs, biomedical engineering, research
+# scientist).
+# ---------------------------------------------------------------------------
+
+- id: r-programming
+  display_name: R Programming
+  synonyms:
+    - r
+    - tidyverse
+    - r language
+    - rstudio
+    - bioconductor
+
+- id: ngs-data-analysis
+  display_name: Sequencing Data Analysis (NGS)
+  synonyms:
+    - rna-seq
+    - rna seq
+    - variant calling
+    - read alignment
+    - genomics analysis
+    - dna-seq
+    - whole genome sequencing analysis
+
+- id: bioinformatics-pipelines
+  display_name: Bioinformatics Workflow Pipelines
+  synonyms:
+    - nextflow
+    - snakemake
+    - workflow managers
+    - nf-core
+    - pipeline development bioinformatics
+
+- id: sequence-analysis
+  display_name: Sequence Analysis & Phylogenetics
+  synonyms:
+    - blast
+    - multiple sequence alignment
+    - phylogenetics
+    - sequence annotation
+    - genome assembly
+
+- id: single-cell-analysis
+  display_name: Single-Cell Analysis
+  synonyms:
+    - scrna-seq
+    - single cell rna-seq
+    - seurat
+    - scanpy
+    - cell clustering
+
+- id: hpc-cluster-computing
+  display_name: HPC & Cluster Computing
+  synonyms:
+    - hpc
+    - slurm
+    - cluster computing
+    - job scheduling hpc
+    - high performance computing
+
+- id: reproducible-research
+  display_name: Reproducible Research Practices
+  synonyms:
+    - conda environments
+    - research notebooks
+    - fair data
+    - reproducibility
+    - computational reproducibility
+
+- id: clinical-trial-design
+  display_name: Clinical Trial Design
+  synonyms:
+    - randomization
+    - sample size calculation
+    - power analysis
+    - endpoints
+    - adaptive designs
+    - trial design
+
+- id: survival-analysis
+  display_name: Survival Analysis
+  synonyms:
+    - kaplan-meier
+    - cox regression
+    - time-to-event analysis
+    - hazard ratios
+
+- id: regression-modeling
+  display_name: Regression & Mixed Models
+  synonyms:
+    - generalized linear models
+    - glm
+    - mixed models
+    - mixed effects models
+    - longitudinal analysis
+    - logistic regression
+
+- id: sas-programming
+  display_name: SAS Programming
+  synonyms:
+    - sas
+    - sas macros
+    - proc sql
+    - base sas
+
+- id: cdisc-standards
+  display_name: CDISC Standards (SDTM/ADaM)
+  synonyms:
+    - sdtm
+    - adam
+    - cdisc
+    - define.xml
+    - cdash
+
+- id: statistical-analysis-plans
+  display_name: Statistical Analysis Plans & TLFs
+  synonyms:
+    - sap
+    - tables listings figures
+    - tlf
+    - tlfs
+    - analysis plan
+    - statistical reporting
+
+- id: edc-systems
+  display_name: EDC Systems & Database Build
+  synonyms:
+    - redcap
+    - medidata rave
+    - electronic data capture
+    - edc
+    - crf design
+    - ecrf
+    - clinical database build
+
+- id: clinical-data-validation
+  display_name: Clinical Data Validation & Query Management
+  synonyms:
+    - edit checks
+    - query management
+    - data review
+    - data reconciliation
+    - data cleaning clinical
+
+- id: gcp-and-clinical-regulations
+  display_name: GCP & Clinical Research Regulations
+  synonyms:
+    - gcp
+    - ich gcp
+    - ich e6
+    - 21 cfr part 11
+    - clinical regulations
+    - human subjects protection
+
+- id: medical-coding
+  display_name: Medical Coding (MedDRA/WHODrug)
+  synonyms:
+    - meddra
+    - whodrug
+    - adverse event coding
+    - concomitant medication coding
+
+- id: clinical-trial-operations
+  display_name: Clinical Trial Site Operations
+  synonyms:
+    - site operations
+    - trial master file
+    - tmf
+    - monitoring visits
+    - source documentation
+    - study startup
+
+- id: irb-and-ethics-submissions
+  display_name: IRB & Ethics Submissions
+  synonyms:
+    - irb
+    - ethics committee
+    - irb submission
+    - protocol amendments
+    - informed consent documents
+    - essential documents
+
+- id: patient-recruitment-retention
+  display_name: Patient Recruitment & Retention
+  synonyms:
+    - participant recruitment
+    - enrollment
+    - retention strategies
+    - screening and enrollment
+    - informed consent process
+
+- id: adverse-event-reporting
+  display_name: Safety & Adverse Event Reporting
+  synonyms:
+    - sae reporting
+    - pharmacovigilance
+    - safety reporting
+    - adverse events
+    - susar
+
+- id: ehr-systems
+  display_name: EHR Systems & Clinical Workflows
+  synonyms:
+    - epic
+    - cerner
+    - electronic health records
+    - ehr
+    - emr
+    - clinical workflows
+    - ehr data
+
+- id: healthcare-data-standards
+  display_name: Healthcare Data Standards (HL7/FHIR/ICD)
+  synonyms:
+    - hl7
+    - fhir
+    - icd-10
+    - cpt
+    - snomed
+    - loinc
+    - interoperability
+
+- id: healthcare-analytics
+  display_name: Healthcare Quality & Population Analytics
+  synonyms:
+    - quality measures
+    - population health
+    - hedis
+    - clinical quality reporting
+    - readmissions analysis
+    - healthcare analytics
+
+- id: hipaa-privacy-security
+  display_name: HIPAA, PHI & De-identification
+  synonyms:
+    - hipaa
+    - phi
+    - de-identification
+    - protected health information
+    - health data privacy
+
+- id: clinical-decision-support
+  display_name: Clinical Decision Support
+  synonyms:
+    - cds
+    - clinical alerts
+    - order sets
+    - decision support rules
+    - cds hooks
+
+- id: epidemiological-methods
+  display_name: Epidemiological Methods
+  synonyms:
+    - study design epidemiology
+    - cohort studies
+    - case-control studies
+    - confounding
+    - bias
+    - measures of association
+    - causal epidemiology
+
+- id: disease-surveillance
+  display_name: Disease Surveillance & Outbreak Investigation
+  synonyms:
+    - surveillance systems
+    - outbreak investigation
+    - case definitions
+    - epidemic curves
+    - contact tracing
+
+- id: infectious-disease-modeling
+  display_name: Infectious Disease Modeling
+  synonyms:
+    - sir models
+    - transmission modeling
+    - compartmental models
+    - epidemic modeling
+    - r0 estimation
+
+- id: public-health-communication
+  display_name: Public Health Communication & Reporting
+  synonyms:
+    - public health reports
+    - health briefs
+    - policy briefs
+    - risk communication
+    - situation reports
+
+- id: regulatory-frameworks
+  display_name: Regulatory Frameworks (FDA/EMA/MDR)
+  synonyms:
+    - fda regulations
+    - ema
+    - 510(k)
+    - 510k
+    - pma
+    - ce marking medical
+    - eu mdr
+    - ind
+    - nda
+    - device classification
+
+- id: regulatory-submissions-writing
+  display_name: Regulatory Submissions & Technical Writing
+  synonyms:
+    - technical file
+    - regulatory dossier
+    - ectd
+    - submission writing
+    - clinical evaluation report
+    - cer
+    - regulatory documentation
+
+- id: medical-device-risk-management
+  display_name: Medical Device Risk Management (ISO 14971)
+  synonyms:
+    - iso 14971
+    - risk management file
+    - hazard analysis medical
+    - device risk analysis
+
+- id: design-controls
+  display_name: Medical Device Design Controls
+  synonyms:
+    - 21 cfr 820
+    - design history file
+    - dhf
+    - design inputs and outputs
+    - design verification medical
+    - design validation medical
+    - iso 13485
+
+- id: biocompatibility-sterilization
+  display_name: Biocompatibility & Sterilization
+  synonyms:
+    - iso 10993
+    - biocompatibility
+    - sterilization validation
+    - sterility
+    - cleaning validation
+
+- id: biomechanics
+  display_name: Biomechanics
+  synonyms:
+    - tissue mechanics
+    - gait analysis
+    - implant loading
+    - musculoskeletal modeling
+    - human motion analysis
+
+- id: biosignal-processing
+  display_name: Biosignal Processing
+  synonyms:
+    - ecg processing
+    - eeg processing
+    - emg
+    - physiological signal processing
+    - digital filtering biosignals
+
+- id: medical-imaging-analysis
+  display_name: Medical Imaging Analysis
+  synonyms:
+    - dicom
+    - image segmentation
+    - mri analysis
+    - ct analysis
+    - radiology image processing
+
+- id: usability-engineering
+  display_name: Usability Engineering (IEC 62366)
+  synonyms:
+    - iec 62366
+    - human factors medical
+    - use-related risk analysis
+    - formative usability
+    - summative usability
+
+- id: molecular-biology-techniques
+  display_name: Molecular Biology Techniques
+  synonyms:
+    - pcr
+    - qpcr
+    - western blot
+    - molecular cloning
+    - gel electrophoresis
+    - dna extraction
+    - pipetting
+
+- id: cell-culture
+  display_name: Cell Culture
+  synonyms:
+    - mammalian cell culture
+    - aseptic technique
+    - cell line maintenance
+    - primary cell culture
+    - tissue culture
+
+- id: assay-development
+  display_name: Assay Development & Validation
+  synonyms:
+    - elisa
+    - assay validation
+    - plate-based assays
+    - biochemical assays
+    - assay optimization
+
+- id: experimental-design-biology
+  display_name: Experimental Design for Biology
+  synonyms:
+    - controls and replicates
+    - experimental controls
+    - biological replicates
+    - blinding
+    - experimental planning
+
+- id: lab-records-data-integrity
+  display_name: Lab Notebooks & Data Integrity
+  synonyms:
+    - electronic lab notebook
+    - eln
+    - lab notebook
+    - data integrity
+    - alcoa
+    - record keeping
+
+- id: scientific-writing
+  display_name: Scientific Writing & Presentation
+  synonyms:
+    - manuscript writing
+    - grant writing
+    - poster presentation
+    - scientific papers
+    - abstract writing
+
+- id: literature-review
+  display_name: Literature Review & Critical Appraisal
+  synonyms:
+    - systematic review
+    - critical appraisal
+    - literature search
+    - pubmed searching
+    - evidence synthesis
+
+- id: lab-safety
+  display_name: Lab Safety & Biosafety
+  synonyms:
+    - biosafety
+    - chemical safety
+    - lab sops
+    - safety data sheets
+    - bsl-2
+
+# ---------------------------------------------------------------------------
+# Medicine tracks (physician, registered-nurse, physician-assistant,
+# pharmacist). These tracks are credential-gated; templates carry an extra
+# "Credential Milestones" section (see templates/TEMPLATE.md).
+# ---------------------------------------------------------------------------
+
+- id: clinical-reasoning
+  display_name: Clinical Reasoning & Differential Diagnosis
+  synonyms:
+    - differential diagnosis
+    - diagnostic reasoning
+    - clinical decision making
+    - clinical judgment
+
+- id: history-and-physical-exam
+  display_name: History Taking & Physical Examination
+  synonyms:
+    - h&p
+    - patient history
+    - physical exam
+    - patient interview
+    - clinical assessment
+
+- id: clinical-documentation
+  display_name: Clinical Documentation (SOAP Notes, Charting)
+  synonyms:
+    - soap notes
+    - charting
+    - progress notes
+    - medical documentation
+    - nursing documentation
+
+- id: evidence-based-practice
+  display_name: Evidence-Based Practice
+  synonyms:
+    - evidence based medicine
+    - ebm
+    - critical appraisal clinical
+    - clinical guidelines
+    - journal club
+
+- id: quality-improvement-healthcare
+  display_name: Healthcare Quality Improvement (PDSA)
+  synonyms:
+    - pdsa
+    - qi project
+    - quality improvement
+    - clinical quality improvement
+    - lean healthcare
+
+- id: patient-safety
+  display_name: Patient Safety
+  synonyms:
+    - incident reporting
+    - safety culture
+    - never events
+    - error prevention healthcare
+    - just culture
+
+- id: licensing-exam-preparation
+  display_name: Licensing & Board Exam Preparation
+  synonyms:
+    - usmle
+    - comlex
+    - nclex
+    - pance
+    - naplex
+    - mpje
+    - board exams
+    - step 1
+    - step 2
+    - question banks
+
+- id: clinical-experience-hours
+  display_name: Clinical Experience & Shadowing
+  synonyms:
+    - shadowing
+    - patient care experience
+    - pce
+    - clinical volunteering
+    - clinical hours
+    - healthcare experience
+
+- id: interprofessional-communication
+  display_name: Interprofessional Communication & Handoffs
+  synonyms:
+    - sbar
+    - handoffs
+    - team communication healthcare
+    - interprofessional collaboration
+    - i-pass
+
+- id: pharmacotherapy
+  display_name: Pharmacotherapy & Therapeutics
+  synonyms:
+    - drug therapy
+    - therapeutics
+    - clinical pharmacology
+    - prescribing
+    - medication management
+
+- id: medication-safety
+  display_name: Medication Safety & Reconciliation
+  synonyms:
+    - medication reconciliation
+    - medication errors
+    - five rights
+    - high-alert medications
+    - dosage calculations
+
+- id: pharmacy-operations
+  display_name: Pharmacy Operations & Dispensing
+  synonyms:
+    - dispensing
+    - compounding
+    - sterile compounding
+    - usp 797
+    - pharmacy workflow
+    - inventory pharmacy
+
+- id: clinical-pharmacy-services
+  display_name: Clinical Pharmacy Services (MTM, Counseling)
+  synonyms:
+    - mtm
+    - medication therapy management
+    - patient counseling
+    - comprehensive medication review
+    - drug information
+
+- id: nursing-process
+  display_name: Nursing Process & Care Planning
+  synonyms:
+    - nursing care plans
+    - nursing diagnoses
+    - nursing assessment
+    - care planning
+    - nursing interventions
+
+- id: bedside-procedures
+  display_name: Bedside Clinical Procedures
+  synonyms:
+    - iv insertion
+    - wound care
+    - vital signs
+    - injections
+    - suturing
+    - clinical skills lab
+
+- id: health-professions-application
+  display_name: Health Professions Applications & Interviews
+  synonyms:
+    - amcas
+    - caspa
+    - pharmcas
+    - nursingcas
+    - personal statement
+    - residency application
+    - eras
+    - the match
+    - admissions interviews
+    - mmi
+
+- id: case-presentation
+  display_name: Oral Case Presentation & Case Reports
+  synonyms:
+    - case reports
+    - oral presentation clinical
+    - care guidelines case report
+    - morning report
+
+- id: life-support-certification
+  display_name: Life Support Certification (BLS/ACLS/PALS)
+  synonyms:
+    - bls
+    - acls
+    - pals
+    - cpr certification
+    - first aid
+
+- id: clinical-ethics-professionalism
+  display_name: Clinical Ethics & Professionalism
+  synonyms:
+    - medical ethics
+    - bioethics
+    - professionalism
+    - informed consent clinical
+    - confidentiality
+
+- id: social-determinants-of-health
+  display_name: Social Determinants & Health Equity
+  synonyms:
+    - health equity
+    - health disparities
+    - sdoh
+    - cultural competence
+    - community health
+
+- id: clinical-simulation
+  display_name: Clinical Simulation & Debriefing
+  synonyms:
+    - simulation lab
+    - standardized patients
+    - osce
+    - debriefing
+    - high-fidelity simulation

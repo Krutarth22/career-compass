@@ -90,8 +90,10 @@ reviewed addition rather than something research auto-generates.
 ## Adding a new track
 
 Currently seeded: `ai-engineer`, `ml-engineer`, `data-engineer`,
-`data-analyst`, `data-scientist`. To add another track, mirror their
-structure:
+`data-analyst`, `data-scientist`, `backend-engineer`, `frontend-engineer`,
+`full-stack-engineer`, `mobile-engineer`, `devops-engineer`,
+`security-engineer`, `qa-automation-engineer`, `embedded-software-engineer`,
+`game-developer`. To add another track, mirror their structure:
 
 1. Create `.claude/skills/career-compass/templates/<new-track-id>/` and add
    project templates to it following the same rules as above — a `title`,

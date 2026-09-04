@@ -227,6 +227,73 @@ def test_resolve_track_shared_exact_alias_is_ambiguous():
     assert resolution.resolve_track("AI/ML Engineer", aliases) is None
 
 
+def test_track_candidates_lists_every_owner_of_a_shared_alias():
+    aliases = {
+        "ai-engineer": {"aliases": ["ai/ml engineer", "ai engineer"]},
+        "ml-engineer": {"aliases": ["ai/ml engineer", "ml engineer"]},
+        "data-analyst": {"aliases": ["data analyst"]},
+    }
+    assert resolution.track_candidates("Senior AI/ML Engineer", aliases) == [
+        "ai-engineer",
+        "ml-engineer",
+    ]
+    assert resolution.track_candidates("AI Engineer", aliases) == ["ai-engineer"]
+    assert resolution.track_candidates("Product Manager", aliases) == []
+    assert resolution.track_candidates("   ", aliases) == []
+
+
+def test_track_candidates_phrase_match_collects_all_owners():
+    aliases = {
+        "backend-engineer": {"aliases": ["backend engineer"]},
+        "frontend-engineer": {"aliases": ["frontend engineer"]},
+    }
+    # No exact alias equals the input, but a phrase-eligible alias sits
+    # inside it, so the phrase path reports that single owner.
+    assert resolution.track_candidates("Backend Engineer (Payments)", aliases) == [
+        "backend-engineer"
+    ]
+
+
+def test_real_software_engineer_title_is_ambiguous_across_web_tracks():
+    aliases_path = REAL_TAXONOMY_PATH.parent / "track-aliases.yaml"
+    with open(aliases_path, "r", encoding="utf-8") as f:
+        aliases = yaml.safe_load(f)
+    assert resolution.resolve_track("Senior Software Engineer", aliases) is None
+    assert resolution.track_candidates("Senior Software Engineer", aliases) == [
+        "backend-engineer",
+        "frontend-engineer",
+        "full-stack-engineer",
+    ]
+
+
+@pytest.mark.parametrize(
+    "role, expected",
+    [
+        ("Automation Engineer", ["qa-automation-engineer", "controls-engineer"]),
+        ("Senior Process Engineer", ["chemical-engineer", "manufacturing-engineer"]),
+        ("Production Engineer", ["devops-engineer", "manufacturing-engineer"]),
+        ("Quality Engineer", ["qa-automation-engineer", "manufacturing-engineer"]),
+    ],
+)
+def test_real_cross_discipline_titles_are_ambiguous(role, expected):
+    aliases_path = REAL_TAXONOMY_PATH.parent / "track-aliases.yaml"
+    with open(aliases_path, "r", encoding="utf-8") as f:
+        aliases = yaml.safe_load(f)
+    assert resolution.resolve_track(role, aliases) is None
+    assert resolution.track_candidates(role, aliases) == expected
+
+
+def test_every_template_track_has_aliases_and_vice_versa():
+    aliases_path = REAL_TAXONOMY_PATH.parent / "track-aliases.yaml"
+    with open(aliases_path, "r", encoding="utf-8") as f:
+        aliases = yaml.safe_load(f)
+    templates_root = REAL_TAXONOMY_PATH.parent.parent / "templates"
+    template_tracks = {
+        d.name for d in templates_root.iterdir() if d.is_dir() and not d.name.startswith(".")
+    }
+    assert set(aliases) == template_tracks
+
+
 def test_real_ai_ml_title_does_not_silently_choose_a_track():
     aliases_path = REAL_TAXONOMY_PATH.parent / "track-aliases.yaml"
     with open(aliases_path, "r", encoding="utf-8") as f:

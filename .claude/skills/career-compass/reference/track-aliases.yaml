@@ -60,3 +60,533 @@ data-scientist:
     - "data scientist"
     - "data science"
     - "machine learning scientist"
+
+# ---------------------------------------------------------------------------
+# Software engineering tracks.
+#
+# "software engineer" / "software developer" / "programmer" are shared by
+# backend-engineer, frontend-engineer and full-stack-engineer on purpose, so
+# resolve-track returns null for them and track-candidates lists all three --
+# the host asks the user which they mean rather than guessing.
+# ---------------------------------------------------------------------------
+
+backend-engineer:
+  aliases:
+    - "software engineer"
+    - "software developer"
+    - "programmer"
+    - "backend engineer"
+    - "back end engineer"
+    - "back-end engineer"
+    - "backend developer"
+    - "back end developer"
+    - "back-end developer"
+    - "server side engineer"
+    - "server-side engineer"
+    - "api engineer"
+    - "api developer"
+    - "python backend engineer"
+    - "java backend engineer"
+    - "distributed systems engineer"
+    - "platform backend engineer"
+
+frontend-engineer:
+  aliases:
+    - "software engineer"
+    - "software developer"
+    - "programmer"
+    - "frontend engineer"
+    - "front end engineer"
+    - "front-end engineer"
+    - "frontend developer"
+    - "front end developer"
+    - "front-end developer"
+    - "web developer"
+    - "ui engineer"
+    - "ui developer"
+    - "react developer"
+    - "react engineer"
+    - "javascript developer"
+    - "javascript engineer"
+
+full-stack-engineer:
+  aliases:
+    - "software engineer"
+    - "software developer"
+    - "programmer"
+    - "full stack engineer"
+    - "full-stack engineer"
+    - "fullstack engineer"
+    - "full stack developer"
+    - "full-stack developer"
+    - "fullstack developer"
+    - "web application developer"
+    - "web application engineer"
+    - "product engineer"
+
+mobile-engineer:
+  aliases:
+    - "mobile engineer"
+    - "mobile developer"
+    - "mobile app developer"
+    - "mobile application developer"
+    - "mobile software engineer"
+    - "ios engineer"
+    - "ios developer"
+    - "android engineer"
+    - "android developer"
+    - "react native developer"
+    - "flutter developer"
+
+devops-engineer:
+  aliases:
+    - "devops engineer"
+    - "devops"
+    - "site reliability engineer"
+    - "sre"
+    - "platform engineer"
+    - "infrastructure engineer"
+    - "cloud engineer"
+    - "cloud infrastructure engineer"
+    - "release engineer"
+    - "build and release engineer"
+    - "production engineer"
+
+security-engineer:
+  aliases:
+    - "security engineer"
+    - "application security engineer"
+    - "appsec engineer"
+    - "product security engineer"
+    - "cybersecurity engineer"
+    - "cyber security engineer"
+    - "software security engineer"
+    - "security software engineer"
+    - "devsecops engineer"
+
+qa-automation-engineer:
+  aliases:
+    - "qa automation engineer"
+    - "qa engineer"
+    - "quality assurance engineer"
+    - "test automation engineer"
+    - "automation engineer"
+    - "sdet"
+    - "software development engineer in test"
+    - "software engineer in test"
+    - "quality engineer"
+    - "test engineer"
+    - "software test engineer"
+
+embedded-software-engineer:
+  aliases:
+    - "embedded software engineer"
+    - "embedded engineer"
+    - "embedded systems engineer"
+    - "firmware engineer"
+    - "embedded firmware engineer"
+    - "embedded developer"
+    - "firmware developer"
+    - "iot engineer"
+    - "iot firmware engineer"
+
+game-developer:
+  aliases:
+    - "game developer"
+    - "game programmer"
+    - "game engineer"
+    - "gameplay programmer"
+    - "gameplay engineer"
+    - "game software engineer"
+    - "unity developer"
+    - "unreal developer"
+    - "game engine programmer"
+
+# ---------------------------------------------------------------------------
+# Customer-facing and go-to-market engineering tracks.
+# ---------------------------------------------------------------------------
+
+forward-deployed-engineer:
+  aliases:
+    - "forward deployed engineer"
+    - "forward deployment engineer"
+    - "forward-deployed engineer"
+    - "fde"
+    - "forward deployed software engineer"
+    - "forward deployed ai engineer"
+    - "deployment strategist"
+    - "implementation engineer"
+    - "customer facing engineer"
+    - "customer-facing engineer"
+    - "embedded engineer at customer"
+
+solutions-engineer:
+  aliases:
+    - "solutions engineer"
+    - "solution engineer"
+    - "sales engineer"
+    - "pre-sales engineer"
+    - "presales engineer"
+    - "pre sales engineer"
+    - "solutions consultant"
+    - "customer engineer"
+    - "technical sales engineer"
+    - "solutions architect"
+    - "technical account manager"
+
+gtm-engineer:
+  aliases:
+    - "gtm engineer"
+    - "go-to-market engineer"
+    - "go to market engineer"
+    - "growth engineer"
+    - "revenue operations engineer"
+    - "revops engineer"
+    - "marketing operations engineer"
+    - "sales operations engineer"
+    - "gtm operations"
+    - "revenue engineer"
+
+developer-advocate:
+  aliases:
+    - "developer advocate"
+    - "developer relations"
+    - "developer relations engineer"
+    - "devrel"
+    - "devrel engineer"
+    - "developer evangelist"
+    - "technical evangelist"
+    - "developer experience engineer"
+    - "dx engineer"
+    - "developer educator"
+
+technical-product-manager:
+  aliases:
+    - "technical product manager"
+    - "product manager"
+    - "associate product manager"
+    - "apm"
+    - "platform product manager"
+    - "api product manager"
+    - "ai product manager"
+    - "technical program manager"
+    - "tpm"
+    - "product owner"
+
+# ---------------------------------------------------------------------------
+# Engineering discipline tracks.
+#
+# Shared (deliberately ambiguous) titles in this section:
+#   "automation engineer" -> qa-automation-engineer | controls-engineer
+#   "process engineer"    -> chemical-engineer | manufacturing-engineer
+#   "production engineer" -> devops-engineer | manufacturing-engineer
+#   "quality engineer"    -> qa-automation-engineer | manufacturing-engineer
+# ---------------------------------------------------------------------------
+
+mechanical-engineer:
+  aliases:
+    - "mechanical engineer"
+    - "mechanical engineering"
+    - "mechanical design engineer"
+    - "design engineer"
+    - "product design engineer"
+    - "mechanical product engineer"
+    - "thermal engineer"
+    - "r&d mechanical engineer"
+    - "mechanical hardware engineer"
+
+electrical-engineer:
+  aliases:
+    - "electrical engineer"
+    - "electrical engineering"
+    - "electronics engineer"
+    - "hardware engineer"
+    - "electrical hardware engineer"
+    - "pcb design engineer"
+    - "circuit design engineer"
+    - "power electronics engineer"
+    - "analog design engineer"
+    - "electrical design engineer"
+    - "fpga engineer"
+
+civil-engineer:
+  aliases:
+    - "civil engineer"
+    - "civil engineering"
+    - "structural engineer"
+    - "structural engineering"
+    - "site civil engineer"
+    - "civil design engineer"
+    - "transportation engineer"
+    - "water resources engineer"
+    - "geotechnical engineer"
+    - "construction engineer"
+
+chemical-engineer:
+  aliases:
+    - "chemical engineer"
+    - "chemical engineering"
+    - "process engineer"
+    - "chemical process engineer"
+    - "process design engineer"
+    - "petrochemical engineer"
+    - "refinery process engineer"
+    - "process safety engineer"
+
+robotics-engineer:
+  aliases:
+    - "robotics engineer"
+    - "robotics software engineer"
+    - "robotics"
+    - "robot engineer"
+    - "autonomy engineer"
+    - "perception engineer"
+    - "motion planning engineer"
+    - "robotics systems engineer"
+    - "autonomous systems engineer"
+
+controls-engineer:
+  aliases:
+    - "controls engineer"
+    - "control systems engineer"
+    - "control engineer"
+    - "automation engineer"
+    - "plc engineer"
+    - "plc programmer"
+    - "industrial automation engineer"
+    - "instrumentation and controls engineer"
+    - "i&c engineer"
+    - "scada engineer"
+
+manufacturing-engineer:
+  aliases:
+    - "manufacturing engineer"
+    - "manufacturing engineering"
+    - "process engineer"
+    - "production engineer"
+    - "quality engineer"
+    - "manufacturing process engineer"
+    - "manufacturing quality engineer"
+    - "manufacturing systems engineer"
+    - "tooling engineer"
+    - "industrialization engineer"
+    - "new product introduction engineer"
+    - "npi engineer"
+
+industrial-engineer:
+  aliases:
+    - "industrial engineer"
+    - "industrial engineering"
+    - "process improvement engineer"
+    - "continuous improvement engineer"
+    - "lean engineer"
+    - "operations research analyst"
+    - "supply chain engineer"
+    - "logistics engineer"
+    - "industrial systems engineer"
+
+aerospace-engineer:
+  aliases:
+    - "aerospace engineer"
+    - "aerospace engineering"
+    - "aeronautical engineer"
+    - "astronautical engineer"
+    - "aircraft design engineer"
+    - "flight dynamics engineer"
+    - "propulsion engineer"
+    - "gnc engineer"
+    - "guidance navigation and control engineer"
+    - "spacecraft engineer"
+    - "satellite engineer"
+    - "uav engineer"
+    - "drone engineer"
+
+# ---------------------------------------------------------------------------
+# Life sciences tracks.
+#
+# Shared (deliberately ambiguous) titles in this section:
+#   "research scientist" -> data-scientist? No: kept exclusive to
+#   research-scientist-life-sciences because "research scientist" in
+#   postings overwhelmingly means a lab or academic role; ML research
+#   scientists use "machine learning scientist", already aliased.
+# ---------------------------------------------------------------------------
+
+bioinformatics-scientist:
+  aliases:
+    - "bioinformatics scientist"
+    - "bioinformatician"
+    - "bioinformatics"
+    - "bioinformatics engineer"
+    - "bioinformatics analyst"
+    - "computational biologist"
+    - "computational biology"
+    - "genomics data scientist"
+    - "genomics scientist"
+    - "computational genomics"
+
+biostatistician:
+  aliases:
+    - "biostatistician"
+    - "biostatistics"
+    - "clinical biostatistician"
+    - "statistical programmer"
+    - "sas programmer"
+    - "clinical statistical programmer"
+    - "clinical statistician"
+    - "medical statistician"
+
+clinical-data-manager:
+  aliases:
+    - "clinical data manager"
+    - "clinical data management"
+    - "cdm"
+    - "clinical data associate"
+    - "clinical data coordinator"
+    - "clinical database programmer"
+    - "edc programmer"
+    - "clinical data specialist"
+
+clinical-research-coordinator:
+  aliases:
+    - "clinical research coordinator"
+    - "crc"
+    - "clinical research associate"
+    - "cra"
+    - "clinical trial coordinator"
+    - "study coordinator"
+    - "clinical research assistant"
+    - "clinical trial manager"
+    - "clinical trial assistant"
+    - "clinical research nurse"
+
+health-informatics-specialist:
+  aliases:
+    - "health informatics specialist"
+    - "health informatics"
+    - "clinical informatics"
+    - "clinical informaticist"
+    - "clinical informatics specialist"
+    - "healthcare data analyst"
+    - "health it analyst"
+    - "ehr analyst"
+    - "epic analyst"
+    - "healthcare analytics"
+    - "clinical analyst"
+
+epidemiologist:
+  aliases:
+    - "epidemiologist"
+    - "epidemiology"
+    - "public health analyst"
+    - "public health data analyst"
+    - "disease surveillance analyst"
+    - "surveillance epidemiologist"
+    - "outbreak investigator"
+    - "public health scientist"
+    - "field epidemiologist"
+
+regulatory-affairs-specialist:
+  aliases:
+    - "regulatory affairs specialist"
+    - "regulatory affairs"
+    - "regulatory affairs associate"
+    - "regulatory specialist"
+    - "regulatory affairs manager"
+    - "ra specialist"
+    - "regulatory affairs coordinator"
+    - "medical device regulatory affairs"
+    - "quality and regulatory specialist"
+
+biomedical-engineer:
+  aliases:
+    - "biomedical engineer"
+    - "biomedical engineering"
+    - "bioengineer"
+    - "bioengineering"
+    - "medical device engineer"
+    - "medical device design engineer"
+    - "biomechanics engineer"
+    - "medical device r&d engineer"
+    - "clinical engineer"
+
+research-scientist-life-sciences:
+  aliases:
+    - "research scientist"
+    - "lab research scientist"
+    - "research associate"
+    - "research assistant"
+    - "laboratory scientist"
+    - "wet lab scientist"
+    - "biology research scientist"
+    - "biotech research associate"
+    - "scientist i"
+    - "associate scientist"
+    - "lab technician"
+    - "laboratory technician"
+    - "molecular biologist"
+    - "cell biologist"
+
+# ---------------------------------------------------------------------------
+# Medicine tracks (credential-gated; see TEMPLATE.md "Credential Milestones").
+# ---------------------------------------------------------------------------
+
+physician:
+  aliases:
+    - "physician"
+    - "doctor"
+    - "medical doctor"
+    - "md"
+    - "do"
+    - "medical student"
+    - "pre-med"
+    - "premed"
+    - "pre med"
+    - "resident physician"
+    - "attending physician"
+    - "physician scientist"
+    - "general practitioner"
+    - "family physician"
+    - "hospitalist"
+    - "surgeon"
+
+registered-nurse:
+  aliases:
+    - "registered nurse"
+    - "rn"
+    - "nurse"
+    - "nursing"
+    - "nursing student"
+    - "bsn"
+    - "staff nurse"
+    - "clinical nurse"
+    - "charge nurse"
+    - "nurse practitioner"
+    - "np"
+    - "licensed practical nurse"
+    - "lpn"
+    - "pre-nursing"
+
+physician-assistant:
+  aliases:
+    - "physician assistant"
+    - "physician associate"
+    - "pa"
+    - "pa-c"
+    - "pa student"
+    - "pre-pa"
+    - "pre pa"
+    - "physician assistant student"
+
+pharmacist:
+  aliases:
+    - "pharmacist"
+    - "pharmd"
+    - "pharmacy"
+    - "pharmacy student"
+    - "pre-pharmacy"
+    - "clinical pharmacist"
+    - "hospital pharmacist"
+    - "community pharmacist"
+    - "retail pharmacist"
+    - "pharmacy technician"
+    - "pharmacy resident"

@@ -224,13 +224,11 @@ def test_pipeline_produces_a_usable_sequenced_plan(
 
 @pytest.mark.parametrize(
     "track",
-    [
-        "ai-engineer",
-        "ml-engineer",
-        "data-engineer",
-        "data-analyst",
-        "data-scientist",
-    ],
+    sorted(
+        d.name
+        for d in (SKILL_DIR / "templates").iterdir()
+        if d.is_dir() and not d.name.startswith((".", "_"))
+    ),
 )
 def test_every_shipped_track_builds_a_complete_plan(track):
     """Smoke-test every real template set, including the newly added tracks."""

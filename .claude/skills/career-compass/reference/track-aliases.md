@@ -57,8 +57,40 @@ Adding a new track means adding both a new top-level key here (with a
 reasonably exhaustive alias list covering common real-world phrasings and
 abbreviations) and a matching template directory under
 `.claude/skills/career-compass/templates/<track-id>/`. Currently seeded:
-`ai-engineer`, `ml-engineer`, `data-engineer`, `data-analyst`,
-`data-scientist`.
+
+- Data & AI: `ai-engineer`, `ml-engineer`, `data-engineer`,
+  `data-analyst`, `data-scientist`.
+- Software engineering: `backend-engineer`, `frontend-engineer`,
+  `full-stack-engineer`, `mobile-engineer`, `devops-engineer`,
+  `security-engineer`, `qa-automation-engineer`,
+  `embedded-software-engineer`, `game-developer`.
+
+## Ambiguous titles and `track-candidates`
+
+`resolve_track` returns `null` for an exact alias shared by more than one
+track. Its companion `track_candidates` (CLI: `resolution.py
+track-candidates "<role>"`) returns every track that alias belongs to, so
+the host can ask the user to pick instead of guessing. Two title families
+are deliberately shared today:
+
+- `ai/ml engineer` -> `ai-engineer`, `ml-engineer` (rationale below).
+- `software engineer`, `software developer`, `programmer` ->
+  `backend-engineer`, `frontend-engineer`, `full-stack-engineer`. A bare
+  "Software Engineer" posting can mean any of the three, and the template
+  sets differ substantially (services and databases vs. browser UI vs.
+  both plus deployment), so the user is asked. Titles that name the side
+  (`backend developer`, `react engineer`, `full stack developer`) resolve
+  directly.
+
+Other software tracks are kept distinct on the same evidence basis used
+for the data tracks: `devops-engineer` absorbs `sre`, `platform engineer`
+and `cloud engineer` because postings for all three center on CI/CD,
+infrastructure as code, Kubernetes and observability; `qa-automation-engineer`
+absorbs `sdet` and `test engineer`; `embedded-software-engineer` absorbs
+`firmware engineer` and `iot engineer`; `security-engineer` is scoped to
+application/product security (`appsec`, `devsecops`) -- `security analyst`
+and SOC titles are intentionally not aliased because they are
+operations-centric roles with a different skill set.
 
 `ai-engineer` and `ml-engineer` are deliberately separate tracks, not one
 merged "AI/ML Engineer" track: live research (job postings and

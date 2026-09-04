@@ -283,16 +283,50 @@ the run continues.
 python3 "${SKILL_DIR}/scripts/resolution.py" resolve-track "<profile target_role>"
 ```
 
-Prints the track id as a JSON string, or `null` if nothing matches. If the
-role is the deliberately ambiguous `AI/ML Engineer` title, ask the user to
-choose `ai-engineer` (foundation-model/RAG/agent product work) or
-`ml-engineer` (training/serving/MLOps work), then use that choice. For any
-other `null`, skip Step 6 (project selection) entirely for the rest of this run,
-but still deliver the gap heatmap and Step 7's course resources, and state
-plainly in the eventual report that no project templates exist yet for
-this target (`resolved_track: null` in the frontmatter).
+Prints the track id as a JSON string, or `null` if nothing matches. On
+`null`, check whether the title is one that deliberately belongs to more
+than one track before giving up:
 
-## Step 6 -- Plan projects (only if a track resolved)
+```bash
+python3 "${SKILL_DIR}/scripts/resolution.py" track-candidates "<profile target_role>"
+```
+
+Prints a JSON list of track ids (in registry order). If it has **two or
+more** entries, the title is ambiguous by design -- ask the user which
+track they mean, describing each briefly, then use their choice as the
+resolved track. The ambiguous titles currently registered are:
+
+- `AI/ML Engineer` -> `ai-engineer` (foundation-model/RAG/agent product
+  work) or `ml-engineer` (training/serving/MLOps work).
+- `Software Engineer` / `Software Developer` / `Programmer` ->
+  `backend-engineer` (APIs, databases, services), `frontend-engineer`
+  (browser UI, accessibility, performance), or `full-stack-engineer`
+  (both sides plus deployment). If the user's `current_skills` or the
+  Step 3 research make one clearly more appropriate, say so when asking,
+  but still let them choose.
+- `Automation Engineer` -> `qa-automation-engineer` (software test
+  automation) or `controls-engineer` (PLC/industrial automation).
+- `Process Engineer` -> `chemical-engineer` (chemical process design) or
+  `manufacturing-engineer` (production process engineering).
+- `Production Engineer` -> `devops-engineer` (the software
+  production-engineering title) or `manufacturing-engineer`.
+- `Quality Engineer` -> `qa-automation-engineer` (software quality) or
+  `manufacturing-engineer` (manufacturing quality).
+
+The authoritative list is whatever `track-candidates` returns; the bullets
+above are only the descriptions to use when asking.
+
+If the list is **empty**, no curated track exists for this target. Do not
+stop: proceed to Step 6's ad-hoc branch so the report still carries a
+project plan, and record `resolved_track: null` in the frontmatter.
+
+## Step 6 -- Plan projects
+
+Two branches: the curated branch when Step 5 resolved a track, and the
+ad-hoc branch when it did not. Never skip both -- every roadmap must
+leave the user with concrete projects to build.
+
+### Step 6a -- Curated plan (a track resolved)
 
 `project_planner.py plan` takes its `--gaps` and `--profile-skills`
 arguments as **paths to JSON files**, not inline JSON -- write them to
@@ -319,6 +353,43 @@ python3 "${SKILL_DIR}/scripts/project_planner.py" plan \
 `{"projects": [...], "total_hours": ..., "budget_hours": ..., "shortfall": ...}`
 -- `projects` is already in final sequenced order (topologically sorted,
 capstone last); never re-sort it.
+
+### Step 6b -- Ad-hoc plan (no track resolved)
+
+When `track-candidates` returned an empty list, the model drafts the
+project plan itself from Step 3's research and Step 4's gap assessments.
+This is the one place in the roadmap where project content is
+model-authored rather than read from a vetted template, so it is bounded
+tightly:
+
+1. Draft **three to four** projects, ordered so that each builds on the
+   previous one and the last one is a capstone that combines the others.
+2. Each project must cover at least one `Critical` or `High` gap from
+   Step 4 with `status in {open, practiced}`, and together they should
+   cover as many of those as is realistic within
+   `weekly_time_budget_hours * horizon_weeks`.
+3. Ground every project in what Step 3 actually found: the tools,
+   deliverables, and workflows named in the fetched postings and
+   practitioner sources. Do not invent a technology the research did
+   not surface.
+4. Write each project in the same shape as a curated template so the
+   report renders uniformly: title, difficulty tier, estimated hours
+   (10-25 for core, up to 30 for the capstone), the gap skill ids it
+   covers, **What You'll Build**, **Steps** (6-8 numbered, concrete),
+   **Skills Demonstrated**, and **Industry Relevance** (named sectors,
+   grounded in the research).
+5. Label the plan clearly as ad hoc in the report (see
+   `reference/report-format.md`, "Sequenced Project Plan"), and tell the
+   user that a curated track for this role would make the plan more
+   reliable and how to request one (open an issue or PR per
+   `CONTRIBUTING.md`, "Adding a new track").
+
+Write the drafted list to `${PROJECT_ROOT}/roadmaps/.tmp/adhoc_projects.json`
+so Step 9 can render it, using the keys `title`, `difficulty_tier`,
+`estimated_hours`, `covered_gap_skill_ids`, and `sections` (a dict of the
+four section names above to their Markdown bodies) -- the same keys a
+curated `plan()` project exposes, so the report composer treats both
+branches alike.
 
 ## Step 7 -- Course resources for remaining gaps
 

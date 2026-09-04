@@ -23,8 +23,8 @@ The rendered body follows this fixed order:
 
 1. **Header** -- current role, target role/level, location (if given), the
    date this roadmap was generated, and the resolved track name (or a
-   plain statement that no track/templates exist yet for this target --
-   see `SKILL.md` Step 5).
+   plain statement that no curated track exists yet for this target and
+   the project plan is ad hoc -- see `modes/roadmap.md` Steps 5 and 6b).
 2. **Role Overview** -- 2-4 sentences on what the target role actually does
    day to day, a short "Core Responsibilities" list, and a short "Essential
    Skills" breakdown split into Technical and Soft, each item tied to a
@@ -66,6 +66,15 @@ The rendered body follows this fixed order:
    - `Industry Relevance` in full -- which real sectors/industries hire for
      this project's skills, so the plan reads as tied to actual jobs rather
      than an abstract exercise.
+   - `Credential Milestones` in full, when that template's `sections`
+     dict contains it (credential-gated tracks such as `physician`,
+     `registered-nurse`, `physician-assistant`, `pharmacist`). Render it
+     under its own sub-heading directly after Skills Demonstrated. Then,
+     after the last project, add a short **Credential Timeline**
+     paragraph or table that collects every milestone mentioned across
+     the selected projects in sequence order, deduplicated, so the
+     reader sees the licensure path as one line alongside the project
+     plan. Omit both when no selected template has the section.
    - Any unmet `skill_prerequisites` for that project, cross-referenced to
      the Course Resources section below.
    Omit a template section here only if that specific template's
@@ -73,8 +82,15 @@ The rendered body follows this fixed order:
    template doesn't have. Note the `total_hours` vs. `budget_hours` and
    call out `shortfall: true` plainly if set (fewer than 2 core projects
    could be selected within budget) and any `generous_budget_exception:
-   true` project. When no track resolved, state plainly that no templates
-   exist yet for this target instead of rendering this section.
+   true` project. When no track resolved and Step 6b drafted an ad-hoc
+   plan instead, still render this section from
+   `roadmaps/.tmp/adhoc_projects.json` in the same per-project shape,
+   but title it **Sequenced Project Plan (ad hoc)** and open it with one
+   sentence stating that no curated template track exists yet for this
+   target, that these projects were drafted from this run's research
+   rather than a vetted template, and how to request a curated track
+   (`CONTRIBUTING.md`, "Adding a new track"). Never present an ad-hoc
+   plan as if it were curated.
 6. **Course Resources** -- the resource-search results from Step 7 (via
    `modes/find-courses.md`'s procedure), one block per Critical/High gap
    not covered by a selected project and per selected project's unmet

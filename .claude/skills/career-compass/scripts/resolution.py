@@ -187,13 +187,65 @@ def resolve_track(target_role: str, track_aliases: dict) -> str | None:
     An exact alias shared by multiple tracks is treated as deliberately
     ambiguous and returns None. Otherwise returns the track key or None.
     """
-    normalized = _normalize(target_role)
-    stripped = _LEVEL_WORD_RE.sub("", normalized)
-    stripped = re.sub(r"\s+", " ", stripped).strip()
-    input_key = _normalize_key(stripped)
+    input_key = _track_input_key(target_role)
     if not input_key:
         return None
 
+    exact_owners, candidate_keys = _track_alias_keys(input_key, track_aliases)
+
+    # Some real-world titles intentionally belong to more than one track.
+    # Never let YAML ordering silently choose one of those tracks.
+    if len(exact_owners) == 1:
+        return exact_owners[0]
+    if len(exact_owners) > 1:
+        return None
+
+    return _match_by_phrase(input_key, candidate_keys)
+
+
+def track_candidates(target_role: str, track_aliases: dict) -> list[str]:
+    """Return every track that `target_role` could legitimately mean.
+
+    This is the companion to `resolve_track` for the deliberately
+    ambiguous titles it refuses to guess at ("AI/ML Engineer", "Software
+    Engineer"): the caller can present this list to the user and let them
+    pick. Uses the same normalization and the same exact-then-phrase
+    matching as `resolve_track`, but collects every owner instead of
+    insisting on exactly one. Returns a list in YAML order, empty when
+    nothing matches at all, and a single-element list when `resolve_track`
+    would have resolved unambiguously.
+    """
+    input_key = _track_input_key(target_role)
+    if not input_key:
+        return []
+
+    exact_owners, candidate_keys = _track_alias_keys(input_key, track_aliases)
+    if exact_owners:
+        return exact_owners
+
+    owners: list[str] = []
+    for candidate_key, owner_id in candidate_keys:
+        if owner_id in owners:
+            continue
+        if _is_phrase_eligible(candidate_key) and _phrase_contains(candidate_key, input_key):
+            owners.append(owner_id)
+        elif _is_phrase_eligible(input_key) and _phrase_contains(input_key, candidate_key):
+            owners.append(owner_id)
+    return owners
+
+
+def _track_input_key(target_role: str) -> str:
+    normalized = _normalize(target_role)
+    stripped = _LEVEL_WORD_RE.sub("", normalized)
+    stripped = re.sub(r"\s+", " ", stripped).strip()
+    return _normalize_key(stripped)
+
+
+def _track_alias_keys(
+    input_key: str, track_aliases: dict
+) -> tuple[list[str], list[tuple[str, str]]]:
+    """Return (tracks whose alias exactly equals input_key, all
+    (alias_key, track_id) pairs) for `track_aliases`."""
     candidate_keys: list[tuple[str, str]] = []
     exact_owners: list[str] = []
     for track_id, config in track_aliases.items():
@@ -205,15 +257,7 @@ def resolve_track(target_role: str, track_aliases: dict) -> str | None:
             if alias_key == input_key and track_id not in exact_owners:
                 exact_owners.append(track_id)
             candidate_keys.append((alias_key, track_id))
-
-    # Some real-world titles intentionally belong to more than one track.
-    # Never let YAML ordering silently choose one of those tracks.
-    if len(exact_owners) == 1:
-        return exact_owners[0]
-    if len(exact_owners) > 1:
-        return None
-
-    return _match_by_phrase(input_key, candidate_keys)
+    return exact_owners, candidate_keys
 
 
 def _default_taxonomy_path() -> Path:
@@ -263,6 +307,15 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--track-aliases", default=None, help="Path to track-aliases.yaml"
     )
 
+    cand_p = sub.add_parser(
+        "track-candidates",
+        help="List every track a free-text target role could mean (for ambiguous titles)",
+    )
+    cand_p.add_argument("target_role")
+    cand_p.add_argument(
+        "--track-aliases", default=None, help="Path to track-aliases.yaml"
+    )
+
     return parser
 
 
@@ -288,6 +341,12 @@ def main(argv=None) -> int:
             track_aliases_path = ns.track_aliases or _default_track_aliases_path()
             track_aliases = _load_yaml(track_aliases_path)
             result = resolve_track(ns.target_role, track_aliases)
+            print(json.dumps(result))
+            return 0
+        if ns.command == "track-candidates":
+            track_aliases_path = ns.track_aliases or _default_track_aliases_path()
+            track_aliases = _load_yaml(track_aliases_path)
+            result = track_candidates(ns.target_role, track_aliases)
             print(json.dumps(result))
             return 0
     except Exception as exc:  # noqa: BLE001
